@@ -1,1527 +1,631 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1
-function L0_1(A0_2)
-  local L1_2
-  L1_2 = A0_2 or nil
-  L1_2 = A0_2 and A0_2 > 0
-  return L1_2
+---------------------------------------------------------------------
+-- PROMPT SANDY ILLEGAL GARAGE — Server
+-- Stan propów w GlobalState:
+--   ilegal_carwash        = { [propName] = true/false }  (otwarty/zamknięty)
+--   ilegal_carwash_busy   = { [propName] = true/false }  (animacja w toku)
+--   ilegal_carwash_locks  = { [propName] = true/false }  (zamek rolety, tylko AutoOpen)
+-- Uprawnienia: ServerHasJobAccess (joby frameworka / ACE / wyłączone).
+---------------------------------------------------------------------
+
+-- Czy source eventu wygląda na prawdziwego gracza?
+-- Zwraca wartość "prawda/fałsz" w sensie Lua (dla nil zwraca nil).
+function validateSource(playerSource)
+    return playerSource and playerSource > 0
 end
-validateSource = L0_1
-function L0_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = type
-  L2_2 = A0_2
-  L1_2 = L1_2(L2_2)
-  L1_2 = "string" == L1_2 and "prompt_sandy_is_garage_rollup" == A0_2
-  return L1_2
+
+-- Tylko JEDEN prop jest traktowany jako roleta AutoOpen (po nazwie modelu)
+function isGarageRollup(propName)
+    return type(propName) == "string" and propName == "prompt_sandy_is_garage_rollup"
 end
-isGarageRollup = L0_1
-L0_1 = nil
-L1_1 = nil
-L2_1 = nil
-L3_1 = false
-function L4_1()
-  local L0_2, L1_2, L2_2
-  L0_2 = L0_1
-  if L0_2 then
-    L0_2 = L0_1
-    return L0_2
-  end
-  L0_2 = Config
-  L0_2 = L0_2.Permissions
-  if L0_2 then
-    L0_2 = Config
-    L0_2 = L0_2.Permissions
-    L0_2 = L0_2.framework
-    if L0_2 then
-      goto lbl_16
+
+-- ── Wykrywanie frameworka (cache) ───────────────────────────────────
+
+local detectedFramework = nil   -- 'qbox' | 'qbcore' | 'esx' | 'standalone'
+local QBCore = nil              -- obiekt core qb-core (jeśli dotyczy)
+local ESX = nil                 -- shared object ESX (jeśli dotyczy)
+local standaloneWarningShown = false
+
+local function getFramework()
+    if detectedFramework then
+        return detectedFramework
     end
-  end
-  L0_2 = "auto"
-  ::lbl_16::
-  if "auto" ~= L0_2 then
-    if "qb" == L0_2 then
-      L1_2 = "qbcore"
-      if L1_2 then
-        goto lbl_24
-      end
-    end
-    L1_2 = L0_2
-    ::lbl_24::
-    L0_1 = L1_2
-  else
-    L1_2 = GetResourceState
-    L2_2 = "qbx_core"
-    L1_2 = L1_2(L2_2)
-    if "started" == L1_2 then
-      L1_2 = "qbox"
-      L0_1 = L1_2
+
+    local framework = (Config.Permissions and Config.Permissions.framework) or "auto"
+
+    if framework ~= "auto" then
+        detectedFramework = (framework == "qb") and "qbcore" or framework
     else
-      L1_2 = GetResourceState
-      L2_2 = "qb-core"
-      L1_2 = L1_2(L2_2)
-      if "started" == L1_2 then
-        L1_2 = "qbcore"
-        L0_1 = L1_2
-      else
-        L1_2 = GetResourceState
-        L2_2 = "es_extended"
-        L1_2 = L1_2(L2_2)
-        if "started" == L1_2 then
-          L1_2 = "esx"
-          L0_1 = L1_2
+        if GetResourceState("qbx_core") == "started" then
+            detectedFramework = "qbox"
+        elseif GetResourceState("qb-core") == "started" then
+            detectedFramework = "qbcore"
+        elseif GetResourceState("es_extended") == "started" then
+            detectedFramework = "esx"
         else
-          L1_2 = "standalone"
-          return L1_2
+            -- UWAGA (jak w oryginale): 'standalone' NIE jest zapisywane
+            -- do cache — każde wywołanie wykrywa framework od nowa.
+            return "standalone"
         end
-      end
     end
-  end
-  L1_2 = L0_1
-  if "qbcore" == L1_2 then
-    L1_2 = exports
-    L1_2 = L1_2["qb-core"]
-    L2_2 = L1_2
-    L1_2 = L1_2.GetCoreObject
-    L1_2 = L1_2(L2_2)
-    L1_1 = L1_2
-  else
-    L1_2 = L0_1
-    if "esx" == L1_2 then
-      L1_2 = exports
-      L1_2 = L1_2.es_extended
-      L2_2 = L1_2
-      L1_2 = L1_2.getSharedObject
-      L1_2 = L1_2(L2_2)
-      L2_1 = L1_2
+
+    if detectedFramework == "qbcore" then
+        QBCore = exports["qb-core"]:GetCoreObject()
+    elseif detectedFramework == "esx" then
+        ESX = exports.es_extended:getSharedObject()
     end
-  end
-  L1_2 = L0_1
-  return L1_2
+
+    return detectedFramework
 end
-function L5_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2
-  L1_2 = L4_1
-  L1_2 = L1_2()
-  if "qbcore" == L1_2 then
-    L2_2 = L1_1
-    if L2_2 then
-      L2_2 = L1_1.Functions
-      L2_2 = L2_2.GetPlayer
-      L3_2 = A0_2
-      L2_2 = L2_2(L3_2)
-    end
-    if not L2_2 then
-      L3_2 = nil
-      return L3_2
-    end
-    L3_2 = L2_2.PlayerData
-    L3_2 = L3_2.job
-    L4_2 = L3_2 or L4_2
-    if L3_2 then
-      L4_2 = L3_2.name
-      if L4_2 then
-        L4_2 = L3_2.name
-        L5_2 = L4_2
-        L4_2 = L4_2.lower
-        L4_2 = L4_2(L5_2)
-      end
-    end
-    return L4_2
-  elseif "qbox" == L1_2 then
-    L2_2 = exports
-    L2_2 = L2_2.qbx_core
-    L3_2 = L2_2
-    L2_2 = L2_2.GetPlayer
-    L4_2 = A0_2
-    L2_2 = L2_2(L3_2, L4_2)
-    if not L2_2 then
-      L3_2 = nil
-      return L3_2
-    end
-    L3_2 = L2_2.PlayerData
-    L3_2 = L3_2.job
-    L4_2 = L3_2 or L4_2
-    if L3_2 then
-      L4_2 = L3_2.name
-      if L4_2 then
-        L4_2 = L3_2.name
-        L5_2 = L4_2
-        L4_2 = L4_2.lower
-        L4_2 = L4_2(L5_2)
-      end
-    end
-    return L4_2
-  elseif "esx" == L1_2 then
-    L2_2 = L2_1
-    if L2_2 then
-      L2_2 = L2_1.GetPlayerFromId
-      L3_2 = A0_2
-      L2_2 = L2_2(L3_2)
-    end
-    if not L2_2 then
-      L3_2 = nil
-      return L3_2
-    end
-    L3_2 = L2_2.job
-    if L3_2 then
-      L3_2 = L2_2.job
-      L3_2 = L3_2.name
-      if L3_2 then
-        L3_2 = L2_2.job
-        L3_2 = L3_2.name
-        L4_2 = L3_2
-        L3_2 = L3_2.lower
-        L3_2 = L3_2(L4_2)
-      end
-    end
-    return L3_2
-  elseif "standalone" == L1_2 then
-    L2_2 = nil
-    return L2_2
-  end
-  L2_2 = nil
-  return L2_2
-end
-function L6_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-  L2_2 = Config
-  L2_2 = L2_2.Permissions
-  if L2_2 then
-    L2_2 = Config
-    L2_2 = L2_2.Permissions
-    L2_2 = L2_2.enabled
-    if L2_2 then
-      goto lbl_12
-    end
-  end
-  L2_2 = true
-  do return L2_2 end
-  ::lbl_12::
-  L2_2 = nil
-  L3_2 = pairs
-  L4_2 = Config
-  L4_2 = L4_2.Props
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-    L9_2 = L8_2.name
-    if L9_2 == A1_2 then
-      L2_2 = L8_2
-      break
-    end
-  end
-  if not L2_2 then
-    L3_2 = true
-    return L3_2
-  end
-  L3_2 = Config
-  L3_2 = L3_2.Permissions
-  L3_2 = L3_2.useAce
-  if L3_2 then
-    L3_2 = L2_2.acePermission
-    if L3_2 then
-      L3_2 = IsPlayerAceAllowed
-      L4_2 = A0_2
-      L5_2 = L2_2.acePermission
-      return L3_2(L4_2, L5_2)
-    end
-  end
-  L3_2 = L2_2.allowedJobs
-  if L3_2 then
-    L3_2 = L2_2.allowedJobs
-    L3_2 = #L3_2
-    if 0 ~= L3_2 then
-      goto lbl_52
-    end
-  end
-  L3_2 = true
-  do return L3_2 end
-  ::lbl_52::
-  L3_2 = L4_1
-  L3_2 = L3_2()
-  if "standalone" == L3_2 then
-    L3_2 = L3_1
-    if not L3_2 then
-      L3_2 = true
-      L3_1 = L3_2
-      L3_2 = print
-      L4_2 = "^1[%s] Config.Permissions job restrictions are enabled but no framework (qbx_core/qb-core/es_extended) is running \226\128\148 denying restricted interactions. Use ACE permissions (Config.Permissions.useAce) on standalone servers.^0"
-      L5_2 = L4_2
-      L4_2 = L4_2.format
-      L6_2 = GetCurrentResourceName
-      L6_2, L7_2, L8_2, L9_2, L10_2, L11_2 = L6_2()
-      L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-      L3_2(L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-    end
-    L3_2 = false
-    return L3_2
-  end
-  L3_2 = L5_1
-  L4_2 = A0_2
-  L3_2 = L3_2(L4_2)
-  if not L3_2 then
-    L4_2 = false
-    return L4_2
-  end
-  L4_2 = ipairs
-  L5_2 = L2_2.allowedJobs
-  L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-  for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-    L10_2 = type
-    L11_2 = L9_2
-    L10_2 = L10_2(L11_2)
-    if "string" == L10_2 then
-      L11_2 = L9_2
-      L10_2 = L9_2.lower
-      L10_2 = L10_2(L11_2)
-      if L10_2 == L3_2 then
-        L10_2 = true
-        return L10_2
-      end
-    end
-  end
-  L4_2 = false
-  return L4_2
-end
-ServerHasJobAccess = L6_1
-L6_1 = CreateThread
-function L7_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L0_2 = GlobalState
-  L1_2 = {}
-  L0_2.ilegal_carwash = L1_2
-  L0_2 = GlobalState
-  L1_2 = {}
-  L0_2.ilegal_carwash_busy = L1_2
-  L0_2 = Config
-  L0_2 = L0_2.AutoOpen
-  if L0_2 then
-    L0_2 = {}
-    L1_2 = pairs
-    L2_2 = Config
-    L2_2 = L2_2.Props
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = isGarageRollup
-      L8_2 = L6_2.name
-      L7_2 = L7_2(L8_2)
-      if L7_2 then
-        L7_2 = L6_2.name
-        L8_2 = Config
-        L8_2 = L8_2.AutoOpenDefaultLocked
-        L8_2 = false ~= L8_2
-        L0_2[L7_2] = L8_2
-      end
-    end
-    L1_2 = GlobalState
-    L1_2.ilegal_carwash_locks = L0_2
-  end
-end
-L6_1(L7_1)
-function L6_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2
-  L2_2 = GlobalState
-  L2_2 = L2_2.ilegal_carwash
-  if not L2_2 then
-    L2_2 = {}
-  end
-  L2_2[A0_2] = A1_2
-  L3_2 = GlobalState
-  L3_2.ilegal_carwash = L2_2
-  L3_2 = TriggerEvent
-  L4_2 = "prompt_sandy_illegal_garage:liftStateChanged"
-  L5_2 = A0_2
-  L6_2 = A1_2
-  L3_2(L4_2, L5_2, L6_2)
-end
-updateGlobalPropState = L6_1
-L6_1 = exports
-L7_1 = "getLiftState"
-function L8_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = GlobalState
-  L1_2 = L1_2.ilegal_carwash
-  if not L1_2 then
-    L1_2 = {}
-  end
-  L2_2 = L1_2[A0_2]
-  return L2_2
-end
-L6_1(L7_1, L8_1)
-L6_1 = exports
-L7_1 = "isLiftBusy"
-function L8_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = GlobalState
-  L1_2 = L1_2.ilegal_carwash_busy
-  if not L1_2 then
-    L1_2 = {}
-  end
-  L2_2 = L1_2[A0_2]
-  if not L2_2 then
-    L2_2 = false
-  end
-  return L2_2
-end
-L6_1(L7_1, L8_1)
-L6_1 = {}
-function L7_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2
-  L1_2 = L6_1
-  L1_2 = L1_2[A0_2]
-  if not L1_2 then
-    L2_2 = 0
-    return L2_2
-  end
-  L2_2 = 0
-  L3_2 = pairs
-  L4_2 = L1_2
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2 in L3_2, L4_2, L5_2, L6_2 do
-    L2_2 = L2_2 + 1
-  end
-  return L2_2
-end
-function L8_1(A0_2, A1_2)
-  local L2_2, L3_2
-  L2_2 = GlobalState
-  L2_2 = L2_2.ilegal_carwash_busy
-  if not L2_2 then
-    L2_2 = {}
-  end
-  if A1_2 then
-    L3_2 = true
-    if L3_2 then
-      goto lbl_13
-    end
-  end
-  L3_2 = false
-  ::lbl_13::
-  L2_2[A0_2] = L3_2
-  L3_2 = GlobalState
-  L3_2.ilegal_carwash_busy = L2_2
-end
-L9_1 = exports
-L10_1 = "isDoorLocked"
-function L11_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = GlobalState
-  L1_2 = L1_2.ilegal_carwash_locks
-  if not L1_2 then
-    L1_2 = {}
-  end
-  L2_2 = L1_2[A0_2]
-  if not L2_2 then
-    L2_2 = false
-  end
-  return L2_2
-end
-L9_1(L10_1, L11_1)
-L9_1 = RegisterNetEvent
-L10_1 = "ilegal_anims:initializeState"
-function L11_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = validateSource
-  L2_2 = source
-  L1_2 = L1_2(L2_2)
-  if not L1_2 then
-    return
-  end
-  L1_2 = GlobalState
-  L1_2 = L1_2.ilegal_carwash
-  if not L1_2 then
-    L1_2 = GlobalState
-    L2_2 = A0_2 or L2_2
-    if not A0_2 then
-      L2_2 = {}
-    end
-    L1_2.ilegal_carwash = L2_2
-  end
-end
-L9_1(L10_1, L11_1)
-L9_1 = RegisterNetEvent
-L10_1 = "ilegal_anims:updatePropState"
-function L11_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2
-  L2_2 = validateSource
-  L3_2 = source
-  L2_2 = L2_2(L3_2)
-  if not L2_2 then
-    return
-  end
-  if A0_2 then
-    L2_2 = updateGlobalPropState
-    L3_2 = A0_2
-    L4_2 = A1_2
-    L2_2(L3_2, L4_2)
-  end
-end
-L9_1(L10_1, L11_1)
-L9_1 = RegisterNetEvent
-L10_1 = "ilegal_anims:syncAnimation"
-L9_1(L10_1)
-L9_1 = AddEventHandler
-L10_1 = "ilegal_anims:syncAnimation"
-function L11_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L3_2 = source
-  L4_2 = validateSource
-  L5_2 = L3_2
-  L4_2 = L4_2(L5_2)
-  if not L4_2 then
-    L4_2 = print
-    L5_2 = "Error: Fuente inv\195\161lida para la sincronizaci\195\179n de animaci\195\179n"
-    L4_2(L5_2)
-    return
-  end
-  if not A0_2 or not A1_2 then
-    L4_2 = print
-    L5_2 = "Error: Datos incompletos para la sincronizaci\195\179n de animaci\195\179n"
-    L4_2(L5_2)
-    return
-  end
-  L4_2 = TriggerClientEvent
-  L5_2 = "ilegal_anims:syncAnimation"
-  L6_2 = -1
-  L7_2 = L3_2
-  L8_2 = A0_2
-  L9_2 = A1_2
-  L10_2 = A2_2
-  L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2)
-end
-L9_1(L10_1, L11_1)
-L9_1 = RegisterNetEvent
-L10_1 = "ilegal_anims:requestPlayerAnimation"
-L9_1(L10_1)
-L9_1 = AddEventHandler
-L10_1 = "ilegal_anims:requestPlayerAnimation"
-function L11_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2
-  L1_2 = source
-  L2_2 = validateSource
-  L3_2 = L1_2
-  L2_2 = L2_2(L3_2)
-  if not L2_2 then
-    L2_2 = print
-    L3_2 = "Error: Fuente inv\195\161lida para la solicitud de animaci\195\179n"
-    L2_2(L3_2)
-    return
-  end
-  if A0_2 then
-    L2_2 = A0_2.dict
-    if L2_2 then
-      L2_2 = A0_2.anim
-      if L2_2 then
-        L2_2 = A0_2.propName
-        if L2_2 then
-          goto lbl_26
+
+-- Nazwa joba gracza małymi literami albo nil
+local function getPlayerJobName(playerSource)
+    local framework = getFramework()
+
+    if framework == "qbcore" then
+        local player = QBCore and QBCore.Functions.GetPlayer(playerSource)
+        if not player then return nil end
+
+        local job = player.PlayerData.job
+        -- Rekonstrukcja: zdekompilowany kod zwracał w tym miejscu
+        -- potencjalnie całą tabelę job zamiast nazwy/nil.
+        if job and job.name then
+            return job.name:lower()
         end
-      end
-    end
-  end
-  L2_2 = print
-  L3_2 = "Error: Datos incompletos para la solicitud de animaci\195\179n"
-  L2_2(L3_2)
-  do return end
-  ::lbl_26::
-  L2_2 = A0_2.position
-  if L2_2 then
-    L2_2 = A0_2.heading
-    if L2_2 then
-      goto lbl_36
-    end
-  end
-  L2_2 = print
-  L3_2 = "Error: Posici\195\179n o heading no proporcionados para la animaci\195\179n"
-  L2_2(L3_2)
-  do return end
-  ::lbl_36::
-  L2_2 = lib
-  L2_2 = L2_2.callback
-  L3_2 = "ilegal_anims:playPlayerAnimation"
-  L4_2 = L1_2
-  function L5_2(A0_3)
-    local L1_3, L2_3, L3_3, L4_3, L5_3
-    if A0_3 then
-      L1_3 = TriggerClientEvent
-      L2_3 = "ilegal_anims:animatePropAfterPlayerAnim"
-      L3_3 = L1_2
-      L4_3 = {}
-      L5_3 = A0_2.propName
-      L4_3.propName = L5_3
-      L5_3 = A0_2.state
-      L4_3.state = L5_3
-      L1_3(L2_3, L3_3, L4_3)
-    else
-      L1_3 = print
-      L2_3 = "Error: La animaci\195\179n del jugador fall\195\179"
-      L1_3(L2_3)
-    end
-  end
-  L6_2 = A0_2
-  L2_2(L3_2, L4_2, L5_2, L6_2)
-end
-L9_1(L10_1, L11_1)
-L9_1 = RegisterNetEvent
-L10_1 = "ilegal_anims:setPropBusy"
-function L11_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L2_2 = validateSource
-  L3_2 = source
-  L2_2 = L2_2(L3_2)
-  if not L2_2 then
-    return
-  end
-  if not A0_2 then
-    return
-  end
-  L2_2 = GlobalState
-  L2_2 = L2_2.ilegal_carwash_busy
-  if not L2_2 then
-    L2_2 = {}
-  end
-  if A1_2 then
-    L3_2 = true
-    if L3_2 then
-      goto lbl_22
-    end
-  end
-  L3_2 = false
-  ::lbl_22::
-  L2_2[A0_2] = L3_2
-  L3_2 = GlobalState
-  L3_2.ilegal_carwash_busy = L2_2
-  L3_2 = Config
-  L3_2 = L3_2.AutoOpen
-  if L3_2 and not A1_2 then
-    L3_2 = isGarageRollup
-    L4_2 = A0_2
-    L3_2 = L3_2(L4_2)
-    if L3_2 then
-      L3_2 = GlobalState
-      L3_2 = L3_2.ilegal_carwash_locks
-      if not L3_2 then
-        L3_2 = {}
-      end
-      L4_2 = GlobalState
-      L4_2 = L4_2.ilegal_carwash
-      if not L4_2 then
-        L4_2 = {}
-      end
-      L5_2 = L3_2[A0_2]
-      if not L5_2 then
-        L5_2 = L4_2[A0_2]
-        if not L5_2 then
-          L5_2 = L7_1
-          L6_2 = A0_2
-          L5_2 = L5_2(L6_2)
-          if L5_2 > 0 then
-            L5_2 = L8_1
-            L6_2 = A0_2
-            L7_2 = true
-            L5_2(L6_2, L7_2)
-            L5_2 = updateGlobalPropState
-            L6_2 = A0_2
-            L7_2 = true
-            L5_2(L6_2, L7_2)
-          end
+        return nil
+    elseif framework == "qbox" then
+        local player = exports.qbx_core:GetPlayer(playerSource)
+        if not player then return nil end
+
+        local job = player.PlayerData.job
+        if job and job.name then
+            return job.name:lower()
         end
-      end
-    end
-  end
-end
-L9_1(L10_1, L11_1)
-L9_1 = Config
-L9_1 = L9_1.AutoOpen
-if L9_1 then
-  L9_1 = RegisterNetEvent
-  L10_1 = "ilegal_anims:zoneEnter"
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2
-    L1_2 = source
-    L2_2 = validateSource
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = isGarageRollup
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = L6_1
-    L2_2 = L2_2[A0_2]
-    if not L2_2 then
-      L2_2 = L6_1
-      L3_2 = {}
-      L2_2[A0_2] = L3_2
-    end
-    L2_2 = L6_1
-    L2_2 = L2_2[A0_2]
-    L2_2[L1_2] = true
-  end
-  L9_1(L10_1, L11_1)
-  L9_1 = RegisterNetEvent
-  L10_1 = "ilegal_anims:zoneExit"
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2
-    L1_2 = source
-    L2_2 = validateSource
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = isGarageRollup
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = L6_1
-    L2_2 = L2_2[A0_2]
-    if L2_2 then
-      L2_2 = L6_1
-      L2_2 = L2_2[A0_2]
-      L2_2[L1_2] = nil
-    end
-  end
-  L9_1(L10_1, L11_1)
-  L9_1 = RegisterNetEvent
-  L10_1 = "ilegal_anims:requestAutoOpen"
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-    L1_2 = source
-    L2_2 = validateSource
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = isGarageRollup
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = ServerHasJobAccess
-    L3_2 = L1_2
-    L4_2 = A0_2
-    L2_2 = L2_2(L3_2, L4_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = GlobalState
-    L2_2 = L2_2.ilegal_carwash_locks
-    if not L2_2 then
-      L2_2 = {}
-    end
-    L3_2 = L2_2[A0_2]
-    if L3_2 then
-      return
-    end
-    L3_2 = GlobalState
-    L3_2 = L3_2.ilegal_carwash_busy
-    if not L3_2 then
-      L3_2 = {}
-    end
-    L4_2 = L3_2[A0_2]
-    if L4_2 then
-      return
-    end
-    L4_2 = GlobalState
-    L4_2 = L4_2.ilegal_carwash
-    if not L4_2 then
-      L4_2 = {}
-    end
-    L5_2 = L4_2[A0_2]
-    if L5_2 then
-      return
-    end
-    L5_2 = L8_1
-    L6_2 = A0_2
-    L7_2 = true
-    L5_2(L6_2, L7_2)
-    L5_2 = updateGlobalPropState
-    L6_2 = A0_2
-    L7_2 = true
-    L5_2(L6_2, L7_2)
-  end
-  L9_1(L10_1, L11_1)
-  L9_1 = RegisterNetEvent
-  L10_1 = "ilegal_anims:requestAutoClose"
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2
-    L1_2 = source
-    L2_2 = validateSource
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = isGarageRollup
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = L7_1
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if L2_2 > 0 then
-      return
-    end
-    L2_2 = GlobalState
-    L2_2 = L2_2.ilegal_carwash_busy
-    if not L2_2 then
-      L2_2 = {}
-    end
-    L3_2 = L2_2[A0_2]
-    if L3_2 then
-      return
-    end
-    L3_2 = GlobalState
-    L3_2 = L3_2.ilegal_carwash
-    if not L3_2 then
-      L3_2 = {}
-    end
-    L4_2 = L3_2[A0_2]
-    if not L4_2 then
-      return
-    end
-    L4_2 = L8_1
-    L5_2 = A0_2
-    L6_2 = true
-    L4_2(L5_2, L6_2)
-    L4_2 = updateGlobalPropState
-    L5_2 = A0_2
-    L6_2 = false
-    L4_2(L5_2, L6_2)
-  end
-  L9_1(L10_1, L11_1)
-  L9_1 = RegisterNetEvent
-  L10_1 = "ilegal_anims:toggleLock"
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-    L1_2 = source
-    L2_2 = validateSource
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = isGarageRollup
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if not L2_2 then
-      return
-    end
-    L2_2 = ServerHasJobAccess
-    L3_2 = L1_2
-    L4_2 = A0_2
-    L2_2 = L2_2(L3_2, L4_2)
-    if not L2_2 then
-      L2_2 = TriggerClientEvent
-      L3_2 = "ox_lib:notify"
-      L4_2 = L1_2
-      L5_2 = {}
-      L6_2 = Config
-      L6_2 = L6_2.Permissions
-      L6_2 = L6_2.noAccessMessage
-      if not L6_2 then
-        L6_2 = "You don't have access to this"
-      end
-      L5_2.description = L6_2
-      L5_2.type = "error"
-      L5_2.duration = 3000
-      L2_2(L3_2, L4_2, L5_2)
-      return
-    end
-    L2_2 = GlobalState
-    L2_2 = L2_2.ilegal_carwash_locks
-    if not L2_2 then
-      L2_2 = {}
-    end
-    L3_2 = L2_2[A0_2]
-    L3_2 = not L3_2 and L3_2
-    L2_2[A0_2] = L3_2
-    L4_2 = GlobalState
-    L4_2.ilegal_carwash_locks = L2_2
-    L4_2 = TriggerClientEvent
-    L5_2 = "ox_lib:notify"
-    L6_2 = L1_2
-    L7_2 = {}
-    if L3_2 then
-      L8_2 = Config
-      L8_2 = L8_2.Messages
-      L8_2 = L8_2.locked
-      if L8_2 then
-        goto lbl_67
-      end
-    end
-    L8_2 = Config
-    L8_2 = L8_2.Messages
-    L8_2 = L8_2.unlocked
-    ::lbl_67::
-    L7_2.description = L8_2
-    if L3_2 then
-      L8_2 = "error"
-      if L8_2 then
-        goto lbl_74
-      end
-    end
-    L8_2 = "success"
-    ::lbl_74::
-    L7_2.type = L8_2
-    L7_2.duration = 3000
-    L4_2(L5_2, L6_2, L7_2)
-    if not L3_2 then
-      L4_2 = GlobalState
-      L4_2 = L4_2.ilegal_carwash
-      if not L4_2 then
-        L4_2 = {}
-      end
-      L5_2 = GlobalState
-      L5_2 = L5_2.ilegal_carwash_busy
-      if not L5_2 then
-        L5_2 = {}
-      end
-      L6_2 = L4_2[A0_2]
-      if not L6_2 then
-        L6_2 = L5_2[A0_2]
-        if not L6_2 then
-          L6_2 = L7_1
-          L7_2 = A0_2
-          L6_2 = L6_2(L7_2)
-          if L6_2 > 0 then
-            L6_2 = L8_1
-            L7_2 = A0_2
-            L8_2 = true
-            L6_2(L7_2, L8_2)
-            L6_2 = updateGlobalPropState
-            L7_2 = A0_2
-            L8_2 = true
-            L6_2(L7_2, L8_2)
-          end
+        return nil
+    elseif framework == "esx" then
+        local player = ESX and ESX.GetPlayerFromId(playerSource)
+        if not player then return nil end
+
+        if player.job and player.job.name then
+            return player.job.name:lower()
         end
-      end
+        return nil
     end
-    if L3_2 then
-      L4_2 = GlobalState
-      L4_2 = L4_2.ilegal_carwash
-      if not L4_2 then
-        L4_2 = {}
-      end
-      L5_2 = L4_2[A0_2]
-      if L5_2 then
-        L5_2 = L8_1
-        L6_2 = A0_2
-        L7_2 = true
-        L5_2(L6_2, L7_2)
-        L5_2 = updateGlobalPropState
-        L6_2 = A0_2
-        L7_2 = false
-        L5_2(L6_2, L7_2)
-      end
+
+    -- 'standalone' oraz nieznane wartości framework
+    return nil
+end
+
+-- ── Uprawnienia (serwer) ────────────────────────────────────────────
+
+function ServerHasJobAccess(playerSource, propName)
+    -- System uprawnień wyłączony -> każdy ma dostęp
+    if not (Config.Permissions and Config.Permissions.enabled) then
+        return true
     end
-  end
-  L9_1(L10_1, L11_1)
-  L9_1 = AddEventHandler
-  L10_1 = "playerDropped"
-  function L11_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-    L0_2 = source
-    L1_2 = pairs
-    L2_2 = L6_1
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = L6_2[L0_2]
-      if L7_2 then
-        L6_2[L0_2] = nil
-        L7_2 = L7_1
-        L8_2 = L5_2
-        L7_2 = L7_2(L8_2)
-        if 0 == L7_2 then
-          L7_2 = GlobalState
-          L7_2 = L7_2.ilegal_carwash
-          if not L7_2 then
-            L7_2 = {}
-          end
-          L8_2 = GlobalState
-          L8_2 = L8_2.ilegal_carwash_busy
-          if not L8_2 then
-            L8_2 = {}
-          end
-          L9_2 = L7_2[L5_2]
-          if L9_2 then
-            L9_2 = L8_2[L5_2]
-            if not L9_2 then
-              L9_2 = SetTimeout
-              L10_2 = Config
-              L10_2 = L10_2.AutoOpenCloseDelay
-              function L11_2()
-                local L0_3, L1_3, L2_3, L3_3, L4_3
-                L0_3 = L7_1
-                L1_3 = L5_2
-                L0_3 = L0_3(L1_3)
-                if 0 == L0_3 then
-                  L0_3 = GlobalState
-                  L0_3 = L0_3.ilegal_carwash
-                  if not L0_3 then
-                    L0_3 = {}
-                  end
-                  L1_3 = GlobalState
-                  L1_3 = L1_3.ilegal_carwash_busy
-                  if not L1_3 then
-                    L1_3 = {}
-                  end
-                  L2_3 = L5_2
-                  L2_3 = L0_3[L2_3]
-                  if L2_3 then
-                    L2_3 = L5_2
-                    L2_3 = L1_3[L2_3]
-                    if not L2_3 then
-                      L2_3 = L8_1
-                      L3_3 = L5_2
-                      L4_3 = true
-                      L2_3(L3_3, L4_3)
-                      L2_3 = updateGlobalPropState
-                      L3_3 = L5_2
-                      L4_3 = false
-                      L2_3(L3_3, L4_3)
-                    end
-                  end
-                end
-              end
-              L9_2(L10_2, L11_2)
+
+    -- Szukaj propa po nazwie
+    local propConfig = nil
+    for _, prop in pairs(Config.Props) do
+        if prop.name == propName then
+            propConfig = prop
+            break
+        end
+    end
+    if not propConfig then
+        return true
+    end
+
+    -- ACE: jeśli włączone, a prop MA ustawione acePermission, decyduje ACE.
+    -- Jeśli prop NIE ma acePermission, kod spada dalej do sprawdzenia joba.
+    if Config.Permissions.useAce and propConfig.acePermission then
+        return IsPlayerAceAllowed(playerSource, propConfig.acePermission)
+    end
+
+    -- Brak restrykcji joba na tym propie -> dostęp
+    if not propConfig.allowedJobs or #propConfig.allowedJobs == 0 then
+        return true
+    end
+
+    -- Są restrykcje, ale nie ma frameworka, który mógłby dać joba:
+    -- fail-closed (odmowa) + jednorazowe ostrzeżenie w konsoli.
+    if getFramework() == "standalone" then
+        if not standaloneWarningShown then
+            standaloneWarningShown = true
+            print(("^1[%s] Config.Permissions job restrictions are enabled but no framework (qbx_core/qb-core/es_extended) is running — denying restricted interactions. Use ACE permissions (Config.Permissions.useAce) on standalone servers.^0"):format(GetCurrentResourceName()))
+        end
+        return false
+    end
+
+    local jobName = getPlayerJobName(playerSource)
+    if not jobName then
+        return false
+    end
+
+    for _, allowedJob in ipairs(propConfig.allowedJobs) do
+        if type(allowedJob) == "string" and allowedJob:lower() == jobName then
+            return true
+        end
+    end
+
+    return false
+end
+
+-- ── Inicjalizacja stanu ─────────────────────────────────────────────
+
+CreateThread(function()
+    GlobalState.ilegal_carwash = {}
+    GlobalState.ilegal_carwash_busy = {}
+
+    if Config.AutoOpen then
+        local locks = {}
+        for _, prop in pairs(Config.Props) do
+            if isGarageRollup(prop.name) then
+                locks[prop.name] = (Config.AutoOpenDefaultLocked ~= false)
             end
-          end
         end
-      end
+        GlobalState.ilegal_carwash_locks = locks
     end
-  end
-  L9_1(L10_1, L11_1)
+end)
+
+-- Ustawia stan propa i emituje lokalny event serwerowy (do debug/API)
+function updateGlobalPropState(propName, state)
+    local states = GlobalState.ilegal_carwash or {}
+    states[propName] = state
+    GlobalState.ilegal_carwash = states
+
+    TriggerEvent("prompt_sandy_illegal_garage:liftStateChanged", propName, state)
 end
-L9_1 = RegisterCommand
-L10_1 = "testautodoors_ig"
-function L11_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2, L23_2
-  L2_2 = A0_2
-  L3_2 = 0
-  L4_2 = 0
-  L5_2 = {}
-  function L6_2(A0_3, A1_3)
-    local L2_3, L3_3, L4_3, L5_3
-    if A1_3 then
-      L2_3 = L3_2
-      L2_3 = L2_3 + 1
-      L3_2 = L2_3
-      L2_3 = L5_2
-      L2_3 = #L2_3
-      L3_3 = L2_3 + 1
-      L2_3 = L5_2
-      L4_3 = "^2  PASS^0: "
-      L5_3 = A0_3
-      L4_3 = L4_3 .. L5_3
-      L2_3[L3_3] = L4_3
+
+exports("getLiftState", function(propName)
+    local states = GlobalState.ilegal_carwash or {}
+    return states[propName]
+end)
+
+exports("isLiftBusy", function(propName)
+    local busyStates = GlobalState.ilegal_carwash_busy or {}
+    return busyStates[propName] or false
+end)
+
+-- ── Zajętość strefy rolety (którzy gracze są w środku) ─────────────
+-- doorOccupants[propName] = { [serverId] = true, ... }
+
+local doorOccupants = {}
+
+local function getOccupantCount(propName)
+    local occupants = doorOccupants[propName]
+    if not occupants then
+        return 0
+    end
+
+    local count = 0
+    for _ in pairs(occupants) do
+        count = count + 1
+    end
+    return count
+end
+
+local function setBusy(propName, busy)
+    local busyStates = GlobalState.ilegal_carwash_busy or {}
+    busyStates[propName] = busy and true or false
+    GlobalState.ilegal_carwash_busy = busyStates
+end
+
+exports("isDoorLocked", function(propName)
+    local locks = GlobalState.ilegal_carwash_locks or {}
+    return locks[propName] or false
+end)
+
+-- ── Eventy od klienta: stan / synchronizacja ────────────────────────
+
+RegisterNetEvent("ilegal_anims:initializeState", function(initialState)
+    if not validateSource(source) then return end
+
+    -- Przyjmuje stan startowy tylko, jeśli jeszcze żaden nie istnieje.
+    -- (W praktyce wątek init powyżej zawsze tworzy {} na starcie serwera.)
+    if not GlobalState.ilegal_carwash then
+        GlobalState.ilegal_carwash = initialState or {}
+    end
+end)
+
+RegisterNetEvent("ilegal_anims:updatePropState", function(propName, state)
+    if not validateSource(source) then return end
+
+    if propName then
+        updateGlobalPropState(propName, state)
+    end
+end)
+
+-- Rozgłasza animację gracza (widoczną dla innych) do wszystkich klientów
+RegisterNetEvent("ilegal_anims:syncAnimation", function(animDict, animName, duration)
+    local playerSource = source
+
+    if not validateSource(playerSource) then
+        print("Error: Fuente inválida para la sincronización de animación")
+        return
+    end
+
+    if not animDict or not animName then
+        print("Error: Datos incompletos para la sincronización de animación")
+        return
+    end
+
+    TriggerClientEvent("ilegal_anims:syncAnimation", -1, playerSource, animDict, animName, duration)
+end)
+
+-- Klient prosi o odegranie animacji gracza przed animacją propa.
+-- Serwer woła callback ox_lib na tym kliencie i dopiero po sukcesie
+-- każe mu animować propa (ilegal_anims:animatePropAfterPlayerAnim).
+RegisterNetEvent("ilegal_anims:requestPlayerAnimation", function(animData)
+    local playerSource = source
+
+    if not validateSource(playerSource) then
+        print("Error: Fuente inválida para la solicitud de animación")
+        return
+    end
+
+    if not (animData and animData.dict and animData.anim and animData.propName) then
+        print("Error: Datos incompletos para la solicitud de animación")
+        return
+    end
+
+    if not (animData.position and animData.heading) then
+        print("Error: Posición o heading no proporcionados para la animación")
+        return
+    end
+
+    lib.callback("ilegal_anims:playPlayerAnimation", playerSource, function(success)
+        if success then
+            TriggerClientEvent("ilegal_anims:animatePropAfterPlayerAnim", playerSource, {
+                propName = animData.propName,
+                state = animData.state
+            })
+        else
+            print("Error: La animación del jugador falló")
+        end
+    end, animData)
+end)
+
+-- Klient ustawia "busy" (zwykle: true przed animacją, false po niej).
+-- Po wyczyszczeniu busy dla rolety AutoOpen serwer ponawia próbę
+-- auto-otwarcia, jeśli ktoś nadal stoi w strefie.
+RegisterNetEvent("ilegal_anims:setPropBusy", function(propName, busy)
+    if not validateSource(source) then return end
+    if not propName then return end
+
+    -- W oryginale zapis busy był tu zduplikowany zamiast wywołania
+    -- lokalnego helpera — efekt identyczny, więc używamy setBusy().
+    setBusy(propName, busy)
+
+    if Config.AutoOpen and not busy and isGarageRollup(propName) then
+        local locks = GlobalState.ilegal_carwash_locks or {}
+        local states = GlobalState.ilegal_carwash or {}
+
+        if not locks[propName] and not states[propName] and getOccupantCount(propName) > 0 then
+            setBusy(propName, true)
+            updateGlobalPropState(propName, true)
+        end
+    end
+end)
+
+-- ── AutoOpen: strefy, automatyczne otwieranie/zamykanie, zamki ─────
+
+if Config.AutoOpen then
+    RegisterNetEvent("ilegal_anims:zoneEnter", function(propName)
+        local playerSource = source
+        if not validateSource(playerSource) then return end
+        if not isGarageRollup(propName) then return end
+
+        if not doorOccupants[propName] then
+            doorOccupants[propName] = {}
+        end
+        doorOccupants[propName][playerSource] = true
+    end)
+
+    RegisterNetEvent("ilegal_anims:zoneExit", function(propName)
+        local playerSource = source
+        if not validateSource(playerSource) then return end
+        if not isGarageRollup(propName) then return end
+
+        if doorOccupants[propName] then
+            doorOccupants[propName][playerSource] = nil
+        end
+    end)
+
+    RegisterNetEvent("ilegal_anims:requestAutoOpen", function(propName)
+        local playerSource = source
+        if not validateSource(playerSource) then return end
+        if not isGarageRollup(propName) then return end
+        if not ServerHasJobAccess(playerSource, propName) then return end
+
+        local locks = GlobalState.ilegal_carwash_locks or {}
+        if locks[propName] then return end
+
+        local busyStates = GlobalState.ilegal_carwash_busy or {}
+        if busyStates[propName] then return end
+
+        local states = GlobalState.ilegal_carwash or {}
+        if states[propName] then return end
+
+        setBusy(propName, true)
+        updateGlobalPropState(propName, true)
+    end)
+
+    RegisterNetEvent("ilegal_anims:requestAutoClose", function(propName)
+        if not validateSource(source) then return end
+        if not isGarageRollup(propName) then return end
+        if getOccupantCount(propName) > 0 then return end
+
+        local busyStates = GlobalState.ilegal_carwash_busy or {}
+        if busyStates[propName] then return end
+
+        local states = GlobalState.ilegal_carwash or {}
+        if not states[propName] then return end
+
+        setBusy(propName, true)
+        updateGlobalPropState(propName, false)
+    end)
+
+    RegisterNetEvent("ilegal_anims:toggleLock", function(propName)
+        local playerSource = source
+        if not validateSource(playerSource) then return end
+        if not isGarageRollup(propName) then return end
+
+        if not ServerHasJobAccess(playerSource, propName) then
+            TriggerClientEvent("ox_lib:notify", playerSource, {
+                description = Config.Permissions.noAccessMessage or "You don't have access to this",
+                type = "error",
+                duration = 3000
+            })
+            return
+        end
+
+        local locks = GlobalState.ilegal_carwash_locks or {}
+
+        -- REKONSTRUKCJA po uszkodzonej dekompilacji: w zdekompilowanym
+        -- kodzie było tu dosłownie `newLocked = not old and old`
+        -- (w Lua zawsze false/nil), przez co zamka nie dało się nigdy
+        -- zamknąć. Z kontekstu (notify locked/unlocked, gałęzie poniżej)
+        -- jednoznacznie chodzi o zwykłe przełączenie stanu:
+        local newLocked = not locks[propName]
+
+        locks[propName] = newLocked
+        GlobalState.ilegal_carwash_locks = locks
+
+        TriggerClientEvent("ox_lib:notify", playerSource, {
+            description = newLocked and Config.Messages.locked or Config.Messages.unlocked,
+            type = newLocked and "error" or "success",
+            duration = 3000
+        })
+
+        -- Odblokowanie: otwórz od razu, jeśli ktoś stoi w strefie
+        if not newLocked then
+            local states = GlobalState.ilegal_carwash or {}
+            local busyStates = GlobalState.ilegal_carwash_busy or {}
+
+            if not states[propName] and not busyStates[propName] and getOccupantCount(propName) > 0 then
+                setBusy(propName, true)
+                updateGlobalPropState(propName, true)
+            end
+        end
+
+        -- Zablokowanie: zamknij otwartą roletę
+        -- (uwaga: ta gałąź, w przeciwieństwie do odblokowania,
+        --  nie sprawdza busy przed nadpisaniem stanu)
+        if newLocked then
+            local states = GlobalState.ilegal_carwash or {}
+
+            if states[propName] then
+                setBusy(propName, true)
+                updateGlobalPropState(propName, false)
+            end
+        end
+    end)
+
+    -- Gracz wyszedł z serwera: usuń go ze stref i ewentualnie
+    -- zaplanuj autozamknięcie pustej rolety po AutoOpenCloseDelay.
+    AddEventHandler("playerDropped", function()
+        local playerSource = source
+
+        for propName, occupants in pairs(doorOccupants) do
+            if occupants[playerSource] then
+                occupants[playerSource] = nil
+
+                if getOccupantCount(propName) == 0 then
+                    local states = GlobalState.ilegal_carwash or {}
+                    local busyStates = GlobalState.ilegal_carwash_busy or {}
+
+                    if states[propName] and not busyStates[propName] then
+                        SetTimeout(Config.AutoOpenCloseDelay, function()
+                            if getOccupantCount(propName) == 0 then
+                                local currentStates = GlobalState.ilegal_carwash or {}
+                                local currentBusy = GlobalState.ilegal_carwash_busy or {}
+
+                                if currentStates[propName] and not currentBusy[propName] then
+                                    setBusy(propName, true)
+                                    updateGlobalPropState(propName, false)
+                                end
+                            end
+                        end)
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- ── Komenda testowa: /testautodoors_ig (ACE: command.testautodoors_ig) ──
+-- UWAGA: testy MUTUJĄ żywy stan (GlobalState, occupants, dozwolone joby)
+-- i na końcu na sztywno zostawiają roletę ZAMKNIĘTĄ, not busy, ZABLOKOWANĄ.
+
+RegisterCommand("testautodoors_ig", function(playerSource, args)
+    local passed = 0
+    local failed = 0
+    local results = {}
+
+    local function check(testName, condition)
+        if condition then
+            passed = passed + 1
+            results[#results + 1] = "^2  PASS^0: " .. testName
+        else
+            failed = failed + 1
+            results[#results + 1] = "^1  FAIL^0: " .. testName
+        end
+    end
+
+    print("^3[TEST] ========== Auto-Door Test Suite (Illegal Garage) ==========^0")
+
+    check('isGarageRollup("prompt_sandy_is_garage_rollup") == true', isGarageRollup("prompt_sandy_is_garage_rollup") == true)
+    check('isGarageRollup("prompt_sandy_is_lift") == false', isGarageRollup("prompt_sandy_is_lift") == false)
+    check("isGarageRollup(nil) == false", isGarageRollup(nil) == false)
+    check("isGarageRollup(123) == false", isGarageRollup(123) == false)
+    check("Config.AutoOpen exists", Config.AutoOpen ~= nil)
+    check("Config.AutoOpenCloseDelay is number", type(Config.AutoOpenCloseDelay) == "number")
+    check("Config.Messages.lock exists", Config.Messages.lock ~= nil)
+    check("Config.Messages.unlock exists", Config.Messages.unlock ~= nil)
+    check("Config.Messages.locked exists", Config.Messages.locked ~= nil)
+    check("Config.Messages.unlocked exists", Config.Messages.unlocked ~= nil)
+
+    if Config.Permissions then
+        local rollupProp = Config.Props.garage_rollup
+        local originalEnabled = Config.Permissions.enabled
+        local originalAllowedJobs = rollupProp and rollupProp.allowedJobs
+
+        Config.Permissions.enabled = false
+        check("Permissions disabled: ServerHasJobAccess allows", ServerHasJobAccess(0, "prompt_sandy_is_garage_rollup") == true)
+
+        if rollupProp then
+            Config.Permissions.enabled = true
+            rollupProp.allowedJobs = { "mechanic" }
+
+            local hasQbox = GetResourceState("qbx_core") == "started"
+            local framework = Config.Permissions.framework or "auto"
+            if framework == "auto" and not hasQbox then
+                check("No framework: restricted prop denies (fail closed)", ServerHasJobAccess(0, "prompt_sandy_is_garage_rollup") == false)
+            end
+
+            rollupProp.allowedJobs = originalAllowedJobs
+        end
+
+        Config.Permissions.enabled = originalEnabled
+    end
+
+    check("GlobalState.ilegal_carwash exists", GlobalState.ilegal_carwash ~= nil)
+    check("GlobalState.ilegal_carwash_busy exists", GlobalState.ilegal_carwash_busy ~= nil)
+
+    if Config.AutoOpen then
+        local ROLLUP = "prompt_sandy_is_garage_rollup"
+
+        local locks = GlobalState.ilegal_carwash_locks
+        check("GlobalState.ilegal_carwash_locks exists", locks ~= nil)
+
+        if locks then
+            local doorCount = 0
+            local allLocked = true
+            for lockName, isLocked in pairs(locks) do
+                doorCount = doorCount + 1
+                if not isLocked then
+                    allLocked = false
+                end
+                check("Lock entry is garage_rollup: " .. lockName, isGarageRollup(lockName))
+            end
+            check("1 garage door in lock state (got " .. doorCount .. ")", doorCount == 1)
+            check("All doors default to locked", allLocked)
+        end
+
+        check("getOccupantCount for unknown door == 0", getOccupantCount(ROLLUP) == 0)
+
+        -- setBusy (oryginał czytał tu jeszcze poprzednią wartość busy,
+        -- ale nigdy jej nie przywracał — martwy odczyt, pominięty)
+        setBusy(ROLLUP, true)
+        check("setBusy(rollup, true) sets busy", (GlobalState.ilegal_carwash_busy or {})[ROLLUP] == true)
+
+        setBusy(ROLLUP, false)
+        check("setBusy(rollup, false) clears busy", (GlobalState.ilegal_carwash_busy or {})[ROLLUP] == false)
+
+        -- Przełączenie zamka tam i z powrotem
+        local toggleLocks = GlobalState.ilegal_carwash_locks or {}
+        local originalLocked = toggleLocks[ROLLUP]
+        toggleLocks[ROLLUP] = not originalLocked
+        GlobalState.ilegal_carwash_locks = toggleLocks
+        check("Lock toggle changes state", (GlobalState.ilegal_carwash_locks or {})[ROLLUP] == (not originalLocked))
+        toggleLocks[ROLLUP] = originalLocked
+        GlobalState.ilegal_carwash_locks = toggleLocks
+
+        -- Przygotuj stan: odblokowana, not busy, zamknięta
+        local testLocks = GlobalState.ilegal_carwash_locks or {}
+        testLocks[ROLLUP] = false
+        GlobalState.ilegal_carwash_locks = testLocks
+
+        setBusy(ROLLUP, false)
+
+        local testStates = GlobalState.ilegal_carwash or {}
+        testStates[ROLLUP] = nil
+        GlobalState.ilegal_carwash = testStates
+
+        -- REKONSTRUKCJA: zdekompilowany warunek był uszkodzony
+        -- (kolejne odczyty nadpisywały tę samą zmienną, a na końcu
+        --  stało `not x and x`). Z opisu testu chodzi o koniunkcję:
+        local canAutoOpen = not (GlobalState.ilegal_carwash_locks or {})[ROLLUP]
+            and not (GlobalState.ilegal_carwash_busy or {})[ROLLUP]
+            and not (GlobalState.ilegal_carwash or {})[ROLLUP]
+        check("Unlocked + not busy + not open = can auto-open", canAutoOpen == true)
+
+        -- Symuluj auto-otwarcie
+        setBusy(ROLLUP, true)
+        updateGlobalPropState(ROLLUP, true)
+        check("After auto-open: door state is true", (GlobalState.ilegal_carwash or {})[ROLLUP] == true)
+        check("After auto-open: busy is true", (GlobalState.ilegal_carwash_busy or {})[ROLLUP] == true)
+
+        doorOccupants[ROLLUP] = { [999] = true }
+        check("With occupant: getOccupantCount == 1", getOccupantCount(ROLLUP) == 1)
+
+        local noOccupants = (getOccupantCount(ROLLUP) == 0)
+        check("With occupant: close is rejected", noOccupants == false)
+
+        doorOccupants[ROLLUP] = {}
+        setBusy(ROLLUP, false)
+
+        -- REKONSTRUKCJA jak wyżej (uszkodzona koniunkcja w dekompilacji)
+        local canAutoClose = getOccupantCount(ROLLUP) == 0
+            and not (GlobalState.ilegal_carwash_busy or {})[ROLLUP]
+            and (GlobalState.ilegal_carwash or {})[ROLLUP]
+        check("No occupants + not busy + open = can auto-close", canAutoClose == true)
+
+        -- Sprzątanie po teście: zamknięta, not busy, zablokowana, brak occupants
+        setBusy(ROLLUP, false)
+        updateGlobalPropState(ROLLUP, false)
+
+        local cleanupLocks = GlobalState.ilegal_carwash_locks or {}
+        cleanupLocks[ROLLUP] = true
+        GlobalState.ilegal_carwash_locks = cleanupLocks
+
+        doorOccupants[ROLLUP] = nil
+
+        check("Locked door blocks auto-open check", (GlobalState.ilegal_carwash_locks or {})[ROLLUP] == true)
     else
-      L2_3 = L4_2
-      L2_3 = L2_3 + 1
-      L4_2 = L2_3
-      L2_3 = L5_2
-      L2_3 = #L2_3
-      L3_3 = L2_3 + 1
-      L2_3 = L5_2
-      L4_3 = "^1  FAIL^0: "
-      L5_3 = A0_3
-      L4_3 = L4_3 .. L5_3
-      L2_3[L3_3] = L4_3
+        print("^3[TEST] Config.AutoOpen is false — skipping auto-open tests^0")
     end
-  end
-  L7_2 = print
-  L8_2 = "^3[TEST] ========== Auto-Door Test Suite (Illegal Garage) ==========^0"
-  L7_2(L8_2)
-  L7_2 = L6_2
-  L8_2 = "isGarageRollup(\"prompt_sandy_is_garage_rollup\") == true"
-  L9_2 = isGarageRollup
-  L10_2 = "prompt_sandy_is_garage_rollup"
-  L9_2 = L9_2(L10_2)
-  L9_2 = true == L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "isGarageRollup(\"prompt_sandy_is_lift\") == false"
-  L9_2 = isGarageRollup
-  L10_2 = "prompt_sandy_is_lift"
-  L9_2 = L9_2(L10_2)
-  L9_2 = false == L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "isGarageRollup(nil) == false"
-  L9_2 = isGarageRollup
-  L10_2 = nil
-  L9_2 = L9_2(L10_2)
-  L9_2 = false == L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "isGarageRollup(123) == false"
-  L9_2 = isGarageRollup
-  L10_2 = 123
-  L9_2 = L9_2(L10_2)
-  L9_2 = false == L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.AutoOpen exists"
-  L9_2 = Config
-  L9_2 = L9_2.AutoOpen
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.AutoOpenCloseDelay is number"
-  L9_2 = type
-  L10_2 = Config
-  L10_2 = L10_2.AutoOpenCloseDelay
-  L9_2 = L9_2(L10_2)
-  L9_2 = "number" == L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.Messages.lock exists"
-  L9_2 = Config
-  L9_2 = L9_2.Messages
-  L9_2 = L9_2.lock
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.Messages.unlock exists"
-  L9_2 = Config
-  L9_2 = L9_2.Messages
-  L9_2 = L9_2.unlock
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.Messages.locked exists"
-  L9_2 = Config
-  L9_2 = L9_2.Messages
-  L9_2 = L9_2.locked
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "Config.Messages.unlocked exists"
-  L9_2 = Config
-  L9_2 = L9_2.Messages
-  L9_2 = L9_2.unlocked
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = Config
-  L7_2 = L7_2.Permissions
-  if L7_2 then
-    L7_2 = Config
-    L7_2 = L7_2.Props
-    L7_2 = L7_2.garage_rollup
-    L8_2 = Config
-    L8_2 = L8_2.Permissions
-    L8_2 = L8_2.enabled
-    L9_2 = L7_2 or L9_2
-    if L7_2 then
-      L9_2 = L7_2.allowedJobs
+
+    print("^3[TEST] ---------- Results ----------^0")
+    for _, line in ipairs(results) do
+        print("[TEST] " .. line)
     end
-    L10_2 = Config
-    L10_2 = L10_2.Permissions
-    L10_2.enabled = false
-    L10_2 = L6_2
-    L11_2 = "Permissions disabled: ServerHasJobAccess allows"
-    L12_2 = ServerHasJobAccess
-    L13_2 = 0
-    L14_2 = "prompt_sandy_is_garage_rollup"
-    L12_2 = L12_2(L13_2, L14_2)
-    L12_2 = true == L12_2
-    L10_2(L11_2, L12_2)
-    if L7_2 then
-      L10_2 = Config
-      L10_2 = L10_2.Permissions
-      L10_2.enabled = true
-      L10_2 = {}
-      L11_2 = "mechanic"
-      L10_2[1] = L11_2
-      L7_2.allowedJobs = L10_2
-      L10_2 = GetResourceState
-      L11_2 = "qbx_core"
-      L10_2 = L10_2(L11_2)
-      L10_2 = "started" == L10_2
-      L11_2 = Config
-      L11_2 = L11_2.Permissions
-      L11_2 = L11_2.framework
-      if not L11_2 then
-        L11_2 = "auto"
-      end
-      if "auto" == L11_2 and not L10_2 then
-        L11_2 = L6_2
-        L12_2 = "No framework: restricted prop denies (fail closed)"
-        L13_2 = ServerHasJobAccess
-        L14_2 = 0
-        L15_2 = "prompt_sandy_is_garage_rollup"
-        L13_2 = L13_2(L14_2, L15_2)
-        L13_2 = false == L13_2
-        L11_2(L12_2, L13_2)
-      end
-      L7_2.allowedJobs = L9_2
+    print("^3[TEST] ========== " .. passed .. " passed, " .. failed .. " failed ==========^0")
+
+    if playerSource > 0 then
+        TriggerClientEvent("ox_lib:notify", playerSource, {
+            description = passed .. " passed, " .. failed .. " failed",
+            type = (failed == 0) and "success" or "error",
+            duration = 5000
+        })
     end
-    L10_2 = Config
-    L10_2 = L10_2.Permissions
-    L10_2.enabled = L8_2
-  end
-  L7_2 = L6_2
-  L8_2 = "GlobalState.ilegal_carwash exists"
-  L9_2 = GlobalState
-  L9_2 = L9_2.ilegal_carwash
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = L6_2
-  L8_2 = "GlobalState.ilegal_carwash_busy exists"
-  L9_2 = GlobalState
-  L9_2 = L9_2.ilegal_carwash_busy
-  L9_2 = nil ~= L9_2
-  L7_2(L8_2, L9_2)
-  L7_2 = Config
-  L7_2 = L7_2.AutoOpen
-  if L7_2 then
-    L7_2 = GlobalState
-    L7_2 = L7_2.ilegal_carwash_locks
-    L8_2 = L6_2
-    L9_2 = "GlobalState.ilegal_carwash_locks exists"
-    L10_2 = nil ~= L7_2
-    L8_2(L9_2, L10_2)
-    if L7_2 then
-      L8_2 = 0
-      L9_2 = true
-      L10_2 = pairs
-      L11_2 = L7_2
-      L10_2, L11_2, L12_2, L13_2 = L10_2(L11_2)
-      for L14_2, L15_2 in L10_2, L11_2, L12_2, L13_2 do
-        L8_2 = L8_2 + 1
-        if not L15_2 then
-          L9_2 = false
-        end
-        L16_2 = L6_2
-        L17_2 = "Lock entry is garage_rollup: "
-        L18_2 = L14_2
-        L17_2 = L17_2 .. L18_2
-        L18_2 = isGarageRollup
-        L19_2 = L14_2
-        L18_2, L19_2, L20_2, L21_2, L22_2, L23_2 = L18_2(L19_2)
-        L16_2(L17_2, L18_2, L19_2, L20_2, L21_2, L22_2, L23_2)
-      end
-      L10_2 = L6_2
-      L11_2 = "1 garage door in lock state (got "
-      L12_2 = L8_2
-      L13_2 = ")"
-      L11_2 = L11_2 .. L12_2 .. L13_2
-      L12_2 = 1 == L8_2
-      L10_2(L11_2, L12_2)
-      L10_2 = L6_2
-      L11_2 = "All doors default to locked"
-      L12_2 = L9_2
-      L10_2(L11_2, L12_2)
-    end
-    L8_2 = L6_2
-    L9_2 = "getOccupantCount for unknown door == 0"
-    L10_2 = L7_1
-    L11_2 = "prompt_sandy_is_garage_rollup"
-    L10_2 = L10_2(L11_2)
-    L10_2 = 0 == L10_2
-    L8_2(L9_2, L10_2)
-    L8_2 = "prompt_sandy_is_garage_rollup"
-    L9_2 = GlobalState
-    L9_2 = L9_2.ilegal_carwash_busy
-    if not L9_2 then
-      L9_2 = {}
-    end
-    L9_2 = L9_2[L8_2]
-    L10_2 = L8_1
-    L11_2 = L8_2
-    L12_2 = true
-    L10_2(L11_2, L12_2)
-    L10_2 = GlobalState
-    L10_2 = L10_2.ilegal_carwash_busy
-    if not L10_2 then
-      L10_2 = {}
-    end
-    L10_2 = L10_2[L8_2]
-    L11_2 = L6_2
-    L12_2 = "setBusy(rollup, true) sets busy"
-    L13_2 = true == L10_2
-    L11_2(L12_2, L13_2)
-    L11_2 = L8_1
-    L12_2 = L8_2
-    L13_2 = false
-    L11_2(L12_2, L13_2)
-    L11_2 = GlobalState
-    L11_2 = L11_2.ilegal_carwash_busy
-    if not L11_2 then
-      L11_2 = {}
-    end
-    L11_2 = L11_2[L8_2]
-    L12_2 = L6_2
-    L13_2 = "setBusy(rollup, false) clears busy"
-    L14_2 = false == L11_2
-    L12_2(L13_2, L14_2)
-    L12_2 = GlobalState
-    L12_2 = L12_2.ilegal_carwash_locks
-    if not L12_2 then
-      L12_2 = {}
-    end
-    L13_2 = L12_2[L8_2]
-    L14_2 = not L13_2
-    L12_2[L8_2] = L14_2
-    L14_2 = GlobalState
-    L14_2.ilegal_carwash_locks = L12_2
-    L14_2 = GlobalState
-    L14_2 = L14_2.ilegal_carwash_locks
-    if not L14_2 then
-      L14_2 = {}
-    end
-    L15_2 = L6_2
-    L16_2 = "Lock toggle changes state"
-    L17_2 = L14_2[L8_2]
-    L18_2 = not L13_2
-    L17_2 = L17_2 == L18_2
-    L15_2(L16_2, L17_2)
-    L12_2[L8_2] = L13_2
-    L15_2 = GlobalState
-    L15_2.ilegal_carwash_locks = L12_2
-    L15_2 = GlobalState
-    L15_2 = L15_2.ilegal_carwash_locks
-    if not L15_2 then
-      L15_2 = {}
-    end
-    L15_2[L8_2] = false
-    L16_2 = GlobalState
-    L16_2.ilegal_carwash_locks = L15_2
-    L16_2 = L8_1
-    L17_2 = L8_2
-    L18_2 = false
-    L16_2(L17_2, L18_2)
-    L16_2 = GlobalState
-    L16_2 = L16_2.ilegal_carwash
-    if not L16_2 then
-      L16_2 = {}
-    end
-    L16_2[L8_2] = nil
-    L17_2 = GlobalState
-    L17_2.ilegal_carwash = L16_2
-    L17_2 = GlobalState
-    L17_2 = L17_2.ilegal_carwash_locks
-    if not L17_2 then
-      L17_2 = {}
-    end
-    L17_2 = L17_2[L8_2]
-    L17_2 = GlobalState
-    L17_2 = L17_2.ilegal_carwash_busy
-    if not L17_2 then
-      L17_2 = {}
-    end
-    L17_2 = L17_2[L8_2]
-    L17_2 = GlobalState
-    L17_2 = L17_2.ilegal_carwash
-    if not L17_2 then
-      L17_2 = {}
-    end
-    L17_2 = L17_2[L8_2]
-    L17_2 = not L17_2 and L17_2
-    L18_2 = L6_2
-    L19_2 = "Unlocked + not busy + not open = can auto-open"
-    L20_2 = true == L17_2
-    L18_2(L19_2, L20_2)
-    L18_2 = L8_1
-    L19_2 = L8_2
-    L20_2 = true
-    L18_2(L19_2, L20_2)
-    L18_2 = updateGlobalPropState
-    L19_2 = L8_2
-    L20_2 = true
-    L18_2(L19_2, L20_2)
-    L18_2 = L6_2
-    L19_2 = "After auto-open: door state is true"
-    L20_2 = GlobalState
-    L20_2 = L20_2.ilegal_carwash
-    if not L20_2 then
-      L20_2 = {}
-    end
-    L20_2 = L20_2[L8_2]
-    L20_2 = true == L20_2
-    L18_2(L19_2, L20_2)
-    L18_2 = L6_2
-    L19_2 = "After auto-open: busy is true"
-    L20_2 = GlobalState
-    L20_2 = L20_2.ilegal_carwash_busy
-    if not L20_2 then
-      L20_2 = {}
-    end
-    L20_2 = L20_2[L8_2]
-    L20_2 = true == L20_2
-    L18_2(L19_2, L20_2)
-    L18_2 = L6_1
-    L19_2 = {}
-    L20_2 = 999
-    L19_2[L20_2] = true
-    L18_2[L8_2] = L19_2
-    L18_2 = L6_2
-    L19_2 = "With occupant: getOccupantCount == 1"
-    L20_2 = L7_1
-    L21_2 = L8_2
-    L20_2 = L20_2(L21_2)
-    L20_2 = 1 == L20_2
-    L18_2(L19_2, L20_2)
-    L18_2 = L7_1
-    L19_2 = L8_2
-    L18_2 = L18_2(L19_2)
-    L18_2 = 0 == L18_2
-    L19_2 = L6_2
-    L20_2 = "With occupant: close is rejected"
-    L21_2 = false == L18_2
-    L19_2(L20_2, L21_2)
-    L19_2 = L6_1
-    L20_2 = {}
-    L19_2[L8_2] = L20_2
-    L19_2 = L8_1
-    L20_2 = L8_2
-    L21_2 = false
-    L19_2(L20_2, L21_2)
-    L19_2 = L7_1
-    L20_2 = L8_2
-    L19_2 = L19_2(L20_2)
-    L19_2 = GlobalState
-    L19_2 = L19_2.ilegal_carwash_busy
-    if not L19_2 then
-      L19_2 = {}
-    end
-    L19_2 = L19_2[L8_2]
-    L19_2 = GlobalState
-    L19_2 = L19_2.ilegal_carwash
-    if not L19_2 then
-      L19_2 = {}
-    end
-    L18_2 = 0 == L19_2 and L18_2
-    L19_2 = L6_2
-    L20_2 = "No occupants + not busy + open = can auto-close"
-    L21_2 = true == L18_2
-    L19_2(L20_2, L21_2)
-    L19_2 = L8_1
-    L20_2 = L8_2
-    L21_2 = false
-    L19_2(L20_2, L21_2)
-    L19_2 = updateGlobalPropState
-    L20_2 = L8_2
-    L21_2 = false
-    L19_2(L20_2, L21_2)
-    L19_2 = GlobalState
-    L19_2 = L19_2.ilegal_carwash_locks
-    L15_2 = L19_2 or L15_2
-    if not L19_2 then
-      L19_2 = {}
-      L15_2 = L19_2
-    end
-    L15_2[L8_2] = true
-    L19_2 = GlobalState
-    L19_2.ilegal_carwash_locks = L15_2
-    L19_2 = L6_1
-    L19_2[L8_2] = nil
-    L19_2 = GlobalState
-    L19_2 = L19_2.ilegal_carwash_locks
-    if not L19_2 then
-      L19_2 = {}
-    end
-    L19_2[L8_2] = true
-    L20_2 = GlobalState
-    L20_2.ilegal_carwash_locks = L19_2
-    L20_2 = GlobalState
-    L20_2 = L20_2.ilegal_carwash_locks
-    if not L20_2 then
-      L20_2 = {}
-    end
-    L20_2 = L20_2[L8_2]
-    L20_2 = true == L20_2
-    L21_2 = L6_2
-    L22_2 = "Locked door blocks auto-open check"
-    L23_2 = true == L20_2
-    L21_2(L22_2, L23_2)
-  else
-    L7_2 = print
-    L8_2 = "^3[TEST] Config.AutoOpen is false \226\128\148 skipping auto-open tests^0"
-    L7_2(L8_2)
-  end
-  L7_2 = print
-  L8_2 = "^3[TEST] ---------- Results ----------^0"
-  L7_2(L8_2)
-  L7_2 = ipairs
-  L8_2 = L5_2
-  L7_2, L8_2, L9_2, L10_2 = L7_2(L8_2)
-  for L11_2, L12_2 in L7_2, L8_2, L9_2, L10_2 do
-    L13_2 = print
-    L14_2 = "[TEST] "
-    L15_2 = L12_2
-    L14_2 = L14_2 .. L15_2
-    L13_2(L14_2)
-  end
-  L7_2 = print
-  L8_2 = "^3[TEST] ========== "
-  L9_2 = L3_2
-  L10_2 = " passed, "
-  L11_2 = L4_2
-  L12_2 = " failed ==========^0"
-  L8_2 = L8_2 .. L9_2 .. L10_2 .. L11_2 .. L12_2
-  L7_2(L8_2)
-  if L2_2 > 0 then
-    L7_2 = TriggerClientEvent
-    L8_2 = "ox_lib:notify"
-    L9_2 = L2_2
-    L10_2 = {}
-    L11_2 = L3_2
-    L12_2 = " passed, "
-    L13_2 = L4_2
-    L14_2 = " failed"
-    L11_2 = L11_2 .. L12_2 .. L13_2 .. L14_2
-    L10_2.description = L11_2
-    if 0 == L4_2 then
-      L11_2 = "success"
-      if L11_2 then
-        goto lbl_597
-      end
-    end
-    L11_2 = "error"
-    ::lbl_597::
-    L10_2.type = L11_2
-    L10_2.duration = 5000
-    L7_2(L8_2, L9_2, L10_2)
-  end
-end
-L12_1 = true
-L9_1(L10_1, L11_1, L12_1)
-L9_1 = Config
-L9_1 = L9_1.Debug
-if L9_1 then
-  L9_1 = AddEventHandler
-  L10_1 = "prompt_sandy_illegal_garage:liftStateChanged"
-  function L11_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-    L2_2 = print
-    L3_2 = "[SANDY ILLEGAL GARAGE EXPORT DEBUG] [SERVER] liftStateChanged -> propName: %s | state: %s (%s)"
-    L4_2 = L3_2
-    L3_2 = L3_2.format
-    L5_2 = A0_2
-    L6_2 = tostring
-    L7_2 = A1_2
-    L6_2 = L6_2(L7_2)
-    if A1_2 then
-      L7_2 = "UP"
-      if L7_2 then
-        goto lbl_14
-      end
-    end
-    L7_2 = "DOWN"
-    ::lbl_14::
-    L3_2, L4_2, L5_2, L6_2, L7_2 = L3_2(L4_2, L5_2, L6_2, L7_2)
-    L2_2(L3_2, L4_2, L5_2, L6_2, L7_2)
-  end
-  L9_1(L10_1, L11_1)
+end, true)
+
+-- ── Debug: log zmian stanu ──────────────────────────────────────────
+
+if Config.Debug then
+    AddEventHandler("prompt_sandy_illegal_garage:liftStateChanged", function(propName, state)
+        print(("[SANDY ILLEGAL GARAGE EXPORT DEBUG] [SERVER] liftStateChanged -> propName: %s | state: %s (%s)"):format(
+            tostring(propName), tostring(state), state and "UP" or "DOWN"))
+    end)
 end
