@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>lod_prompt_sandy_apt_penthhouse</name>
+ <parent />
+ <flags value="2" />
+ <contentFlags value="2" />
+ <streamingExtentsMin x="-10000" y="-10000" z="-10000" />
+ <streamingExtentsMax x="10000" y="10000" z="10000" />
+ <entitiesExtentsMin x="-10000" y="-10000" z="-10000" />
+ <entitiesExtentsMax x="10000" y="10000" z="10000" />
+ <entities>
+  <Item type="CEntityDef">
+   <archetypeName>hash_366711D5</archetypeName>
+   <flags value="33" />
+   <guid value="0" />
+   <position x="1597.01465" y="3604.23926" z="50.8779449" />
+   <rotation x="-0.1830128" y="0.683012664" z="-0.183012724" w="0.6830128" />
+   <scaleXY value="1" />
+   <scaleZ value="1" />
+   <parentIndex value="-1" />
+   <lodDist value="300" />
+   <childLodDist value="0" />
+   <lodLevel>LODTYPES_DEPTH_LOD</lodLevel>
+   <numChildren value="1" />
+   <priorityLevel>PRI_REQUIRED</priorityLevel>
+   <extensions />
+   <ambientOcclusionMultiplier value="255" />
+   <artificialAmbientOcclusion value="255" />
+   <tintValue value="0" />
+  </Item>
+ </entities>
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries />
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>lod_prompt_sandy_apt_penthhouse</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>14 December 2025 00:32</time>
+ </block>
+</CMapData>

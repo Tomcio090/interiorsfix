@@ -684,3 +684,37 @@ Stare, rozproszone ACE (`command.testanims`, `command.testautodoors_ig`, ewentua
 - Do sprawdzenia w grze: odmowa komendy bez ACE (komunikat w konsoli F8), przejście
   z nadanym `command.sandyshores`, `/testautodoors_ig` z konsoli serwera, wizualna
   obecność stoisk marketu u gracza BEZ ACE (efekt „requestSync otwarty").
+
+## 12. Scalenie z `main`: nowe mapy `prompt_sandy_apts` i `prompt_sandy_hospital2`
+
+Data: 2026-10-18. Przy scalaniu PR (gałąź rund 10–11) z `main` doszły tam dwa nowe zasoby
+map (commity „add 2 new interiors"/„update"): `prompt_sandy_apts` (Sandy Shores Apartments)
+i `prompt_sandy_hospital2` (szpital). Oba przyszły ze **swoimi `sv_loader.lua`** (skrypt
+dekompilatora z tym samym zdalnym kodem + telemetrią, tylko z własnym `MapId`) oraz
+z **12 nowymi komendami** bez bramek. Żeby scalenie nie przywróciło naprawionych błędów
+(dwa checkery = podwójny raport; obce komendy bez ACE), włączone w oba systemy z rozdz. 10–11:
+
+- **`sv_loader.lua` usunięte** z obu map (konflikty rename/delete rozstrzygnięte jako
+  świadome usunięcie); w ich miejsce `sv_mapdata.lua` z właściwymi stałymi
+  (`prompt_sandy_apts`/„Apts", `prompt_sandy_hospital2`/„Hospital2") — mapy są widoczne
+  dla checkera bez zdalnego kodu i telemetrii. Wpisy `server_scripts` w obu manifestach
+  podmienione.
+- **Komendy pod `command.sandyshores`** (razem 18 komend w repo):
+  - `prompt_sandy_apts/debug_commands.lua` (client, plik aktywny tylko przy `Config.Debug`):
+    `/apts_status`, `/apts_here`, `/apts_stream`, `/apts_nuke`, `/apts_tp` — helper
+    `canUseSandyCommand()` + check w każdym handlerze;
+  - `prompt_sandy_hospital2/client/debug.lua` (client): `/scenario`, `/scenarioat`,
+    `/stopanim`, `/mycoords`, `/propcoords` — jw.;
+  - `prompt_sandy_hospital2/server/mri.lua` (server): `/testmri` (wcześniej wbudowane
+    `command.testmri`) i `/testoperator` (wcześniej ręcznie `command.testmri`) — oba
+    teraz `IsPlayerAceAllowed(..., 'command.sandyshores')`; `/testmri` rejestruje się
+    z `restricted=false` + ręczny check (jak reszta pakietu).
+
+Weryfikacja: składnia wszystkich plików Lua (25+ po dodaniu nowych map), harness
+rozszerzony o scenariusze rejestracji mapdata nowych map i bramek ich komend
+(12/12 scenariuszy łącznie). Do sprawdzenia w grze: wykrywanie Apts/Hospital2 przez
+raport mapdata (Missing bez „Apts"/„Hospital2" po ich zainstalowaniu), brak logów
+odpowiadania przy braku obcych checkerów, odmowa komend debug bez ACE.
+
+Uwaga: nowe mapy nie były analizowane funkcjonalnie na poziomie rynku/garażu
+(skala „rozdziału 7") — dotknięto wyłącznie ich integracji z mapdata i permisjami.

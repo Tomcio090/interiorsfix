@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>lod_inv_prompt_sandy_apts_hallway_1</name>
+ <parent />
+ <flags value="2" />
+ <contentFlags value="2" />
+ <streamingExtentsMin x="-10000" y="-10000" z="-10000" />
+ <streamingExtentsMax x="10000" y="10000" z="10000" />
+ <entitiesExtentsMin x="-10000" y="-10000" z="-10000" />
+ <entitiesExtentsMax x="10000" y="10000" z="10000" />
+ <entities>
+  <Item type="CEntityDef">
+   <archetypeName>hash_E916BED5</archetypeName>
+   <flags value="33" />
+   <guid value="0" />
+   <position x="1631.244" y="3533.88745" z="40.9080429" />
+   <rotation x="-4.710167E-08" y="6.89806567E-09" z="-0.965925932" w="-0.258819044" />
+   <scaleXY value="-1" />
+   <scaleZ value="-1" />
+   <parentIndex value="-1" />
+   <lodDist value="350" />
+   <childLodDist value="0" />
+   <lodLevel>LODTYPES_DEPTH_LOD</lodLevel>
+   <numChildren value="1" />
+   <priorityLevel>PRI_REQUIRED</priorityLevel>
+   <extensions />
+   <ambientOcclusionMultiplier value="255" />
+   <artificialAmbientOcclusion value="255" />
+   <tintValue value="0" />
+  </Item>
+ </entities>
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries />
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>lod_inv_prompt_sandy_apts_hallway_1</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>14 December 2025 00:32</time>
+ </block>
+</CMapData>
