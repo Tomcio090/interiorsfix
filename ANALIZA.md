@@ -478,3 +478,15 @@ i logują każde zapytanie checkera. Przy okazji zsynchronizowano decyzję wła�
 plik `sv_loader.lua` usunięto także z gałęzi (wcześniej usunięty na `main`), a komentarz
 w manifeście opisuje stan docelowy. Harness po zmianie: **56/56 sprawdzeń** (w tym test
 callbacku-callable o typie innym niż `function`).
+
+Epilog: po poprawce callbacków raport checkera **całkiem zniknął** — co okazało się dowodem,
+że wykrywanie już działa. Raport drukuje zawsze mapa ostatnia na wykrytej liście według
+kolejności rejestru (`Firestation2` #4 < `Market` #11 < `Gas` #13); wcześniejszy wydruk pochodził
+z Marketu, a po wykryciu „Gas" obowiązek druku przeszedł na tę mapę (pozostałe checkery delegują
+go eventem `:mapFinal` z argumentami `allMaps, existList`) — tylko że bez `sv_loadera` nie było
+tu żadnego checkera, który by go wydrukował. Dodano więc lokalny odpowiednik wydruku w handlerze
+`:mapFinal`: pyta mapdata o jej listę (`prompt:mapdata_sendList`), porównuje zbiory i drukuje tę
+samą ramkę (Excess/Missing/link, nazwy z lokalnego snapshotu rejestru). Kod `sv_loader.lua`
+z zasobu Market potwierdził przy okazji, że wszystkie mapy ładują ten sam, analizowany wyżej
+skrypt checkera. Harness po zmianie: **59/59 sprawdzeń** (w tym scenariusz `:mapFinal` z linkiem
+`Firestation2+Market+Gas`).

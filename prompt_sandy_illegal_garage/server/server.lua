@@ -909,8 +909,148 @@ AddEventHandler(PROMPT_MAP_ID .. ":mapFullNameSend", function(returnEvent, id)
     end
 end)
 
-AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function()
-    -- legacy: checker powiadamia ostatnią wykrytą mapę; nic nie robimy
+-- Nazwy wyświetlane map (snapshot rejestru all_data_full; tylko do raportu
+-- poniżej — nieznane statiki wypisujemy po identyfikatorze).
+local PROMPT_MAP_NAMES = {
+    prompt_sandy_roads = "Roads",
+    darkvanar_flywheel = "Flywheels",
+    prompt_sandy_downtown = "Downtown",
+    prompt_sandy_fire2 = "Firestation2",
+    prompt_sandy_hospital2 = "Hospital2",
+    prompt_sandy_joshua = "Joshua",
+    prompt_sandy_university = "Uni",
+    prompt_sandy_corner = "Corner",
+    prompt_sandy_apts = "Apts",
+    prompt_sandy_bank = "Bank",
+    prompt_sandy_market = "Market",
+    prompt_sandy_motel = "Motel",
+    prompt_sandy_gasstation_carwash = "Gas",
+    prompt_sandy_compound = "Mechanic",
+    prompt_sandy_church = "Church",
+    prompt_sandy_classic_car_dealership = "Dealer",
+    prompt_sandy_cityhall = "Cityhall",
+    sandy_shores_houses_pt1 = "Houses1",
+    prompt_sandy_train_station = "Trainstation",
+    prompt_sandy_beaches = "Marina",
+    cfx_chuz_sandy_shores_boat_house = "Boathouse",
+    prompt_sandy_sheriff = "Sheriff",
+    prompt_sandy_hospital = "Hospital",
+    prompt_sandy_airfield = "Airfield",
+    cfx_prompt_sandy_shores_fire_department = "Firestation",
+    cfx_prompt_blaine_county_hall = "Cityhall",
+    prompt_trainstation_paleto = "Train",
+    paleto_bay_fire_station = "Firestation",
+    prompt_tuco_paleto_sheriff = "Sheriff",
+    prompt_repair_shops = "Repair",
+    prompt_gym = "Gym",
+    prompt_hornys = "Hornys",
+    prompt_sandy_gym = "Gym"
+}
+
+-- Lista map obsługiwanych przez zainstalowaną mapdata — pytamy jak
+-- oficjalny checker (prompt:mapdata_sendList + własny event zwrotny).
+local promptMapdataMaps = nil
+
+AddEventHandler("promptmap:return_" .. PROMPT_MAP_ID, function(maps)
+    if type(maps) == "table" then
+        promptMapdataMaps = maps
+    end
+end)
+
+CreateThread(function()
+    Wait(3000)
+    TriggerEvent("prompt:mapdata_sendList", "promptmap:return_" .. PROMPT_MAP_ID)
+end)
+
+local function promptMapName(id)
+    return PROMPT_MAP_NAMES[id] or id
+end
+
+local function printMapdataBox(lines)
+    local maxLength = 0
+    for _, line in ipairs(lines) do
+        local stripped = line:gsub("\27%[[0-9]+m", ""):gsub("%^[0-9]", "")
+        maxLength = math.max(maxLength, #stripped)
+    end
+
+    local boxWidth = maxLength + 4
+    print("+" .. string.rep("-", boxWidth) .. "+")
+    for _, line in ipairs(lines) do
+        local stripped = line:gsub("\27%[[0-9]+m", ""):gsub("%^[0-9]", "")
+        print("| " .. line .. string.rep(" ", boxWidth - #stripped - 2) .. " |")
+    end
+    print("+" .. string.rep("-", boxWidth) .. "+")
+end
+
+-- Raport końcowy checkera drukuje zawsze mapa OSTATNIA na wykrytej liście
+-- (kolejność rejestru all_data_full: Firestation2 < Market < Gas).
+-- Pozostałe checkery delegują wydruk do niej eventem ":mapFinal"
+-- z argumentami (allMaps, existList) i same nic nie drukują — dlatego po
+-- naprawie wykrywania raport zniknął: drukował go wcześniej Market, a po
+-- wykryciu "Gas" obowiązek przeszedł na tę mapę, która nie ma checkera
+-- (sv_loader usunięty). Poniżej lokalny odpowiednik tego wydruku.
+AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function(_, existList)
+    if type(existList) ~= "table" or #existList == 0 then return end
+
+    if not promptMapdataMaps then
+        TriggerEvent("prompt:mapdata_sendList", "promptmap:return_" .. PROMPT_MAP_ID)
+        local tries = 0
+        while not promptMapdataMaps and tries < 20 do
+            Wait(100)
+            tries = tries + 1
+        end
+    end
+    local mapdata = promptMapdataMaps or {}
+
+    local ids = {}
+    for i = 1, #existList do
+        ids[i] = promptMapName(existList[i])
+    end
+    local link = "https://vertex-hub.com/prompt/map-data/sandy-rework/" .. table.concat(ids, "+")
+
+    if #mapdata == 0 then
+        printMapdataBox({
+            "❌ ^8 [Sandy] Mapdata does not exist ^7",
+            "^5🔗 Download: " .. link .. "^7"
+        })
+        return
+    end
+
+    local installedSet, mapdataSet = {}, {}
+    for _, id in ipairs(existList) do installedSet[id] = true end
+    for _, id in ipairs(mapdata) do mapdataSet[id] = true end
+
+    local excess, missing = {}, {}
+    for _, id in ipairs(existList) do
+        if not mapdataSet[id] then excess[#excess + 1] = promptMapName(id) end
+    end
+    for _, id in ipairs(mapdata) do
+        if not installedSet[id] then missing[#missing + 1] = promptMapName(id) end
+    end
+    table.sort(excess)
+    table.sort(missing)
+
+    if #excess == 0 and #missing == 0 then
+        printMapdataBox({ "✅ ^2[Sandy] Mapdata is the same as maps installed^7" })
+        return
+    end
+
+    local moreLess
+    if #existList > #mapdata then
+        moreLess = "^8 There are more maps than mapdata supports!^7"
+    elseif #existList < #mapdata then
+        moreLess = "^8 There are less maps than mapdata supports!^7"
+    else
+        moreLess = "^8 The sets differ even though counts match.^7"
+    end
+
+    printMapdataBox({
+        "❌ ^8 [Sandy] Mapdata is not the same as maps installed^7",
+        moreLess,
+        "^8 Excess (installed but not in mapdata):^7 " .. (#excess > 0 and table.concat(excess, ", ") or "none"),
+        "^8 Missing (in mapdata but not installed):^7 " .. (#missing > 0 and table.concat(missing, ", ") or "none"),
+        "^5🔗 Download: " .. link .. "^7"
+    })
 end)
 
 print(("[%s] Prompt mapdata: zarejestrowano wykrywanie mapy %s (%s)"):format(
