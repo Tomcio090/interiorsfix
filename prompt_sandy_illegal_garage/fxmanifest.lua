@@ -10,9 +10,7 @@ description 'Sandy Shores Illegal Garage & Gas Station & Car Wash'
 scripts_author 'Infames Dev'
 version '1.1.4'
 
--- dat151 (was already commented out here) merged into shared prompt_audio 2026-06-10;
--- zip backup: C:\Scripts\_backups\prompt_audio\illegal_garage_audio_2026-06-10_night_pre-merge.zip
--- data_file 'DLC_ITYP_REQUEST' 'stream/unlocked/illegal_garage/prompt_sandy_illegal_garage.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/unlocked/illegal_garage/prompt_sandy_illegal_garage.ytyp'
 
 escrow_ignore {
     'stream/unlocked/**',
@@ -37,12 +35,6 @@ client_scripts {
 
 server_scripts {
     'server/*.lua',
-    -- 'sv_loader.lua' WYŁĄCZONY celowo: pobiera kod z GitHuba i wykonuje go na
-    -- serwerze przez load(), a zdalny skrypt wysyła telemetrię identyfikującą
-    -- serwer (plik nie jest zaszyfrowany escrow/FXAP). Mapa działa bez niego;
-    -- tracisz tylko zdalny checker zgodności mapdata i powiadomienia o wersji.
-    -- Aby włączyć z powrotem świadomie: odkomentuj wpis poniżej.
-    -- 'sv_loader.lua'
 }
 
 dependency 'ox_lib'

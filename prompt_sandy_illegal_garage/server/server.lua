@@ -869,6 +869,32 @@ RegisterCommand("testautodoors_ig", function(playerSource, args)
     end
 end, true)
 
+local PROMPT_MAP_ID = "prompt_sandy_gasstation_carwash" -- musi być = MapId w sv_loader.lua
+local PROMPT_MAP_NAME = "Gas"
+local PROMPT_MAP_LOCATIONS = { "sandy" }
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapExists", function(cb)
+    if type(cb) == "function" then cb(true) end
+end)
+
+AddEventHandler("promptmap:i_exist_" .. PROMPT_MAP_ID, function(cb)
+    if type(cb) == "function" then cb(true) end
+end)
+
+AddEventHandler("promptmap:locations_" .. PROMPT_MAP_ID, function(cb)
+    if type(cb) == "function" then cb(PROMPT_MAP_LOCATIONS) end
+end)
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapFullNameSend", function(returnEvent, id)
+    if type(returnEvent) == "string" then
+        TriggerEvent(returnEvent, PROMPT_MAP_NAME, id)
+    end
+end)
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function()
+    -- legacy: checker powiadamia ostatnią wykrytą mapę; nic nie robimy
+end)
+
 -- ── Debug: log zmian stanu ──────────────────────────────────────────
 
 if Config.Debug then
