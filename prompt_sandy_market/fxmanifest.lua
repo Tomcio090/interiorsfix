@@ -19,7 +19,7 @@ client_scripts {
 }
 
 server_scripts {
-    'sv_loader.lua',
+    'sv_mapdata.lua',
     'server.lua'
 }
 

@@ -490,3 +490,135 @@ samą ramkę (Excess/Missing/link, nazwy z lokalnego snapshotu rejestru). Kod `s
 z zasobu Market potwierdził przy okazji, że wszystkie mapy ładują ten sam, analizowany wyżej
 skrypt checkera. Harness po zmianie: **59/59 sprawdzeń** (w tym scenariusz `:mapFinal` z linkiem
 `Firestation2+Market+Gas`).
+
+## 10. Runda: `prompt_sandy_market`, `prompt_sandy_fire2` i podwójny wydruk raportu mapdata
+
+Data: 2026-10-18. Zakres: analiza i naprawa pozostałych folderów (`prompt_sandy_market`,
+`prompt_sandy_fire2`, weryfikacja pomocniczych `prompt_sandy_shared` i `cfx_prompt_sandy_mapdata`)
+oraz objaw ze zrzutu konsoli: raport mapdata drukował się **dwa razy** (podwójne
+„odpowiadam true" i dwie identyczne ramki).
+
+### 10.1. Przyczyna podwójnego wydruku — potwierdzona
+
+Oficjalny checker (`Prompt-Coder/mapdatachecker`, `remote_sv/map/script.lua`) **nie jest
+osobnym zasobem** — kopię skryptu pobiera i wykonuje `sv_loader.lua` **każdej** mapy.
+Po rundzie z rozdz. 8/9 sv_loader został tylko w **dwóch** zasobach: `prompt_sandy_market`
+i `prompt_sandy_fire2`. Oznaczało to **dwie niezależne instancje checkera**, z których każda:
+
+1. pytała wszystkie mapy o istnienie (stąd dwa logi „checker pyta … odpowiadam true"
+   z handlera w `prompt_sandy_illegal_garage`) i budowała tę samą listę
+   `existList = {Firestation2, Market, Gas}`;
+2. jako ostatnia mapa w kolejności rejestru jest `Gas` — obie instancje **delegowały**
+   wydruk eventem `prompt_sandy_gasstation_carwash:mapFinal`, a handler w
+   `server/server.lua` drukował raport przy każdym delegowaniu → dwie identyczne ramki.
+
+To nie była wina samego handlera `:mapFinal` ani mapdata — to był wprost skutek dwóch
+`sv_loader.lua` (a przy okazji: każda z tych kopii, jako plik jawny, realizowała telemetrię
+opisaną w 7.1 — serwer „dzwonił do domu" **dwa razy** na start).
+
+### 10.2. Co zostało zrobione
+
+**`prompt_sandy_market` (analiza + naprawy):**
+
+- Kod `client.lua`/`server.lua`/`config.lua` był już czytelny (nie po dekompilatorze) i ogólnie
+  sprawny (menedżer IPL marketu: 9 stalli `box55_s_market_stalls_*`, sync serwer↔klient,
+  eksporty, menu ox_lib + fallback komendowy). Nie było tam nic na miarę ustaleń 7.2 —
+  poza poniższymi punktami.
+- 🔴 **`sv_loader.lua` usunięty** (decyzja właściciela z 7.1/8.1 — kod zdalny + telemetria).
+  W jego miejsce `sv_mapdata.lua`: **wyłącznie** lokalna rejestracja handlerów wykrywania
+  (`<static>:mapExists`, `promptmap:i_exist_*`, `promptmap:locations_*`, `<static>:mapFullNameSend`,
+  no-op `<static>:mapFinal`) — parzystość 1:1 ze zdalnym skryptem, callbacki przez `pcall`
+  (quirk referencji funkcyjnych — patrz 9.4), zero sieci.
+- 🟡 wywołania eksportów ox_lib zmienione z `lib:registerContext(...)` na składnię z kropką
+  (zgodną z API ox_lib; wywołanie przez `:` mogłoby przekazać tabelę proxy jako pierwszy argument);
+- 🟡 `hasOxLib` mierzone tylko przy starcie zasobu → teraz stan `ox_lib` sprawdzany przy
+  każdym użyciu (odporność na kolejność startu zasobów);
+- 🟡 `Config.Command.restricted` był martwy (zakomentowany przykład sprawdzenia ACE, i to
+  z błędną natywką serwerową na kliencie — ten sam błąd co w 7.4) → komenda rejestruje się
+  z wbudowanym flagiem FiveM `RegisterCommand(..., restricted)`; `restricted = true` wymaga
+  teraz ACE `command.marketipls`. Domyślne `false` bez zmian w zachowaniu.
+- ⚪ kolejność pozycji menu i listy `/pm_ipl list` była z `pairs()` (losowa) → iteracja po
+  `Config.IPLs` (stała kolejność jak w configu); usunięty martwy blok `Config.Fallback`
+  (nieczytany nigdzie; „autoLoad" i tak działa przez init stanów + sync).
+
+**`prompt_sandy_fire2` (analiza + naprawy):**
+
+- Zasób jest czysto mapowy (stream + timecycle + `replacelogo/` z podmianą logo 3D —
+  folder pomocniczy z readme, celowo poza `stream/`). Jedynym kodem był `sv_loader.lua`.
+- 🔴 **`sv_loader.lua` usunięty**; w miejsce analogiczny `sv_mapdata.lua`
+  (`prompt_sandy_fire2` / „Firestation2" / `{"sandy"}`). Reszta bez zmian
+  (komentarz o scaleniu audio do shared `prompt_audio` zostawiony — jest informacyjny).
+
+**Podwójny wydruk — naprawa w `prompt_sandy_illegal_garage/server/server.lua`:**
+
+- Raport ma teraz **strażnika `mapdataReportPrinted`** — drugie wywołanie to no-op
+  (niezależnie od źródła: delegacja `:mapFinal`, self-check, restart wątków).
+- Dodany **lokalny self-check**: po ~10 s od startu, jeśli nic nie wydrukowano i żaden
+  obcy checker nie pytał nas o istnienie (`promptCheckerSeen` — flaga ustawiana w
+  `replyExists`/`locations`), sami pytamy mapy o istnienie tymi samymi eventami co oficjalny
+  skrypt (w kolejności rejestru, bez pytania samych siebie) i drukujemy raport **raz**.
+  Dzięki temu raport nadal się pojawia (zniknąłby zupełnie po usunięciu obu checkerów),
+  ale nigdy nie jest dublowany:
+  - obcy checker delegujący `:mapFinal` → drukuje pierwszy, self-check milczy
+    (strażnik + flaga);
+  - obcy checker drukujący sam (gdy jest „ostatni" w rejestrze) → my milczymy (flaga);
+  - brak jakichkolwiek checkerów (obecny stan repo) → drukuje self-check, raz.
+- `PROMPT_MAP_NAMES` zmieniony w **uporządkowany rejestr** `PROMPT_MAP_REGISTRY`
+  (snapshot `all_data_full` z kolejnością rejestru) — self-check pyta w tej samej
+  kolejności, w jakiej oficjalny checker buduje `existList` i link
+  (stąd link dokładnie `…/Firestation2+Market+Gas`).
+- Uwaga: link w raporcie jest zawsze w formie `vertex-hub.com/...` (bez sieciowego
+  „próbnika" URL GitHuba, który robi oficjalny skrypt) — dla obecnych zestawów map
+  wynik jest identyczny jak na zrzucie.
+
+**`cfx_prompt_sandy_mapdata/sv_MapDataHandler.lua` (hardening):**
+
+- Callbacki (`prompt:mapdata_exists`, `lyn-mapdata:exists`, `<static>:mapDataExists`)
+  wołane przez `pcall` (śmieciowy argument z eventu sieciowego nie wywali handlera;
+  callable-ref też działa);
+- `prompt:mapdata_sendList` waliduje typ `returnevent` i prefiks `promptmap:return_`
+  (wszyscy znani pytający — oficjalny skrypt i nasze handlery — używają tego prefiksu),
+  więc gracz nie może już wymusić `TriggerEvent` na dowolnej nazwie eventu serwera
+  listą map jako argumentem (wcześniej: RegisterNetEvent + dowolny string).
+
+**`prompt_sandy_shared` (tylko weryfikacja, brak zmian):** 32 ytyp-y leżą w `stream/`
+(FiveM rejestruje ytyp-y ze `stream/` automatycznie; nieaktywny blok `data_file` w manifeście
+to martwa pozostałość po innej ścieżce plików — nieszkodliwa). Komentarz „IPL LOADER SYSTEM"
+w manifiecie opisuje system, którego **kodu w folderze nie ma** (ani jednego pliku Lua) —
+prawdopodobnie zagubiony/escrowed element pakietu; na tę chwilę ładowanie IPL/i tak obsługuje
+`prompt_sandy_market`. Do świadomej decyzji właściciela, czy ten loader jest potrzebny.
+
+### 10.3. Weryfikacja
+
+- **Składnia:** wszystkie 18 plików Lua w repo (w tym manifesty) przechodzą parser.
+- **Mockowany harness FiveM** (event bus + wątki + wierny quirk referencji funkcyjnych
+  między zasobami — callback jako callable-table o `type() ~= "function"`): **8/8 scenariuszy**:
+  1. baseline (3 mapy + pełna mapdata): dokładnie **jeden** raport, Missing = 18 map,
+     link `Firestation2+Market+Gas`, self-check pyta market/fire2 po razie i nie pyta siebie;
+  2. dwa obce checkery (dawny bug): **jeden** raport, dwa logi „odpowiadam" (po jednym
+     na pytającego), self-check pominięty;
+  3. obcy checker bez delegacji (drukujący sam): my **milczymy** (brak dubla);
+  4. podwójna delegacja `:mapFinal`: jeden raport (strażnik);
+  5. mapdata == zainstalowane: raport „Mapdata is the same as maps installed";
+  6. brak mapdata: raport „Mapdata does not exist" + link;
+  7. hardening `sv_MapDataHandler` (zły typ/prefiks `returnevent`, śmieciowe callbacki,
+     callable-ref);
+  8. handlery `sv_mapdata` market/fire2 (istnienie, lokalizacje, fullName, śmieciowe
+     callbacki, no-op `mapFinal`).
+- **Niezeryfikowane (wymaga gry/serwera):** start zasobów na FXServerze i konsola
+  (kolejność `ensure`), interakcja rynku/`/marketipls` z ox_lib i bez niego, zachowanie
+  timecycle fire2 oraz podmiana logo 3D, pełny raport przy obcych checkerach na żywym
+  serwerze.
+
+### 10.4. Znane granice i uwagi
+
+- Raport mapdata drukuje **`prompt_sandy_illegal_garage` (Gas)** — zgodnie z konwencją
+  oficjalnego checkera (drukuje ostatnia mapa w rejestrze). Ktoś, kto uruchomi market/fire2
+  **bez** gasa, nie zobaczy raportu (wykrywanie map nadal działa).
+- Self-check czeka 10 s na ewentualne obce checkery; gdyby obcy checker startował
+  później niż ~10 s po Gasie i drukował raport sam (bez delegacji), mogłyby wyjść dwa
+  raporty — skrajny przypadek kolejności startu, taki sam jak w oficjalnym ekosystemie.
+- `server.js`/`client.js` w `cfx_prompt_sandy_mapdata` (rejestracja assetów Vertex Hub:
+  `RegisterResourceAsset` + `RegisterStreamingFileFromCache`) zostawione bez zmian —
+  to lokalny mechanizm assetów mapdata, nie telemetryczny, a ruszenie go mogłoby
+  uszkodzić streaming tej mapy.

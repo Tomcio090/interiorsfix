@@ -69,10 +69,5 @@ Config.Menu = {
 Config.Command = {
     name = "marketipls",
     description = "Open IPL management menu",
-    restricted = false -- Set to true if you want to restrict to admins
-}
-
--- Fallback settings when ox_lib is not available
-Config.Fallback = {
-    autoLoad = true -- Automatically load enabled IPLs on resource start
+    restricted = false -- true = komenda tylko dla uprawnionych (ACE "command.marketipls")
 } 

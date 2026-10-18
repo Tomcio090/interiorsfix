@@ -21,7 +21,7 @@ escrow_ignore {
 lua54 'yes'
 
 server_scripts{
-	'sv_loader.lua'
+	'sv_mapdata.lua'
 }
 
 dependency '/assetpacks'

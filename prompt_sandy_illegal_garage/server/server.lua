@@ -884,6 +884,12 @@ local PROMPT_MAP_ID = "prompt_sandy_gasstation_carwash" -- MapId w rejestrze Pro
 local PROMPT_MAP_NAME = "Gas"
 local PROMPT_MAP_LOCATIONS = { "sandy" }
 
+-- Czy obcy checker mapdata (np. oryginalny skrypt uruchamiany przez sv_loader
+-- innej mapy) zapytał już tę mapę o istnienie/lokalizacje. Jeśli tak — raport
+-- należy do ekosystemu checkera (delegacja :mapFinal albo jego własny wydruk)
+-- i nasz lokalny self-check niżej milczy, żeby nie drukować raportu dwa razy.
+local promptCheckerSeen = false
+
 -- Callback przychodzi z INNEGO zasobu jako referencja funkcyjna FXServera
 -- (function reference): type(cb) NIE musi wtedy zwracać "function", mimo
 -- że wartość jest wywoływalna. Filtr type(cb)=="function" po cichu
@@ -891,6 +897,7 @@ local PROMPT_MAP_LOCATIONS = { "sandy" }
 -- Odpowiadamy jak oficjalny skrypt (wołamy callback wprost), tylko przez
 -- pcall, żeby śmieciowy argument z eventu sieciowego niczego nie wywalił.
 local function replyExists(cb)
+    promptCheckerSeen = true
     print(("[%s] Prompt mapdata: checker pyta o istnienie mapy %s - odpowiadam true"):format(
         GetCurrentResourceName(), PROMPT_MAP_ID))
     if cb ~= nil then pcall(cb, true) end
@@ -900,6 +907,7 @@ RegisterNetEvent(PROMPT_MAP_ID .. ":mapExists", replyExists)
 RegisterNetEvent("promptmap:i_exist_" .. PROMPT_MAP_ID, replyExists)
 
 RegisterNetEvent("promptmap:locations_" .. PROMPT_MAP_ID, function(cb)
+    promptCheckerSeen = true
     if cb ~= nil then pcall(cb, PROMPT_MAP_LOCATIONS) end
 end)
 
@@ -909,43 +917,51 @@ AddEventHandler(PROMPT_MAP_ID .. ":mapFullNameSend", function(returnEvent, id)
     end
 end)
 
--- Nazwy wyświetlane map (snapshot rejestru all_data_full; tylko do raportu
--- poniżej — nieznane statiki wypisujemy po identyfikatorze).
-local PROMPT_MAP_NAMES = {
-    prompt_sandy_roads = "Roads",
-    darkvanar_flywheel = "Flywheels",
-    prompt_sandy_downtown = "Downtown",
-    prompt_sandy_fire2 = "Firestation2",
-    prompt_sandy_hospital2 = "Hospital2",
-    prompt_sandy_joshua = "Joshua",
-    prompt_sandy_university = "Uni",
-    prompt_sandy_corner = "Corner",
-    prompt_sandy_apts = "Apts",
-    prompt_sandy_bank = "Bank",
-    prompt_sandy_market = "Market",
-    prompt_sandy_motel = "Motel",
-    prompt_sandy_gasstation_carwash = "Gas",
-    prompt_sandy_compound = "Mechanic",
-    prompt_sandy_church = "Church",
-    prompt_sandy_classic_car_dealership = "Dealer",
-    prompt_sandy_cityhall = "Cityhall",
-    sandy_shores_houses_pt1 = "Houses1",
-    prompt_sandy_train_station = "Trainstation",
-    prompt_sandy_beaches = "Marina",
-    cfx_chuz_sandy_shores_boat_house = "Boathouse",
-    prompt_sandy_sheriff = "Sheriff",
-    prompt_sandy_hospital = "Hospital",
-    prompt_sandy_airfield = "Airfield",
-    cfx_prompt_sandy_shores_fire_department = "Firestation",
-    cfx_prompt_blaine_county_hall = "Cityhall",
-    prompt_trainstation_paleto = "Train",
-    paleto_bay_fire_station = "Firestation",
-    prompt_tuco_paleto_sheriff = "Sheriff",
-    prompt_repair_shops = "Repair",
-    prompt_gym = "Gym",
-    prompt_hornys = "Hornys",
-    prompt_sandy_gym = "Gym"
+-- Snapshot rejestru all_data_full (Prompt-Coder/mapdatachecker) — TYLKO do
+-- raportu poniżej. Kolejność tablicy jest kolejnością rejestru: w niej
+-- oficjalny checker buduje existList i link (np. Firestation2+Market+Gas),
+-- więc lokalny self-check musi pytać w tej samej kolejności. Nieznane
+-- statiki wypisujemy po identyfikatorze.
+local PROMPT_MAP_REGISTRY = {
+    { static = "prompt_sandy_roads", name = "Roads" },
+    { static = "darkvanar_flywheel", name = "Flywheels" },
+    { static = "prompt_sandy_downtown", name = "Downtown" },
+    { static = "prompt_sandy_fire2", name = "Firestation2" },
+    { static = "prompt_sandy_hospital2", name = "Hospital2" },
+    { static = "prompt_sandy_joshua", name = "Joshua" },
+    { static = "prompt_sandy_university", name = "Uni" },
+    { static = "prompt_sandy_corner", name = "Corner" },
+    { static = "prompt_sandy_apts", name = "Apts" },
+    { static = "prompt_sandy_bank", name = "Bank" },
+    { static = "prompt_sandy_market", name = "Market" },
+    { static = "prompt_sandy_motel", name = "Motel" },
+    { static = "prompt_sandy_gasstation_carwash", name = "Gas" },
+    { static = "prompt_sandy_compound", name = "Mechanic" },
+    { static = "prompt_sandy_church", name = "Church" },
+    { static = "prompt_sandy_classic_car_dealership", name = "Dealer" },
+    { static = "prompt_sandy_cityhall", name = "Cityhall" },
+    { static = "sandy_shores_houses_pt1", name = "Houses1" },
+    { static = "prompt_sandy_train_station", name = "Trainstation" },
+    { static = "prompt_sandy_beaches", name = "Marina" },
+    { static = "cfx_chuz_sandy_shores_boat_house", name = "Boathouse" },
+    { static = "prompt_sandy_sheriff", name = "Sheriff" },
+    { static = "prompt_sandy_hospital", name = "Hospital" },
+    { static = "prompt_sandy_airfield", name = "Airfield" },
+    { static = "cfx_prompt_sandy_shores_fire_department", name = "Firestation" },
+    { static = "cfx_prompt_blaine_county_hall", name = "Cityhall" },
+    { static = "prompt_trainstation_paleto", name = "Train" },
+    { static = "paleto_bay_fire_station", name = "Firestation" },
+    { static = "prompt_tuco_paleto_sheriff", name = "Sheriff" },
+    { static = "prompt_repair_shops", name = "Repair" },
+    { static = "prompt_gym", name = "Gym" },
+    { static = "prompt_hornys", name = "Hornys" },
+    { static = "prompt_sandy_gym", name = "Gym" }
 }
+
+local PROMPT_MAP_NAMES = {}
+for _, entry in ipairs(PROMPT_MAP_REGISTRY) do
+    PROMPT_MAP_NAMES[entry.static] = entry.name
+end
 
 -- Lista map obsługiwanych przez zainstalowaną mapdata — pytamy jak
 -- oficjalny checker (prompt:mapdata_sendList + własny event zwrotny).
@@ -985,12 +1001,23 @@ end
 -- Raport końcowy checkera drukuje zawsze mapa OSTATNIA na wykrytej liście
 -- (kolejność rejestru all_data_full: Firestation2 < Market < Gas).
 -- Pozostałe checkery delegują wydruk do niej eventem ":mapFinal"
--- z argumentami (allMaps, existList) i same nic nie drukują — dlatego po
--- naprawie wykrywania raport zniknął: drukował go wcześniej Market, a po
--- wykryciu "Gas" obowiązek przeszedł na tę mapę, która nie ma checkera
--- (sv_loader usunięty). Poniżej lokalny odpowiednik tego wydruku.
-AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function(_, existList)
+-- z argumentami (allMaps, existList) i same nic nie drukują.
+--
+-- Uwaga na podwójny wydruk (naprawiony): gdy sv_loader miały DWIE mapy
+-- (Market i Fire2), każdy pobierał i wykonywał własną kopię checkera —
+-- stąd dwa zapytania "mapExists" i dwa delegowane ":mapFinal", a ten
+-- handler drukował raport dwa razy. Po usunięciu sv_loaderów (zdalny kod
+-- + telemetria — ANALIZA.md 7.1/8.1) checkerów nie ma wcale, więc raport
+-- drukujemy lokalnie i dokładnie RAZ:
+--   1) printMapdataReport ma strażnika — drugie wywołanie to no-op;
+--   2) self-check niżej odzywa się tylko wtedy, gdy żaden obcy checker
+--      nie pytał nas o istnienie (promptCheckerSeen) i nic nie wydrukował.
+local mapdataReportPrinted = false
+
+local function printMapdataReport(existList)
+    if mapdataReportPrinted then return end
     if type(existList) ~= "table" or #existList == 0 then return end
+    mapdataReportPrinted = true
 
     if not promptMapdataMaps then
         TriggerEvent("prompt:mapdata_sendList", "promptmap:return_" .. PROMPT_MAP_ID)
@@ -1051,6 +1078,40 @@ AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function(_, existList)
         "^8 Missing (in mapdata but not installed):^7 " .. (#missing > 0 and table.concat(missing, ", ") or "none"),
         "^5🔗 Download: " .. link .. "^7"
     })
+end
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function(_, existList)
+    printMapdataReport(existList)
+end)
+
+-- Lokalny odpowiednik checkera: gdy na serwerze nie działa żaden obcy
+-- checker mapdata (a po usunięciu sv_loaderów nie działa), sami pytamy mapy
+-- o istnienie tymi samymi eventami co oficjalny skrypt i drukujemy raport
+-- raz. Pytamy w kolejności rejestru — tak jak checker buduje existList.
+CreateThread(function()
+    -- Obce checkery pytają ok. 5 s po starcie swojego zasobu; dajemy im czas,
+    -- żeby ewentualna delegacja ":mapFinal" (albo ich własny wydruk) zdążyła
+    -- pierwsza — strażnik i tak nie dopuści drugiego wydruku.
+    Wait(10000)
+    if mapdataReportPrinted or promptCheckerSeen then return end
+
+    local existList = {}
+    for _, entry in ipairs(PROMPT_MAP_REGISTRY) do
+        local exists = false
+        if entry.static == PROMPT_MAP_ID then
+            exists = true -- my sami — nie pytamy siebie (i nie dublujemy logu)
+        else
+            TriggerEvent(entry.static .. ":mapExists", function(answer)
+                exists = answer == true
+            end)
+            Wait(100)
+        end
+        if exists then
+            existList[#existList + 1] = entry.static
+        end
+    end
+
+    printMapdataReport(existList)
 end)
 
 print(("[%s] Prompt mapdata: zarejestrowano wykrywanie mapy %s (%s)"):format(
