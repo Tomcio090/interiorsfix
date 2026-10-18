@@ -5,7 +5,11 @@ CreateThread(function()
 end)
 
 -- IPL Manager Client Script
-local hasOxLib = GetResourceState('ox_lib') == 'started'
+-- ox_lib jest OPCJONALNY (fallback to komendy) — sprawdzamy stan zasobu
+-- przy każdym użyciu, a nie tylko przy starcie (odporność na kolejność startu).
+local function isOxLibAvailable()
+    return GetResourceState('ox_lib') == 'started'
+end
 local loadedIPLs = {}
 
 -- Initialize IPL states based on config
@@ -67,27 +71,31 @@ end
 
 -- Create ox_lib menu
 local function createOxLibMenu()
-    if not hasOxLib then
+    if not isOxLibAvailable() then
         return
     end
     
     local lib = exports.ox_lib
     local options = {}
     
-    -- Add toggle options for each IPL
-    for iplName, iplData in pairs(loadedIPLs) do
-        table.insert(options, {
-            title = iplData.name,
-            description = iplData.description,
-            icon = iplData.loaded and 'fa-solid fa-eye' or 'fa-solid fa-eye-slash',
-            iconColor = iplData.loaded and 'green' or 'red',
-            onSelect = function()
-                requestToggleIPL(iplName)
-                -- Refresh the menu after toggling
-                Wait(100)
-                createOxLibMenu()
-            end
-        })
+    -- Add toggle options for each IPL (kolejność jak w configu — stabilna)
+    for _, iplData in ipairs(Config.IPLs) do
+        local iplName = iplData.ipl
+        local state = loadedIPLs[iplName]
+        if state then
+            table.insert(options, {
+                title = state.name,
+                description = state.description,
+                icon = state.loaded and 'fa-solid fa-eye' or 'fa-solid fa-eye-slash',
+                iconColor = state.loaded and 'green' or 'red',
+                onSelect = function()
+                    requestToggleIPL(iplName)
+                    -- Refresh the menu after toggling
+                    Wait(100)
+                    createOxLibMenu()
+                end
+            })
+        end
     end
     
     -- Add utility options
@@ -115,7 +123,9 @@ local function createOxLibMenu()
         end
     })
     
-    lib:registerContext({
+    -- Eksporty ox_lib wywołujemy składnią z kropką (zgodnie z API ox_lib;
+    -- wywołanie przez ":" mogłoby przekazać tabelę proxy jako pierwszy argument).
+    lib.registerContext({
         id = 'ipl_manager_menu',
         title = Config.Menu.title,
         menu = Config.Menu.subtitle,
@@ -123,7 +133,7 @@ local function createOxLibMenu()
         options = options
     })
     
-    lib:showContext('ipl_manager_menu')
+    lib.showContext('ipl_manager_menu')
 end
 
 -- Fallback menu using basic chat commands
@@ -142,10 +152,13 @@ end
 -- List all IPLs and their states
 local function listIPLs()
     print("^6=== IPL Status ===^0")
-    for iplName, iplData in pairs(loadedIPLs) do
-        local status = iplData.loaded and "^2LOADED^0" or "^1UNLOADED^0"
-        local enabled = iplData.enabled and "(Enabled)" or "(Disabled)"
-        print(string.format("^3%s^0: %s %s - %s", iplData.name, status, enabled, iplData.description))
+    for _, iplData in ipairs(Config.IPLs) do
+        local state = loadedIPLs[iplData.ipl]
+        if state then
+            local status = state.loaded and "^2LOADED^0" or "^1UNLOADED^0"
+            local enabled = state.enabled and "(Enabled)" or "(Disabled)"
+            print(string.format("^3%s^0: %s %s - %s", state.name, status, enabled, state.description))
+        end
     end
     print("^6==================^0")
 end
@@ -183,18 +196,15 @@ CreateThread(function()
 end)
 
 -- Register main command
+-- Config.Command.restricted = true → wbudowane ograniczenie FiveM (ACE:
+-- "command.<nazwa_komendy>"), zamiast niezaimplementowanego sprawdzania w ciele.
 RegisterCommand(Config.Command.name, function(source, args, rawCommand)
-    if Config.Command.restricted then
-        -- Add your permission check here if needed
-        -- Example: if not IsPlayerAceAllowed(source, "command.marketipls") then return end
-    end
-    
-    if hasOxLib then
+    if isOxLibAvailable() then
         createOxLibMenu()
     else
         showFallbackMenu()
     end
-end, false)
+end, Config.Command.restricted)
 
 -- Register fallback IPL commands
 RegisterCommand("pm_ipl", function(source, args, rawCommand)
