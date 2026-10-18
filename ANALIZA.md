@@ -222,10 +222,10 @@ To przy okazji usuwa duplikację logiki otwarcia po stronie klientów.
 - **`playEntityAnimation`: parametry nie znaczą tego, co nazwy:** `duration` i `loop` są ignorowane,
   faktycznie do `PlayEntityAnim(entity, animName, animDict, blendDelta, bLoop, bHoldLastFrame, …)`
   trafia `flag` jako *bLoop* oraz **liczba `0.0`** jako *bHoldLastFrame* (`client.lua:218`;
-  sygnatura: [PLAY_ENTITY_ANIM](https://docs.fivem.net/natives/?_0xD201F3FF917A506D=)).
+  sygnatura: [PLAY_ENTITY_ANIM](https://docs.fivem.net/natives/?_0x6089CDF6A57F326C=)).
   Wszystkie wywołania przekazują te same `(…, 0, false, true, 0.0, 0)`, więc w praktyce każda
-  animacja (też open/close) idzie z `bLoop=true`. Konwersja liczby na BOOL natywki jest zależna
-  od marshalingu — **do zweryfikowania w grze**, czy klipy nie zapętlają się zamiast trzymać ostatnią klatkę.
+  animacja (też open/close) idzie z `bLoop=true`. **Potwierdzone w grze** (klipy faktycznie
+  się zapętlały) **i naprawione po teście na serwerze — patrz 9.3.**
 - **`busy` może zostać ustawione na zawsze**: czyszczenie zależy od `SetTimeout` na kliencie animującym.
   Gdy inicjator wyjdzie z serwera w trakcie animacji gracza (zanim poleci `updatePropState`),
   żaden klient nie wyśle `setPropBusy(false)` (brak synchronizującego klienta = brak jego timeoutu),
@@ -409,7 +409,28 @@ sprawdzenie, czy właściwa grupa ma nadane ACE `command.testanims` w konfigurac
   flagę `/testanims`.
 - `git diff --check` nie wykazał błędów whitespace, a status gita potwierdził zero zmian pod `stream/`.
 
-**Niezeryfikowane (wymaga gry/serwera):** rzeczywiste odtwarzanie animacji (w tym zachowanie
-`bLoop/bHoldLastFrame`), kierunek ruchu kolizji względem fizycznych modeli, timing
-`GetAnimDuration`, synchronizacja pozycji graczy względem tolerancji stref, interakcje
+**Niezeryfikowane (wymaga gry/serwera):** kierunek ruchu kolizji względem fizycznych modeli,
+timing `GetAnimDuration`, synchronizacja pozycji graczy względem tolerancji stref, interakcje
 ox_target/qb-target na żywym kliencie oraz cała zawartość `stream/`.
+
+### 9.3. Test w grze i poprawki następcze
+
+Po uruchomieniu zasobu na serwerze zgłoszono dwa objawy:
+
+1. **Każdy animowany prop odtwarzał animację w pętli** (roleta „otwierała się w kółko"
+   zamiast raz). To ustalenie z 7.4: `playEntityAnimation` wywoływał `PlayEntityAnim`
+   z `bLoop=true` oraz liczbą `0.0` w miejscu `bHoldLastFrame`. Funkcję przepisano na
+   jednoznaczne `bLoop=false, bHoldLastFrame=true` i usunięto przekłamane parametry
+   (`duration`/`loop`/`flag`/`playbackRate`) ze wszystkich miejsc wywołania.
+2. **Brak propów tuż po spawnie gracza przy garażu** — pojawiały się dopiero po wyjściu
+   z zasięgu i powrocie. Jednorazowa, chwilowa porażka `createProp` (np. streaming modelu
+   w trakcie spawnu gracza) nie była ponawiana: kolejne utworzenie następowało dopiero
+   przy następnym `onEnter` pointa. Dodano: retry spawnu z rosnącym odstępem (do 5 prób),
+   ochronę przed równoległymi próbami, retry kolizji, leczenie brakującej kolizji/linked
+   przy ponownym wywołaniu oraz natychmiastową próbę utworzenia, gdy gracz już stoi
+   w zasięgu w chwili tworzenia pointa.
+
+Nazwy modeli i słowników animacji zweryfikowano względem listy plików `stream/`
+(wszystkie istnieją). Mockowany harness po poprawkach: **49/49 sprawdzeń** (doszły testy
+flag `PlayEntityAnim` oraz retry spawnu). Do potwierdzenia pozostaje jedynie ponowny
+smoke test w grze po tych dwóch poprawkach.

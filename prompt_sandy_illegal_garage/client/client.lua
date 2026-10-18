@@ -107,6 +107,7 @@ local activeZones = {}
 local oxTargetZones = {}
 local zoneEnterCounts = {}
 local activeZoneData = {}
+local propSpawnPending = {}
 
 -- Pomocnicza funkcja sprawdzająca czy to roleta garażowa w Sandy
 local function isGarageRollup(propName)
@@ -206,8 +207,12 @@ createLinkedProp = function(propData, parentName)
     return entity
 end
 
--- Odtwarzanie animacji dla encji
-local function playEntityAnimation(entity, animDict, animName, duration, loop, flag, playbackRate, playbackTime)
+-- Odtwarzanie animacji dla encji: klip gra DOKŁADNIE RAZ i trzyma ostatnią
+-- klatkę (otwarte drzwi / podniesiony lift mają zostać w pozycji końcowej).
+-- Wcześniej parametry duration/loop/flag/playbackRate były przekłamane:
+-- każde wywołanie trafiało do PlayEntityAnim jako bLoop=true oraz liczba 0.0
+-- jako bHoldLastFrame, więc każda animacja propa zapętlała się w kółko.
+local function playEntityAnimation(entity, animDict, animName)
     if not entity or not DoesEntityExist(entity) then return end
 
     local animLoadResult = lib.requestAnimDict(animDict)
@@ -215,7 +220,9 @@ local function playEntityAnimation(entity, animDict, animName, duration, loop, f
         animLoadResult.await()
     end
 
-    PlayEntityAnim(entity, animName, animDict, 8.0, flag or false, playbackRate or true, false, playbackTime or 0.0, 0)
+    -- PlayEntityAnim(entity, animName, animDict, blendDelta,
+    --                bLoop, bHoldLastFrame, bDriveToPose, startPhase, flags)
+    PlayEntityAnim(entity, animName, animDict, 8.0, false, true, false, 0.0, 0)
     RemoveAnimDict(animDict)
 end
 
@@ -227,7 +234,7 @@ playStaticAnimation = function(entity, propData)
     local dict = propData.animations.dict
     local staticAnim = propData.animations.static
 
-    playEntityAnimation(entity, dict, staticAnim, 0, false, true, 0.0, 0)
+    playEntityAnimation(entity, dict, staticAnim)
 
     if propData.linkedProps and propData.animations.linkedAnims then
         for index, linkedProp in ipairs(propData.linkedProps) do
@@ -235,7 +242,7 @@ playStaticAnimation = function(entity, propData)
             if linkedInfo and linkedInfo.entity and DoesEntityExist(linkedInfo.entity) then
                 local linkedAnim = propData.animations.linkedAnims[index]
                 if linkedAnim and linkedAnim.static then
-                    playEntityAnimation(linkedInfo.entity, dict, linkedAnim.static, 0, false, true, 0.0, 0)
+                    playEntityAnimation(linkedInfo.entity, dict, linkedAnim.static)
                 end
             end
         end
@@ -252,7 +259,7 @@ local function animateMultipleProps(propsList, animationsList, animDict, isOpen,
 
     if targetProp and targetProp.entity and DoesEntityExist(targetProp.entity) then
         local animName = isOpen and animationsList[index].open or animationsList[index].close
-        playEntityAnimation(targetProp.entity, animDict, animName, speed, false, true, 0.0, 0)
+        playEntityAnimation(targetProp.entity, animDict, animName)
     end
 
     animateMultipleProps(propsList, animationsList, animDict, isOpen, speed, index + 1)
@@ -264,7 +271,7 @@ end
 -- emitLocalEvents: czy emitować lokalne eventy liftStateChanged/Complete
 -- (false przy cichym odtworzeniu stanu po spawnie propa).
 playPropAnimation = function(propConfig, propEntity, isOpen, animDict, animName, duration, emitLocalEvents)
-    playEntityAnimation(propEntity, animDict, animName, duration, false, true, 0.0, 0)
+    playEntityAnimation(propEntity, animDict, animName)
 
     if emitLocalEvents then
         TriggerEvent("prompt_sandy_illegal_garage:liftStateChanged", propConfig.name, isOpen)
@@ -370,26 +377,56 @@ animateProp = function(propName, isOpen, emitLocalEvents)
     return true
 end
 
--- Tworzenie pojedynczego propa na podstawie konfiguracji
-createProp = function(propData)
+-- Tworzenie pojedynczego propa na podstawie konfiguracji.
+-- attempt: numer próby — po chwilowej porażce spawnu ponawiamy próbę zamiast
+-- czekać, aż gracz wyjdzie i wróci w zasięg pointa (objaw: brak drzwi tuż po
+-- spawnie gracza przy garażu, mimo że model jest poprawny).
+createProp = function(propData, attempt)
     local existingEntity = spawnedProps[propData.name]
     if existingEntity and DoesEntityExist(existingEntity) then
+        -- Przy okazji ulecz ewentualnie brakującą kolizję / linked propy
+        -- (obie funkcje same odrzucają duplikaty).
+        if propData.collision then
+            createCollision(propData)
+        end
+        if propData.linkedProps then
+            for _, linkedData in ipairs(propData.linkedProps) do
+                createLinkedProp(linkedData, propData.name)
+            end
+        end
         return existingEntity
     end
 
+    -- spawnObjectModel yielduje przy ładowaniu modelu: równoległa próba
+    -- (onEnter pointa + retry) nie może utworzyć duplikatu.
+    if propSpawnPending[propData.name] then
+        return nil
+    end
+    propSpawnPending[propData.name] = true
+    attempt = attempt or 1
+
     debugPrint("[ILLEGAL GARAGE] Creating prop: " .. propData.name .. " with model: " .. tostring(propData.model))
     local entity = spawnObjectModel(propData.model, propData.coords, propData.rotation, false, false)
+    propSpawnPending[propData.name] = nil
 
     if not entity then
-        debugPrint("[ILLEGAL GARAGE ERROR] Failed to create entity for prop: " .. propData.name)
+        if attempt <= 5 then
+            SetTimeout(1000 * attempt, function()
+                createProp(propData, attempt + 1)
+            end)
+        else
+            debugPrint("[ILLEGAL GARAGE ERROR] Failed to create entity for prop: " .. propData.name)
+        end
         return nil
     end
 
     debugPrint("[ILLEGAL GARAGE] Successfully created prop entity: " .. propData.name .. " (entity: " .. tostring(entity) .. ")")
     spawnedProps[propData.name] = entity
 
-    if propData.collision then
-        createCollision(propData)
+    if propData.collision and not createCollision(propData) then
+        SetTimeout(1500, function()
+            createCollision(propData)
+        end)
     end
 
     if propData.linkedProps then
@@ -788,6 +825,12 @@ local function createSpawnPoint(propData)
     if point then
         spawnedProps[propData.name] = nil
         debugPrint("[ILLEGAL GARAGE] Spawn point created and stored for: " .. propData.name)
+
+        -- Gracz może już stać w zasięgu (spawn przy propie / restart zasobu):
+        -- spróbuj od razu, nie polegaj wyłącznie na onEnter pointa.
+        if #(GetEntityCoords(cache.ped) - propData.coords) <= Config.SpawnDistance then
+            createProp(propData)
+        end
     else
         debugPrint("[ILLEGAL GARAGE WARNING] Failed to create spawn point for: " .. propData.name)
     end
