@@ -195,19 +195,41 @@ CreateThread(function()
     TriggerServerEvent('ipl_manager:requestSync')
 end)
 
+-- ── Wspólna permisja ACE dla komend pakietu Prompt Sandy Shores ─────
+-- Wszystkie komendy z tego repo sprawdzają JEDEN obiekt ACE:
+-- command.sandyshores (ANALIZA.md, rozdz. 11). Konfiguracja serwera:
+--   add_ace group.admin command.sandyshores allow
+--   add_principal identifier.license:XXXX group.admin
+-- Na kliencie poprawną natywką jest IsAceAllowed (IsPlayerAceAllowed to API
+-- serwerowe). Komendy rejestrujemy z restricted=false i sprawdzamy ręcznie,
+-- bo wbudowany flag FiveM patrzy na osobne "command.<nazwa_komendy>".
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
+    end
+    print("^1[SANDY] Missing ACE permission: " .. SANDY_COMMAND_ACE .. "^0")
+    return false
+end
+
 -- Register main command
--- Config.Command.restricted = true → wbudowane ograniczenie FiveM (ACE:
--- "command.<nazwa_komendy>"), zamiast niezaimplementowanego sprawdzania w ciele.
 RegisterCommand(Config.Command.name, function(source, args, rawCommand)
+    if not canUseSandyCommand() then
+        return
+    end
     if isOxLibAvailable() then
         createOxLibMenu()
     else
         showFallbackMenu()
     end
-end, Config.Command.restricted)
+end, false)
 
 -- Register fallback IPL commands
 RegisterCommand("pm_ipl", function(source, args, rawCommand)
+    if not canUseSandyCommand() then
+        return
+    end
     if #args == 0 then
         showFallbackMenu()
         return

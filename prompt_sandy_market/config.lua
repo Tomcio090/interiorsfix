@@ -66,8 +66,9 @@ Config.Menu = {
 }
 
 -- Command Configuration
+-- Wszystkie komendy pakietu wymagają wspólnej permisji ACE
+-- "command.sandyshores" (ANALIZA.md, rozdz. 11) — niezależnie od configu.
 Config.Command = {
     name = "marketipls",
-    description = "Open IPL management menu",
-    restricted = false -- true = komenda tylko dla uprawnionych (ACE "command.marketipls")
+    description = "Open IPL management menu"
 } 

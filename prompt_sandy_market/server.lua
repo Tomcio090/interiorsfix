@@ -1,6 +1,26 @@
 -- IPL Manager Server Script
 local serverIPLStates = {}
 
+-- ── Wspólna permisja ACE dla komend/zmian pakietu Prompt Sandy ──────
+-- Jeden obiekt ACE dla wszystkich komend z repo: command.sandyshores
+-- (ANALIZA.md, rozdz. 11), np. w server.cfg:
+--   add_ace group.admin command.sandyshores allow
+--   add_principal identifier.license:XXXX group.admin
+-- Sprawdzamy SERWEROWO, bo eventy to RegisterNetEvent — klient mógłby je
+-- wywołać z pominięciem komend. Wyjątek: requestSync (sam odczyt stanu)
+-- zostaje otwarty dla wszystkich — IPL-e to widoki świata i każdy klient
+-- musi je zaaplikować lokalnie.
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function playerCanManageIPLs(playerId)
+    if type(playerId) == "number" and playerId > 0 and IsPlayerAceAllowed(playerId, SANDY_COMMAND_ACE) then
+        return true
+    end
+    print(("^1[IPL MANAGER] Odrzucono żądanie zmiany IPL bez ACE %s (gracz %s)^0"):format(
+        SANDY_COMMAND_ACE, tostring(playerId)))
+    return false
+end
+
 -- Initialize server IPL states based on config
 local function initializeServerIPLStates()
     for i, iplData in ipairs(Config.IPLs) do
@@ -34,6 +54,9 @@ end
 -- Handle IPL load request from client
 RegisterNetEvent('ipl_manager:requestLoad', function(iplName)
     local playerId = source
+    if not playerCanManageIPLs(playerId) then
+        return
+    end
     
     if not serverIPLStates[iplName] then
         print("^1[IPL MANAGER] Invalid IPL request from player " .. playerId .. ": " .. iplName .. "^0")
@@ -51,6 +74,9 @@ end)
 -- Handle IPL unload request from client
 RegisterNetEvent('ipl_manager:requestUnload', function(iplName)
     local playerId = source
+    if not playerCanManageIPLs(playerId) then
+        return
+    end
     
     if not serverIPLStates[iplName] then
         print("^1[IPL MANAGER] Invalid IPL request from player " .. playerId .. ": " .. iplName .. "^0")
@@ -68,6 +94,9 @@ end)
 -- Handle IPL toggle request from client
 RegisterNetEvent('ipl_manager:requestToggle', function(iplName)
     local playerId = source
+    if not playerCanManageIPLs(playerId) then
+        return
+    end
     
     if not serverIPLStates[iplName] then
         print("^1[IPL MANAGER] Invalid IPL request from player " .. playerId .. ": " .. iplName .. "^0")
@@ -81,6 +110,9 @@ end)
 -- Handle load all enabled request
 RegisterNetEvent('ipl_manager:requestLoadAllEnabled', function()
     local playerId = source
+    if not playerCanManageIPLs(playerId) then
+        return
+    end
     
     for iplName, iplData in pairs(serverIPLStates) do
         if iplData.enabled and not iplData.loaded then
@@ -92,6 +124,9 @@ end)
 -- Handle unload all request
 RegisterNetEvent('ipl_manager:requestUnloadAll', function()
     local playerId = source
+    if not playerCanManageIPLs(playerId) then
+        return
+    end
     
     for iplName, iplData in pairs(serverIPLStates) do
         if iplData.loaded then
