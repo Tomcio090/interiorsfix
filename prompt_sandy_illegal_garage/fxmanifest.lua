@@ -36,14 +36,12 @@ client_scripts {
 }
 
 server_scripts {
-    'server/*.lua',
-    -- 'sv_loader.lua' WYŁĄCZONY celowo: pobiera kod z GitHuba i wykonuje go na
-    -- serwerze przez load(), a zdalny skrypt wysyła telemetrię identyfikującą
-    -- serwer (plik nie jest zaszyfrowany escrow/FXAP). Mapa działa bez niego,
-    -- a wykrywanie przez Prompt mapdata obsługuje lokalnie server/server.lua
-    -- (handlery "<MapId>:mapExists"); tracisz tylko powiadomienia o wersji.
-    -- Aby włączyć z powrotem świadomie: odkomentuj wpis poniżej.
-    -- 'sv_loader.lua'
+    'server/*.lua'
+    -- UWAGA: brak sv_loader.lua jest CELOWY (plik usunięty). Oryginalny
+    -- loader pobierał kod z GitHuba i wykonywał go na serwerze przez load(),
+    -- a zdalny skrypt wysyłał telemetrię identyfikującą serwer. Wykrywanie
+    -- tej mapy przez Prompt mapdata działa bez niego — handlery
+    -- "<MapId>:mapExists" rejestruje lokalnie server/server.lua.
 }
 
 dependency 'ox_lib'
