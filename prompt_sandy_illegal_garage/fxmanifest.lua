@@ -37,8 +37,13 @@ client_scripts {
 
 server_scripts {
     'server/*.lua',
-    'sv_loader.lua'
- }
+    -- 'sv_loader.lua' WYŁĄCZONY celowo: pobiera kod z GitHuba i wykonuje go na
+    -- serwerze przez load(), a zdalny skrypt wysyła telemetrię identyfikującą
+    -- serwer (plik nie jest zaszyfrowany escrow/FXAP). Mapa działa bez niego;
+    -- tracisz tylko zdalny checker zgodności mapdata i powiadomienia o wersji.
+    -- Aby włączyć z powrotem świadomie: odkomentuj wpis poniżej.
+    -- 'sv_loader.lua'
+}
 
-dependency '/assetpacks'
+dependency 'ox_lib'
 dependency '/assetpacks'

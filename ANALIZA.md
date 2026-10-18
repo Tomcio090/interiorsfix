@@ -27,7 +27,7 @@ eventy, eksporty, stringi i kolejność rejestracji**:
 | `server/server.lua` | 1527 linii | 631 | stan, uprawnienia, AutoOpen, komenda testowa |
 | `sv_loader.lua` | 232 linie | 99 | zdalny checker + wersja |
 
-Pozostałe pliki były już w normalnym zapisie i **nie były edytowane** w tej rundzie
+Pozostałe pliki były już w normalnym zapisie i **nie były edytowane w rundzie czyszczenia**
 (tylko przeanalizowane): `client/client.lua` (1131), `client/target_wrapper.lua` (83),
 `config.lua` (226), `open_config.lua` (54), `open_functions.lua` (173), `fxmanifest.lua` (43).
 Znalezione w nich problemy są opisane w rozdziale 7 jako lista do naprawy — świadomie ich
@@ -143,8 +143,8 @@ Interakcja zmienia się na lock/unlock (`toggleLock`).
   W praktyce: **każdy start serwera z tą kopią „dzwoni do domu” i identyfikuje właściciela.**
 - Rekomendacja: usunąć `'sv_loader.lua'` z `server_scripts` w `fxmanifest.lua` (mapa działa bez tego;
   znika tylko checker zgodności mapdata i powiadomienia o wersji) **albo** zostawić checker,
-  ale zablokować telemetrię/własnoręcznie hostować kod. **W tej rundzie pliku nie usuwano ani manifestu
-  nie zmieniano — tylko przepisano format.**
+  ale zablokować telemetrię/własnoręcznie hostować kod. **W rundzie czyszczenia pliku nie usuwano
+  ani manifestu nie zmieniano; decyzję wdrożono w drugiej rundzie — patrz 8.1.**
 
 ### 7.2. 🟠 Wysokie — funkcje zepsute
 
@@ -287,15 +287,95 @@ To przy okazji usuwa duplikację logiki otwarcia po stronie klientów.
   włączonych restrykcjach ponawia 3× `GetResourceState` (i w konsekwencji działa, gdy framework
   wystartuje później — być może zamierzone).
 
-## 8. Rekomendowana kolejność napraw (następny krok, jeszcze niewykonane)
+## 8. Rekomendowana kolejność napraw — status realizacji
 
-1. Decyzja ws. `sv_loader.lua` w manifeście (7.1) i ograniczenie `/testanims` przez ACE (7.2.5).
-2. Naprawy funkcjonalne: `onExecute`/global floorgate (7.2.1), kształt `playerAnimation` silnika (7.2.2),
-   `moveType="rotation"` + pomijanie kolizji statycznych (7.2.3), weryfikacja kierunku kolizji w grze (7.2.4).
-3. Twardnienie serwera: jeden autorytatywny event przełączania propa + watchdog na `busy` (7.3, 7.4).
-4. Porządki: `EnablePlayerAnimations`, ACE na kliencie, zależności w manifeście, komentarze czasów w configu.
+W drugiej rundzie wykonano **wszystkie cztery grupy napraw z pierwotnego punktu 8**.
+Zmieniono sześć plików kodu/konfiguracji: `client/client.lua`, `server/server.lua`,
+`config.lua`, `fxmanifest.lua`, `open_config.lua` i `open_functions.lua`.
+Folderu `stream/` nadal nie ruszano.
 
-## 9. Weryfikacja wykonana w tej rundzie
+### 8.1. `sv_loader.lua` i `/testanims` — wykonane
+
+- `sv_loader.lua` został usunięty z aktywnej listy `server_scripts` w `fxmanifest.lua`,
+  ale sam plik pozostawiono w repozytorium. Wpis można świadomie odkomentować; manifest
+  uprzedza jednak, że oznacza to ponowne uruchomienie mutowalnego, zdalnie pobieranego
+  kodu oraz opisanej w 7.1 telemetrii. Bez loadera mapa traci jedynie checker mapdata
+  i powiadomienia o wersji.
+- `/testanims` rejestruje się teraz jako komenda ACE (`RegisterCommand(..., true)`,
+  uprawnienie `command.testanims`). Dodatkowo menu nie animuje propów lokalnie:
+  wysyła żądania do autorytatywnego serwera, więc nadal obowiązują uprawnienia,
+  `busy` i walidacja dystansu.
+
+### 8.2. Naprawy funkcjonalne — wykonane
+
+- **Floorgate (7.2.1):** `onExecute` z `config.lua` nie woła już nieosiągalnego lokalnego
+  `animateProp`; używa eksportu zasobu `setLiftState('prompt_sandy_is_lift', true)`. Eksport
+  wyłącznie prosi serwer o zmianę stanu, a lokalne odtworzenie następuje ze state-baga.
+- **`playerAnimation` silnika (7.2.2):** tabele `position`/`heading` kluczowane nazwą animacji
+  (`domkrat_up`/`domkrat_down`) są rozwiązywane na serwerze wyłącznie na podstawie `Config.Props`.
+  Klient dodatkowo toleruje ten kształt, zawsze waliduje liczby i buduje `vector3`, więc dane
+  silnika nie powodują już błędu ani trwałego `busy`.
+- **Ruch kolizji (7.2.3):** `moveType = "coords"` używa `AnimateObjectCoords`,
+  `moveType = "rotation"` używa `AnimateObjectRotation`, natomiast kolizja bez typu ruchu
+  (statyczny silnik) jest teraz świadomie pomijana zamiast wywoływać animację na `nil`.
+- **Kierunek kolizji (7.2.4):** ujednolicono kierunek do konwencji już stosowanej przez
+  `createCollision`: otwarty/podniesiony = `endCoords`, zamknięty/opuszczony = `startCoords`.
+  To usuwa sprzeczność w kodzie; zgodność z fizycznym modelem nadal wymaga krótkiego
+  smoke testu w grze, bo zawartości `stream/` celowo nie analizowano.
+
+### 8.3. Autorytatywny serwer i watchdog `busy` — wykonane
+
+- Dodano jeden ręczny event żądania: `ilegal_anims:requestToggleProp(propName, state?)`.
+  Serwer sprawdza typ/istnienie propa, opcjonalny boolean, tryb AutoOpen rolety, pozycję
+  gracza względem `interactionZone` i `extraZones`, `ServerHasJobAccess`, `busy` oraz
+  faktyczny bieżący stan. Dopiero po tej walidacji rozpoczyna animację.
+- Usunięto klientodecyzyjne handlery `initializeState`, `updatePropState`, `setPropBusy`
+  i `requestPlayerAnimation` oraz powrotny event `animatePropAfterPlayerAnim`. Klient nie
+  ustawia już stanu ani `busy`; wszyscy — także inicjator — odtwarzają animację po zmianie
+  `GlobalState` przez serwer.
+- `beginPropAnimation` buduje animację gracza wyłącznie z configa. Przy wymaganej animacji
+  najpierw ustawia `busy`, wywołuje callback ox_lib u inicjatora i zmienia stan dopiero po sukcesie.
+  `Config.EnablePlayerAnimations = false` pomija callback i zmienia stan od razu.
+- `busy` ma monotoniczne tokeny per prop. Normalny watchdog zwalnia po
+  `animations.duration + 1000 ms`; dla animacji gracza failsafe wynosi
+  `8000 + duration + 2000 ms`. Rozłączenie inicjatora zwalnia jego pending natychmiast,
+  późny callback/sync po failsafe jest ignorowany, a jeden gracz może mieć tylko jeden
+  pending callback naraz.
+- `syncAnimation` jest whitelistą: serwer przepuszcza tylko dokładne `dict`/`anim`
+  z aktywnego, serwerowego pending danego gracza i tylko raz. Klient dodatkowo sprawdza,
+  czy nadawca istnieje, jest aktywny, ma poprawnego peda i nie jest lokalnym graczem.
+- AutoOpen też przechodzi przez serwerowy start animacji. `zoneEnter`, `requestAutoOpen`
+  i `toggleLock` mają walidację pozycji; `toggleLock` nie działa podczas `busy`;
+  `requestAutoClose` wymaga niedawnego legalnego wyjścia albo bliskiej pozycji.
+  Zamknięcie celowo nie wymaga joba, aby drzwi zamknęły się po ostatnim wychodzącym graczu.
+- Walidacja stref jest rozszerzonym, osiowym boxem (bieżące strefy mają `rotation = 0.0`):
+  zwykle połowa rozmiaru + 7,5 m, a fallback auto-zamknięcia połowa rozmiaru + 25 m.
+- `validateSource` zwraca teraz prawdziwy boolean tylko dla liczbowego `source > 0`.
+
+### 8.4. Porządki — wykonane
+
+- `EnablePlayerAnimations` jest faktycznie honorowane po stronie serwera.
+- Klient używa właściwej natywki ACE `IsAceAllowed(permission)`. Fallback propa bez
+  `acePermission` do `allowedJobs` zachowano jako świadomą, udokumentowaną semantykę.
+- Klient normalizuje ręcznie ustawione `framework = 'qbcore'` do swojej nazwy `'qb'`.
+- Manifest deklaruje `dependency 'ox_lib'` i zawiera `/assetpacks` tylko raz.
+- Komentarze przy `openDelay`/`closeDelay` rolety poprawnie mówią o milisekundach;
+  oba opóźnienia ustawiono na `0`.
+
+### 8.5. Świadome granice tej rundy
+
+Punkt 8 nie oznaczał naprawienia każdego ustalenia z 7.4/7.5. Poza zakresem pozostają m.in.
+semantyka parametrów `PlayEntityAnim`, jednokierunkowy streaming propów, obsługa tylko jednej
+nazwy rolety, martwe gałęzie `.await`, różnica wysokości boxa qb-target oraz mutowanie żywego
+stanu przez serwerową komendę diagnostyczną. Nie zmieniano ich, aby nie rozszerzać zakresu napraw.
+
+Przed wdrożeniem na serwer produkcyjny należy wykonać w grze: otwarcie/zamknięcie każdego
+z pięciu propów, test lifta z pojazdem, floorgate z obu przycisków, AutoOpen z zamkiem oraz
+sprawdzenie, czy właściwa grupa ma nadane ACE `command.testanims` w konfiguracji serwera.
+
+## 9. Weryfikacja
+
+### 9.1. Runda czyszczenia zapisu dekompilatora
 
 - **Składnia:** wszystkie 9 plików Lua przechodzą `load()` (parser Lua) — w tym 3 przepisane.
 - **Równoważność (mocki FiveM, ten sam scenariusz na wersji z gita i po przepisaniu):**
@@ -313,6 +393,23 @@ To przy okazji usuwa duplikację logiki otwarcia po stronie klientów.
 - Grepy spójności: pary eventów, klucze GlobalState/Config/Messages, zastosowania globali z `utils.lua`
   i `open_functions.lua`, pola `Config.Props` względem kodu klienta/serwera.
 
+### 9.2. Runda napraw z punktu 8
+
+- **Składnia końcowa:** wszystkie 9 plików Lua ponownie przechodzą `load()` przez parser Lua.
+- **Spójność statyczna:** siedem eventów klient→serwer ma dokładnie odpowiadające handlery;
+  jedyny własny event serwer→klient to `syncAnimation`; serwerowy callback
+  `ilegal_anims:playPlayerAnimation` ma rejestrację na kliencie; wszystkie wywołania eksportów
+  tego zasobu (`getLiftState`, `isLiftBusy`, `setLiftState`) mają definicje. Stare eventy
+  klientodecyzyjne nie występują już w aktywnym kodzie.
+- **Mockowany harness FiveM:** 46/46 sprawdzeń przeszło (34 serwerowe, 12 klienckich), w tym:
+  odrzucanie nieznanego propa i żądań z daleka, busy/watchdog, uprawnienia standalone,
+  rozwiązywanie `domkrat_up`/`domkrat_down`, porażkę i brak callbacka, późny sync/callback,
+  rozłączenie gracza, `EnablePlayerAnimations=false`, jeden pending na gracza, AutoOpen/zamek,
+  `onExecute` floorgate, końcowe pozycje kolizji coords/rotation, kolizję statyczną oraz ACE
+  flagę `/testanims`.
+- `git diff --check` nie wykazał błędów whitespace, a status gita potwierdził zero zmian pod `stream/`.
+
 **Niezeryfikowane (wymaga gry/serwera):** rzeczywiste odtwarzanie animacji (w tym zachowanie
-`bLoop/bHoldLastFrame`), kierunek ruchu kolizji względem modeli, timing `GetAnimDuration`,
-interakcje stref/ox_target/qb-target na żywym kliencie oraz cała zawartość `stream/`.
+`bLoop/bHoldLastFrame`), kierunek ruchu kolizji względem fizycznych modeli, timing
+`GetAnimDuration`, synchronizacja pozycji graczy względem tolerancji stref, interakcje
+ox_target/qb-target na żywym kliencie oraz cała zawartość `stream/`.

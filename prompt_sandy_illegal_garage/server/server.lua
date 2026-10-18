@@ -8,9 +8,8 @@
 ---------------------------------------------------------------------
 
 -- Czy source eventu wygląda na prawdziwego gracza?
--- Zwraca wartość "prawda/fałsz" w sensie Lua (dla nil zwraca nil).
 function validateSource(playerSource)
-    return playerSource and playerSource > 0
+    return type(playerSource) == "number" and playerSource > 0
 end
 
 -- Tylko JEDEN prop jest traktowany jako roleta AutoOpen (po nazwie modelu)
@@ -95,6 +94,18 @@ local function getPlayerJobName(playerSource)
     return nil
 end
 
+-- Szuka konfiguracji propa po nazwie modelu (Config.Props.*.name)
+local function getPropConfigByName(propName)
+    if type(propName) ~= "string" then return nil end
+
+    for _, prop in pairs(Config.Props) do
+        if prop.name == propName then
+            return prop
+        end
+    end
+    return nil
+end
+
 -- ── Uprawnienia (serwer) ────────────────────────────────────────────
 
 function ServerHasJobAccess(playerSource, propName)
@@ -103,14 +114,7 @@ function ServerHasJobAccess(playerSource, propName)
         return true
     end
 
-    -- Szukaj propa po nazwie
-    local propConfig = nil
-    for _, prop in pairs(Config.Props) do
-        if prop.name == propName then
-            propConfig = prop
-            break
-        end
-    end
+    local propConfig = getPropConfigByName(propName)
     if not propConfig then
         return true
     end
@@ -204,10 +208,27 @@ local function getOccupantCount(propName)
     return count
 end
 
+-- ── Busy + watchdog ─────────────────────────────────────────────────
+-- busyTokens[propName]       = token bieżącej animacji (nil = wolny)
+-- busyTokenCounters[propName] = rosnący licznik tokenów (nigdy nie kasowany,
+--   żeby stary SetTimeout nie trafił w token nowej animacji)
+
+local busyTokens = {}
+local busyTokenCounters = {}
+
 local function setBusy(propName, busy)
+    if busy then
+        busyTokenCounters[propName] = (busyTokenCounters[propName] or 0) + 1
+        busyTokens[propName] = busyTokenCounters[propName]
+    else
+        busyTokens[propName] = nil
+    end
+
     local busyStates = GlobalState.ilegal_carwash_busy or {}
     busyStates[propName] = busy and true or false
     GlobalState.ilegal_carwash_busy = busyStates
+
+    return busyTokens[propName]
 end
 
 exports("isDoorLocked", function(propName)
@@ -215,27 +236,255 @@ exports("isDoorLocked", function(propName)
     return locks[propName] or false
 end)
 
--- ── Eventy od klienta: stan / synchronizacja ────────────────────────
+local function notifyPlayer(playerSource, description, notifyType)
+    TriggerClientEvent("ox_lib:notify", playerSource, {
+        description = description,
+        type = notifyType or "error",
+        duration = 3000
+    })
+end
 
-RegisterNetEvent("ilegal_anims:initializeState", function(initialState)
-    if not validateSource(source) then return end
+-- ── Walidacja pozycji gracza względem stref interakcji ──────────────
+-- Strefy w configu są boxami (coords = środek, size = pełne wymiary,
+-- rotation obecnie wszędzie 0.0). Serwer sprawdza rozszerzony box:
+-- tolerancja pokrywa lag synchronizacji pozycji i interakcję targetem
+-- spoza samego boxa, a nadal odrzuca eventy z drugiego końca mapy.
 
-    -- Przyjmuje stan startowy tylko, jeśli jeszcze żaden nie istnieje.
-    -- (W praktyce wątek init powyżej zawsze tworzy {} na starcie serwera.)
-    if not GlobalState.ilegal_carwash then
-        GlobalState.ilegal_carwash = initialState or {}
+local function isPlayerNearZone(playerSource, zone, tolerance)
+    if not zone or not zone.coords then return false end
+
+    local ped = GetPlayerPed(playerSource)
+    if not ped or ped == 0 then return false end
+
+    local pos = GetEntityCoords(ped)
+    if not pos then return false end
+
+    local size = zone.size
+    local halfX = (size and size.x or 2.0) / 2.0
+    local halfY = (size and size.y or 2.0) / 2.0
+    local halfZ = (size and size.z or 2.0) / 2.0
+    tolerance = tolerance or 7.5
+
+    return math.abs(pos.x - zone.coords.x) <= halfX + tolerance
+        and math.abs(pos.y - zone.coords.y) <= halfY + tolerance
+        and math.abs(pos.z - zone.coords.z) <= halfZ + tolerance
+end
+
+local function isPlayerNearProp(playerSource, propConfig, tolerance)
+    if not propConfig then return false end
+
+    if isPlayerNearZone(playerSource, propConfig.interactionZone, tolerance) then
+        return true
     end
-end)
 
-RegisterNetEvent("ilegal_anims:updatePropState", function(propName, state)
-    if not validateSource(source) then return end
+    if propConfig.extraZones then
+        for _, zone in ipairs(propConfig.extraZones) do
+            if isPlayerNearZone(playerSource, zone, tolerance) then
+                return true
+            end
+        end
+    end
 
-    if propName then
+    return false
+end
+
+-- ── Start animacji propa (jedyna droga zmiany stanu) ────────────────
+-- pendingPlayerAnims[serverId] = { propName, dict, anim, token, synced }
+-- lastZoneExits[serverId]      = { propName, at } (do walidacji requestAutoClose)
+
+local pendingPlayerAnims = {}
+local lastZoneExits = {}
+
+local beginPropAnimation, scheduleBusyClear
+
+local function getPropAnimDuration(propConfig)
+    local duration = propConfig.animations and propConfig.animations.duration
+    if type(duration) ~= "number" or duration <= 0 then
+        duration = 5000
+    end
+    return math.floor(duration)
+end
+
+-- Buduje dane animacji gracza WYŁĄCZNIE z configa (nigdy z danych klienta).
+-- position/heading mogą być pojedynczą wartością albo tabelą per nazwa
+-- animacji (engine_full: domkrat_up/domkrat_down).
+local function resolvePlayerAnimation(propConfig, state)
+    local playerAnim = propConfig.playerAnimation
+    if not playerAnim then return nil end
+
+    local animName = state and playerAnim.name or (playerAnim.closeName or playerAnim.name)
+
+    local position = playerAnim.position
+    if type(position) == "table" and animName and position[animName] then
+        position = position[animName]
+    end
+
+    local heading = playerAnim.heading
+    if type(heading) == "table" and animName and heading[animName] ~= nil then
+        heading = heading[animName]
+    end
+
+    if type(playerAnim.dict) ~= "string" or type(animName) ~= "string"
+        or not position or position.x == nil or position.y == nil or position.z == nil
+        or type(heading) ~= "number" then
+        return nil
+    end
+
+    return {
+        dict = playerAnim.dict,
+        anim = animName,
+        position = position,
+        heading = heading,
+        propName = propConfig.name,
+        state = state
+    }
+end
+
+-- Planuje zwolnienie busy po zakończeniu animacji. Token chroni przed
+-- zwolnieniem busy nowszej animacji przez stary timer. Po zwolnieniu
+-- busy rolety AutoOpen ponawiamy próbę auto-otwarcia dla oczekujących.
+scheduleBusyClear = function(propName, delayMs, token)
+    token = token or busyTokens[propName]
+    if not token then return end
+
+    SetTimeout(delayMs, function()
+        if busyTokens[propName] ~= token then return end
+
+        setBusy(propName, false)
+
+        -- Failsafe mógł zadziałać przed powrotem callbacka animacji gracza:
+        -- usuń osierocony wpis whitelist, żeby nie dało się go użyć później.
+        for pendingSource, pending in pairs(pendingPlayerAnims) do
+            if pending.propName == propName and pending.token == token then
+                pendingPlayerAnims[pendingSource] = nil
+            end
+        end
+
+        if Config.AutoOpen and isGarageRollup(propName) then
+            local locks = GlobalState.ilegal_carwash_locks or {}
+            local states = GlobalState.ilegal_carwash or {}
+
+            if not locks[propName] and not states[propName] and getOccupantCount(propName) > 0 then
+                beginPropAnimation(propName, true, nil)
+            end
+        end
+    end)
+end
+
+-- Ustawia busy, (opcjonalnie) gra animację gracza u inicjatora i dopiero
+-- zmienia stan w GlobalState — wszyscy klienci (też inicjator) animują
+-- propa z handlera state-baga. Watchdog zwalnia busy nawet, gdy inicjator
+-- wyjdzie z serwera albo callback animacji gracza nigdy nie wróci.
+beginPropAnimation = function(propName, state, playerSource)
+    local propConfig = getPropConfigByName(propName)
+    if not propConfig then return false end
+    if busyTokens[propName] then return false end
+
+    local duration = getPropAnimDuration(propConfig)
+    local token = setBusy(propName, true)
+
+    local function applyState()
         updateGlobalPropState(propName, state)
+        scheduleBusyClear(propName, duration + 1000, token)
     end
+
+    if playerSource and Config.EnablePlayerAnimations ~= false and propConfig.playerAnimation then
+        local animData = resolvePlayerAnimation(propConfig, state)
+        if not animData then
+            print("Error: Datos incompletos para la solicitud de animación")
+            setBusy(propName, false)
+            return false
+        end
+
+        -- Jeden gracz może mieć naraz tylko jeden pending callback;
+        -- nadpisanie wpisu odebrałoby poprzedniej animacji whitelistę sync.
+        if pendingPlayerAnims[playerSource] then
+            setBusy(propName, false)
+            return false
+        end
+
+        pendingPlayerAnims[playerSource] = {
+            propName = propName,
+            dict = animData.dict,
+            anim = animData.anim,
+            token = token,
+            synced = false
+        }
+
+        -- Failsafe: dojście gracza na pozycję (<=5 s) + animacja + margines
+        scheduleBusyClear(propName, 8000 + duration + 2000, token)
+
+        lib.callback("ilegal_anims:playPlayerAnimation", playerSource, function(success)
+            local pending = pendingPlayerAnims[playerSource]
+            if pending and pending.token == token then
+                pendingPlayerAnims[playerSource] = nil
+            end
+
+            -- Timeout/watchdog zdążył zwolnić albo ruszyła nowsza animacja
+            if busyTokens[propName] ~= token then return end
+
+            if not success then
+                print("Error: La animación del jugador falló")
+                setBusy(propName, false)
+                return
+            end
+
+            applyState()
+        end, animData)
+    else
+        applyState()
+    end
+
+    return true
+end
+
+-- ── Eventy od klienta ───────────────────────────────────────────────
+-- Serwer jest autorytatywny: klient może jedynie POPROSIĆ o zmianę stanu
+-- (requestToggleProp / eventy AutoOpen). Dawne eventy-klient-decycjne
+-- (updatePropState, setPropBusy, requestPlayerAnimation, initializeState)
+-- zostały usunięte — stan początkowy ustawia wątek init, busy zwalnia
+-- wyłącznie watchdog, a dane animacji gracza pochodzą z configa.
+
+-- Jedyny event ręcznego przełączania propa.
+-- desiredState: boolean albo nil (= przełącz na przeciwny).
+RegisterNetEvent("ilegal_anims:requestToggleProp", function(propName, desiredState)
+    local playerSource = source
+    if not validateSource(playerSource) then return end
+    if desiredState ~= nil and type(desiredState) ~= "boolean" then return end
+
+    local propConfig = getPropConfigByName(propName)
+    if not propConfig then return end
+
+    -- Rolęta przy włączonym AutoOpen obsługuje wyłącznie przepływ
+    -- zamek + strefy; ręczne open/close omijałoby zamek.
+    if Config.AutoOpen and isGarageRollup(propName) then return end
+
+    if not isPlayerNearProp(playerSource, propConfig, 7.5) then return end
+
+    if not ServerHasJobAccess(playerSource, propName) then
+        notifyPlayer(playerSource,
+            (Config.Permissions and Config.Permissions.noAccessMessage) or "You don't have access to this",
+            "error")
+        return
+    end
+
+    local busyStates = GlobalState.ilegal_carwash_busy or {}
+    if busyStates[propName] then return end
+
+    local states = GlobalState.ilegal_carwash or {}
+    local currentState = states[propName] == true
+    local targetState = desiredState
+    if targetState == nil then
+        targetState = not currentState
+    end
+    if targetState == currentState then return end
+
+    beginPropAnimation(propName, targetState, playerSource)
 end)
 
--- Rozgłasza animację gracza (widoczną dla innych) do wszystkich klientów
+-- Rozgłasza animację gracza do innych klientów — tylko w ramach animacji
+-- rozpoczętej przez serwer dla tego gracza (whitelist z pendingPlayerAnims)
+-- i tylko raz. Dowolne dict/anim od klienta są ignorowane.
 RegisterNetEvent("ilegal_anims:syncAnimation", function(animDict, animName, duration)
     local playerSource = source
 
@@ -244,67 +493,36 @@ RegisterNetEvent("ilegal_anims:syncAnimation", function(animDict, animName, dura
         return
     end
 
-    if not animDict or not animName then
+    if type(animDict) ~= "string" or type(animName) ~= "string" then
         print("Error: Datos incompletos para la sincronización de animación")
         return
     end
 
-    TriggerClientEvent("ilegal_anims:syncAnimation", -1, playerSource, animDict, animName, duration)
+    local pending = pendingPlayerAnims[playerSource]
+    if not pending or pending.synced or pending.dict ~= animDict or pending.anim ~= animName
+        or busyTokens[pending.propName] ~= pending.token then
+        return
+    end
+    pending.synced = true
+
+    TriggerClientEvent("ilegal_anims:syncAnimation", -1, playerSource, animDict, animName,
+        type(duration) == "number" and duration or -1)
 end)
 
--- Klient prosi o odegranie animacji gracza przed animacją propa.
--- Serwer woła callback ox_lib na tym kliencie i dopiero po sukcesie
--- każe mu animować propa (ilegal_anims:animatePropAfterPlayerAnim).
-RegisterNetEvent("ilegal_anims:requestPlayerAnimation", function(animData)
+-- Wyjście gracza w trakcie animacji gracza: callback nigdy nie wróci,
+-- więc zwalniamy busy od razu zamiast czekać na failsafe watchdog.
+AddEventHandler("playerDropped", function()
     local playerSource = source
 
-    if not validateSource(playerSource) then
-        print("Error: Fuente inválida para la solicitud de animación")
-        return
-    end
-
-    if not (animData and animData.dict and animData.anim and animData.propName) then
-        print("Error: Datos incompletos para la solicitud de animación")
-        return
-    end
-
-    if not (animData.position and animData.heading) then
-        print("Error: Posición o heading no proporcionados para la animación")
-        return
-    end
-
-    lib.callback("ilegal_anims:playPlayerAnimation", playerSource, function(success)
-        if success then
-            TriggerClientEvent("ilegal_anims:animatePropAfterPlayerAnim", playerSource, {
-                propName = animData.propName,
-                state = animData.state
-            })
-        else
-            print("Error: La animación del jugador falló")
-        end
-    end, animData)
-end)
-
--- Klient ustawia "busy" (zwykle: true przed animacją, false po niej).
--- Po wyczyszczeniu busy dla rolety AutoOpen serwer ponawia próbę
--- auto-otwarcia, jeśli ktoś nadal stoi w strefie.
-RegisterNetEvent("ilegal_anims:setPropBusy", function(propName, busy)
-    if not validateSource(source) then return end
-    if not propName then return end
-
-    -- W oryginale zapis busy był tu zduplikowany zamiast wywołania
-    -- lokalnego helpera — efekt identyczny, więc używamy setBusy().
-    setBusy(propName, busy)
-
-    if Config.AutoOpen and not busy and isGarageRollup(propName) then
-        local locks = GlobalState.ilegal_carwash_locks or {}
-        local states = GlobalState.ilegal_carwash or {}
-
-        if not locks[propName] and not states[propName] and getOccupantCount(propName) > 0 then
-            setBusy(propName, true)
-            updateGlobalPropState(propName, true)
+    local pending = pendingPlayerAnims[playerSource]
+    if pending then
+        pendingPlayerAnims[playerSource] = nil
+        if busyTokens[pending.propName] == pending.token then
+            setBusy(pending.propName, false)
         end
     end
+
+    lastZoneExits[playerSource] = nil
 end)
 
 -- ── AutoOpen: strefy, automatyczne otwieranie/zamykanie, zamki ─────
@@ -314,6 +532,9 @@ if Config.AutoOpen then
         local playerSource = source
         if not validateSource(playerSource) then return end
         if not isGarageRollup(propName) then return end
+
+        -- Odrzuć zgłoszenia graczy fizycznie daleko od strefy
+        if not isPlayerNearProp(playerSource, getPropConfigByName(propName), 7.5) then return end
 
         if not doorOccupants[propName] then
             doorOccupants[propName] = {}
@@ -326,8 +547,15 @@ if Config.AutoOpen then
         if not validateSource(playerSource) then return end
         if not isGarageRollup(propName) then return end
 
-        if doorOccupants[propName] then
+        local wasOccupant = doorOccupants[propName] and doorOccupants[propName][playerSource]
+        if wasOccupant then
             doorOccupants[propName][playerSource] = nil
+        end
+
+        -- Zapamiętaj legalne wyjście (był occupantem albo jest blisko strefy);
+        -- requestAutoClose przyjmujemy tylko po takim wyjściu / z bliska.
+        if wasOccupant or isPlayerNearProp(playerSource, getPropConfigByName(propName), 25.0) then
+            lastZoneExits[playerSource] = { propName = propName, at = GetGameTimer() }
         end
     end)
 
@@ -335,6 +563,7 @@ if Config.AutoOpen then
         local playerSource = source
         if not validateSource(playerSource) then return end
         if not isGarageRollup(propName) then return end
+        if not isPlayerNearProp(playerSource, getPropConfigByName(propName), 7.5) then return end
         if not ServerHasJobAccess(playerSource, propName) then return end
 
         local locks = GlobalState.ilegal_carwash_locks or {}
@@ -346,13 +575,35 @@ if Config.AutoOpen then
         local states = GlobalState.ilegal_carwash or {}
         if states[propName] then return end
 
-        setBusy(propName, true)
-        updateGlobalPropState(propName, true)
+        -- Gracz fizycznie jest przy drzwiach — licz go jako occupanta nawet,
+        -- gdyby jego zoneEnter zgubił wyścig z synchronizacją pozycji.
+        if not doorOccupants[propName] then
+            doorOccupants[propName] = {}
+        end
+        doorOccupants[propName][playerSource] = true
+
+        beginPropAnimation(propName, true, nil)
     end)
 
     RegisterNetEvent("ilegal_anims:requestAutoClose", function(propName)
-        if not validateSource(source) then return end
+        local playerSource = source
+        if not validateSource(playerSource) then return end
         if not isGarageRollup(propName) then return end
+
+        -- Żądanie musi pochodzić z niedawnego, legalnego wyjścia ze strefy
+        -- ( klient wysyła je AutoOpenCloseDelay po zoneExit ) albo z bliska.
+        -- Bez sprawdzenia joba: drzwi mają się zamknąć po ostatnim wychodzącym,
+        -- niezależnie od jego uprawnień do otwierania.
+        local lastExit = lastZoneExits[playerSource]
+        local recentExit = lastExit and lastExit.propName == propName
+            and (GetGameTimer() - lastExit.at) <= (Config.AutoOpenCloseDelay or 3000) + 15000
+        if not recentExit and not isPlayerNearProp(playerSource, getPropConfigByName(propName), 25.0) then
+            return
+        end
+        if recentExit then
+            lastZoneExits[playerSource] = nil
+        end
+
         if getOccupantCount(propName) > 0 then return end
 
         local busyStates = GlobalState.ilegal_carwash_busy or {}
@@ -361,62 +612,60 @@ if Config.AutoOpen then
         local states = GlobalState.ilegal_carwash or {}
         if not states[propName] then return end
 
-        setBusy(propName, true)
-        updateGlobalPropState(propName, false)
+        beginPropAnimation(propName, false, nil)
     end)
 
     RegisterNetEvent("ilegal_anims:toggleLock", function(propName)
         local playerSource = source
         if not validateSource(playerSource) then return end
         if not isGarageRollup(propName) then return end
+        if not isPlayerNearProp(playerSource, getPropConfigByName(propName), 7.5) then return end
 
         if not ServerHasJobAccess(playerSource, propName) then
-            TriggerClientEvent("ox_lib:notify", playerSource, {
-                description = Config.Permissions.noAccessMessage or "You don't have access to this",
-                type = "error",
-                duration = 3000
-            })
+            notifyPlayer(playerSource,
+                (Config.Permissions and Config.Permissions.noAccessMessage) or "You don't have access to this",
+                "error")
+            return
+        end
+
+        -- Nie przełączaj zamka (i stanu) w trakcie trwania animacji
+        local busyStates = GlobalState.ilegal_carwash_busy or {}
+        if busyStates[propName] then
+            notifyPlayer(playerSource,
+                (Config.Messages and Config.Messages.alreadyInUse) or "This object is already in use",
+                "error")
             return
         end
 
         local locks = GlobalState.ilegal_carwash_locks or {}
 
-        -- REKONSTRUKCJA po uszkodzonej dekompilacji: w zdekompilowanym
-        -- kodzie było tu dosłownie `newLocked = not old and old`
-        -- (w Lua zawsze false/nil), przez co zamka nie dało się nigdy
-        -- zamknąć. Z kontekstu (notify locked/unlocked, gałęzie poniżej)
-        -- jednoznacznie chodzi o zwykłe przełączenie stanu:
+        -- REKONSTRUKCJA po uszkodzonej dekompilacji: w zdekompilowanym kodzie
+        -- było `newLocked = not old and old` (w Lua zawsze false/nil), więc
+        -- poprawną intencją jest zwykłe przełączenie dotychczasowego stanu.
         local newLocked = not locks[propName]
 
         locks[propName] = newLocked
         GlobalState.ilegal_carwash_locks = locks
 
-        TriggerClientEvent("ox_lib:notify", playerSource, {
-            description = newLocked and Config.Messages.locked or Config.Messages.unlocked,
-            type = newLocked and "error" or "success",
-            duration = 3000
-        })
+        notifyPlayer(playerSource,
+            newLocked and Config.Messages.locked or Config.Messages.unlocked,
+            newLocked and "error" or "success")
 
         -- Odblokowanie: otwórz od razu, jeśli ktoś stoi w strefie
         if not newLocked then
             local states = GlobalState.ilegal_carwash or {}
-            local busyStates = GlobalState.ilegal_carwash_busy or {}
 
-            if not states[propName] and not busyStates[propName] and getOccupantCount(propName) > 0 then
-                setBusy(propName, true)
-                updateGlobalPropState(propName, true)
+            if not states[propName] and getOccupantCount(propName) > 0 then
+                beginPropAnimation(propName, true, nil)
             end
         end
 
         -- Zablokowanie: zamknij otwartą roletę
-        -- (uwaga: ta gałąź, w przeciwieństwie do odblokowania,
-        --  nie sprawdza busy przed nadpisaniem stanu)
         if newLocked then
             local states = GlobalState.ilegal_carwash or {}
 
             if states[propName] then
-                setBusy(propName, true)
-                updateGlobalPropState(propName, false)
+                beginPropAnimation(propName, false, nil)
             end
         end
     end)
@@ -441,8 +690,7 @@ if Config.AutoOpen then
                                 local currentBusy = GlobalState.ilegal_carwash_busy or {}
 
                                 if currentStates[propName] and not currentBusy[propName] then
-                                    setBusy(propName, true)
-                                    updateGlobalPropState(propName, false)
+                                    beginPropAnimation(propName, false, nil)
                                 end
                             end
                         end)
