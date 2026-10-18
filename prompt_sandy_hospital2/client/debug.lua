@@ -5,6 +5,19 @@
 
 local activeScenario = false
 
+-- ACE — wspólna permisja komend pakietu (ANALIZA.md, rozdz. 11/12).
+-- Wszystkie komendy z repo sprawdzają JEDEN obiekt ACE: command.sandyshores
+--   add_ace group.admin command.sandyshores allow
+local SANDY_COMMAND_ACE = 'command.sandyshores'
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
+    end
+    print('^1[SANDY] Missing ACE permission: ' .. SANDY_COMMAND_ACE .. '^0')
+    return false
+end
+
 -- /scenario [name] — play a scenario animation at your current spot
 -- Examples:
 --   /scenario PROP_HUMAN_SEAT_ARMCHAIR
@@ -14,6 +27,9 @@ local activeScenario = false
 --   /scenario WORLD_HUMAN_SUNBATHE_BACK
 --   /scenario anim@gangops@morgue@table@ body_search   (dict + anim name)
 RegisterCommand('scenario', function(_, args)
+    if not canUseSandyCommand() then
+        return
+    end
     if not args[1] then
         lib.notify({ title = 'Debug', description = 'Usage: /scenario SCENARIO_NAME', type = 'error' })
         return
@@ -51,6 +67,9 @@ end, false)
 -- /scenarioat [name] [x] [y] [z] [heading] — play scenario at specific coords
 -- Example: /scenarioat PROP_HUMAN_SEAT_BENCH 1738.7485 3618.663 34.088646 301.829
 RegisterCommand('scenarioat', function(_, args)
+    if not canUseSandyCommand() then
+        return
+    end
     if not args[1] or not args[2] or not args[3] or not args[4] then
         lib.notify({ title = 'Debug', description = 'Usage: /scenarioat NAME x y z [heading]', type = 'error' })
         return
@@ -74,6 +93,9 @@ end, false)
 
 -- /stopanim — cancel current scenario/animation
 RegisterCommand('stopanim', function()
+    if not canUseSandyCommand() then
+        return
+    end
     local ped = cache.ped or PlayerPedId()
     ClearPedTasks(ped)
     activeScenario = false
@@ -82,6 +104,9 @@ end, false)
 
 -- /mycoords — print current position + heading to chat & F8 console
 RegisterCommand('mycoords', function()
+    if not canUseSandyCommand() then
+        return
+    end
     local ped     = cache.ped or PlayerPedId()
     local coords  = GetEntityCoords(ped)
     local heading = GetEntityHeading(ped)
@@ -96,6 +121,9 @@ end, false)
 
 -- /propcoords — print nearest prop's origin + heading (for offset calculation)
 RegisterCommand('propcoords', function(_, args)
+    if not canUseSandyCommand() then
+        return
+    end
     local model = args[1]
     if not model then
         lib.notify({ title = 'Debug', description = 'Usage: /propcoords model_name', type = 'error' })

@@ -622,3 +622,99 @@ prawdopodobnie zagubiony/escrowed element pakietu; na tę chwilę ładowanie IPL
   `RegisterResourceAsset` + `RegisterStreamingFileFromCache`) zostawione bez zmian —
   to lokalny mechanizm assetów mapdata, nie telemetryczny, a ruszenie go mogłoby
   uszkodzić streaming tej mapy.
+
+## 11. Wspólna permisja ACE dla komend pakietu (`command.sandyshores`)
+
+Data: 2026-10-18. Wszystkie komendy z repo sprawdzają teraz **jeden** obiekt ACE:
+`command.sandyshores`. Konfiguracja serwera (server.cfg):
+
+```cfg
+# Prompt Sandy Shores — dostęp do komend (testsound, testanims, testautodoors_ig(_flow),
+# marketipls, pm_ipl) dla wybranej grupy:
+add_ace group.admin command.sandyshores allow
+add_principal identifier.license:XXXX group.admin
+```
+
+Stare, rozproszone ACE (`command.testanims`, `command.testautodoors_ig`, ewentualne
+`command.marketipls`) **nie są już sprawdzane** — linie w server.cfg można usunąć.
+
+### 11.1. Zasady implementacji
+
+- Komendy rejestrują się z `restricted = false` i sprawdzają permisję **ręczne** w handlerze
+  (wbudowany flag FiveM patrzy na osobne `command.<nazwa_komendy>`, więc z `true` posiadacz
+  `command.sandyshores` i tak zostałby zablokowany przed handlerem).
+- Klient (`prompt_sandy_illegal_garage/client/client.lua`, `prompt_sandy_market/client.lua`):
+  `IsAceAllowed("command.sandyshores")` — poprawna natywa po stronie klienta (por. 7.4);
+  odmowa = komunikat w konsoli i przerwanie. Helper `canUseSandyCommand()` w obu plikach.
+- Serwer (`prompt_sandy_illegal_garage/server/server.lua`, komenda `/testautodoors_ig`):
+  `IsPlayerAceAllowed(source, ...)`; **konsola serwera (source 0) przechodzi zawsze**
+  (jak dotychczas); próba gracza bez ACE jest logowana i odrzucana.
+- **Egzekwowanie serwerowe w markecie** (`prompt_sandy_market/server.lua`): eventy
+  `ipl_manager:requestLoad/requestUnload/requestToggle/requestLoadAllEnabled/requestUnloadAll`
+  są `RegisterNetEvent`, więc klient mógłby je wywołać z pominięciem komend — wszystkie
+  pięć sprawdza teraz to samo ACE po stronie serwera (gracz bez ACE nie zmieni stanu IPL
+  nawet zmodowanym klientem). Wyjątek: `ipl_manager:requestSync` (sam odczyt stanu) zostaje
+  otwarty — IPL-e marketu to widoki świata i **każdy** klient musi je zaaplikować lokalnie
+  (zablokowanie synca sprawiłoby, że gracze bez ACE widzieliby market bez stoisk).
+- `Config.Command.restricted` w `prompt_sandy_market/config.lua` usunięty (zastąpiony
+  wspólną permisją); zostają `name`/`description`.
+- Poza zakresem (niekomendowe): `open_functions.lua` nadal obsługuje opcjonalne ACE
+  per-prop (`propConfig.acePermission`) — to inna warstwa uprawnień, nietknięta. Eksporty
+  zasobów (`loadIPL`, `loadIPLServer`, `setLiftState`, …) wywoływane między zasobami nie
+  przechodzą bramki gracza (kontroluje je wywołujący zasób).
+
+### 11.2. Lista objętych komend
+
+| Komenda | Zasób | Strona | Poprzednie ograniczenie |
+|---|---|---|---|
+| `/testsound` | illegal_garage | client | `command.testsound` (wbudowane) |
+| `/testautodoors_ig_flow` | illegal_garage | client | `command.testautodoors_ig_flow` (wbudowane) |
+| `/testanims` | illegal_garage | client | `command.testanims` (wbudowane) |
+| `/testautodoors_ig` | illegal_garage | server | `command.testautodoors_ig` (wbudowane) |
+| `/marketipls` | market | client | `Config.Command.restricted` (domyślnie brak) |
+| `/pm_ipl` | market | client | brak (dostępna dla wszystkich) |
+
+### 11.3. Weryfikacja
+
+- Składnia: 18/18 plików Lua.
+- Harness: **10/10 scenariuszy** — doszły: S9 (eventy mutujące marketu odrzucone bez ACE,
+  broadcast `stateChanged` z ACE, `requestSync` otwarty dla wszystkich) i S10 (komendy
+  marketu zarejestrowane z `restricted=false`, odmowa bez ACE bez żądań serwerowych,
+  menu/`pm_ipl` działają z ACE).
+- Do sprawdzenia w grze: odmowa komendy bez ACE (komunikat w konsoli F8), przejście
+  z nadanym `command.sandyshores`, `/testautodoors_ig` z konsoli serwera, wizualna
+  obecność stoisk marketu u gracza BEZ ACE (efekt „requestSync otwarty").
+
+## 12. Scalenie z `main`: nowe mapy `prompt_sandy_apts` i `prompt_sandy_hospital2`
+
+Data: 2026-10-18. Przy scalaniu PR (gałąź rund 10–11) z `main` doszły tam dwa nowe zasoby
+map (commity „add 2 new interiors"/„update"): `prompt_sandy_apts` (Sandy Shores Apartments)
+i `prompt_sandy_hospital2` (szpital). Oba przyszły ze **swoimi `sv_loader.lua`** (skrypt
+dekompilatora z tym samym zdalnym kodem + telemetrią, tylko z własnym `MapId`) oraz
+z **12 nowymi komendami** bez bramek. Żeby scalenie nie przywróciło naprawionych błędów
+(dwa checkery = podwójny raport; obce komendy bez ACE), włączone w oba systemy z rozdz. 10–11:
+
+- **`sv_loader.lua` usunięte** z obu map (konflikty rename/delete rozstrzygnięte jako
+  świadome usunięcie); w ich miejsce `sv_mapdata.lua` z właściwymi stałymi
+  (`prompt_sandy_apts`/„Apts", `prompt_sandy_hospital2`/„Hospital2") — mapy są widoczne
+  dla checkera bez zdalnego kodu i telemetrii. Wpisy `server_scripts` w obu manifestach
+  podmienione.
+- **Komendy pod `command.sandyshores`** (razem 18 komend w repo):
+  - `prompt_sandy_apts/debug_commands.lua` (client, plik aktywny tylko przy `Config.Debug`):
+    `/apts_status`, `/apts_here`, `/apts_stream`, `/apts_nuke`, `/apts_tp` — helper
+    `canUseSandyCommand()` + check w każdym handlerze;
+  - `prompt_sandy_hospital2/client/debug.lua` (client): `/scenario`, `/scenarioat`,
+    `/stopanim`, `/mycoords`, `/propcoords` — jw.;
+  - `prompt_sandy_hospital2/server/mri.lua` (server): `/testmri` (wcześniej wbudowane
+    `command.testmri`) i `/testoperator` (wcześniej ręcznie `command.testmri`) — oba
+    teraz `IsPlayerAceAllowed(..., 'command.sandyshores')`; `/testmri` rejestruje się
+    z `restricted=false` + ręczny check (jak reszta pakietu).
+
+Weryfikacja: składnia wszystkich plików Lua (25+ po dodaniu nowych map), harness
+rozszerzony o scenariusze rejestracji mapdata nowych map i bramek ich komend
+(12/12 scenariuszy łącznie). Do sprawdzenia w grze: wykrywanie Apts/Hospital2 przez
+raport mapdata (Missing bez „Apts"/„Hospital2" po ich zainstalowaniu), brak logów
+odpowiadania przy braku obcych checkerów, odmowa komend debug bez ACE.
+
+Uwaga: nowe mapy nie były analizowane funkcjonalnie na poziomie rynku/garażu
+(skala „rozdziału 7") — dotknięto wyłącznie ich integracji z mapdata i permisjami.

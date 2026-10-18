@@ -277,16 +277,21 @@ end)
 
 -- ────────────────────────────────────────────────────────────
 -- /testmri  –  admin-only solo test command
--- Requires ace: add_ace group.admin command.testmri allow
+-- Requires ace (wspólna permisja pakietu, ANALIZA.md rozdz. 11/12):
+--   add_ace group.admin command.sandyshores allow
 -- ────────────────────────────────────────────────────────────
 RegisterCommand('testmri', function(source)
     if source == 0 then
         print('[prompt_sandy_hospital2] /testmri can only be used by a player')
         return
     end
+    if not IsPlayerAceAllowed(tostring(source), 'command.sandyshores') then
+        notifyPlayer(source, 'You do not have permission to use this command.', 'error')
+        return
+    end
     mriTestBypass[source] = true
     TriggerClientEvent('prompt_sandy_hospital2:mri:runTest', source)
-end, true) -- restricted = true → needs ace 'command.testmri'
+end, false) -- ręczny check ACE: command.sandyshores (wbudowany flag patrzy na command.<nazwa>)
 
 --- /testoperator – admin-only, runs the operator sequence for whoever is on the bed.
 --- Usage: lie on the bed first (or /testmri to auto-lie), then /testoperator to
@@ -297,8 +302,8 @@ RegisterCommand('testoperator', function(source)
         return
     end
 
-    -- Reuse the same ACE as /testmri so no extra ace entry is needed
-    if not IsPlayerAceAllowed(tostring(source), 'command.testmri') then
+    -- Ta sama wspólna permisja co /testmri: command.sandyshores
+    if not IsPlayerAceAllowed(tostring(source), 'command.sandyshores') then
         notifyPlayer(source, 'You do not have permission to use this command.', 'error')
         return
     end

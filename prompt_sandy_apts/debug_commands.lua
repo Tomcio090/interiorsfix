@@ -13,6 +13,21 @@ if not Config or not Config.Debug then
 end
 
 -- ============================================================================
+-- ACE — wspólna permisja komend pakietu (ANALIZA.md, rozdz. 11/12)
+-- ============================================================================
+-- Wszystkie komendy z repo sprawdzają JEDEN obiekt ACE: command.sandyshores
+--   add_ace group.admin command.sandyshores allow
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
+    end
+    print("^1[SANDY] Missing ACE permission: " .. SANDY_COMMAND_ACE .. "^0")
+    return false
+end
+
+-- ============================================================================
 -- HELPERS
 -- ============================================================================
 
@@ -42,6 +57,9 @@ end
 -- ============================================================================
 
 RegisterCommand("apts_status", function()
+    if not canUseSandyCommand() then
+        return
+    end
     local pc = GetEntityCoords(PlayerPedId())
     local entries = AllIplEntries()
 
@@ -94,6 +112,9 @@ end, false)
 -- ============================================================================
 
 RegisterCommand("apts_here", function()
+    if not canUseSandyCommand() then
+        return
+    end
     local playerPed = PlayerPedId()
     local pc = GetEntityCoords(playerPed)
 
@@ -147,6 +168,9 @@ end, false)
 -- ============================================================================
 
 RegisterCommand("apts_stream", function()
+    if not canUseSandyCommand() then
+        return
+    end
     local pc = GetEntityCoords(PlayerPedId())
     local c = Config.ApartmentCenter or { x = 0, y = 0, z = 0 }
     local distToCenter = DistanceTo(pc.x, pc.y, pc.z, c.x, c.y, c.z)
@@ -178,6 +202,9 @@ end, false)
 -- ============================================================================
 
 RegisterCommand("apts_nuke", function()
+    if not canUseSandyCommand() then
+        return
+    end
     local entries = AllIplEntries()
     local beforeActive = 0
     for _, e in ipairs(entries) do
@@ -207,6 +234,9 @@ end, false)
 -- ============================================================================
 
 RegisterCommand("apts_tp", function(source, args)
+    if not canUseSandyCommand() then
+        return
+    end
     local idx = tonumber(args[1])
     if not idx then
         print("^1[APTS_TP]^7 Usage: /apts_tp <index>  (see /apts_status for list)")

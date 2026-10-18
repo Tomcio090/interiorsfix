@@ -26,7 +26,7 @@ escrow_ignore {
 
 
 server_scripts{
-	'sv_loader.lua'
+	'sv_mapdata.lua'
 }
 
 dependency '/assetpacks'
