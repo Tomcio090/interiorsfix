@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>prompt_sandy_apt_1bdr</name>
+ <parent />
+ <flags value="0" />
+ <contentFlags value="0" />
+ <streamingExtentsMin x="-10000" y="-10000" z="-10000" />
+ <streamingExtentsMax x="10000" y="10000" z="10000" />
+ <entitiesExtentsMin x="-10000" y="-10000" z="-10000" />
+ <entitiesExtentsMax x="10000" y="10000" z="10000" />
+ <entities />
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries />
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>prompt_sandy_apt_1bdr</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>14 December 2025 00:32</time>
+ </block>
+</CMapData>

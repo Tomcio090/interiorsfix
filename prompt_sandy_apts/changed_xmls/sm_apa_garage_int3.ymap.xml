@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>sm_apa_garage_int3</name>
+ <parent>hash_AB1633A5</parent>
+ <flags value="0" />
+ <contentFlags value="9" />
+ <streamingExtentsMin x="-10000" y="-10000" z="-10000" />
+ <streamingExtentsMax x="10000" y="10000" z="10000" />
+ <entitiesExtentsMin x="-10000" y="-10000" z="-10000" />
+ <entitiesExtentsMax x="10000" y="10000" z="10000" />
+ <entities>
+  <Item type="CMloInstanceDef">
+   <archetypeName>hash_0FCA8066</archetypeName>
+   <flags value="40" />
+   <guid value="0" />
+   <position x="1539.11609" y="3575.33765" z="36.6914978" />
+   <rotation x="0" y="0" z="-0.9660387" w="0.2583975" />
+   <scaleXY value="1" />
+   <scaleZ value="1" />
+   <parentIndex value="2" />
+   <lodDist value="30" />
+   <childLodDist value="0" />
+   <lodLevel>LODTYPES_DEPTH_HD</lodLevel>
+   <numChildren value="0" />
+   <priorityLevel>PRI_REQUIRED</priorityLevel>
+   <extensions />
+   <ambientOcclusionMultiplier value="255" />
+   <artificialAmbientOcclusion value="255" />
+   <tintValue value="0" />
+   <groupId value="0" />
+   <floorId value="0" />
+   <defaultEntitySets />
+   <numExitPortals value="0" />
+   <MLOInstflags value="0" />
+  </Item>
+ </entities>
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries />
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>sm_apa_garage_int3</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>14 December 2025 00:32</time>
+ </block>
+</CMapData>

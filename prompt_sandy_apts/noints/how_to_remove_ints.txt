@@ -1,0 +1,13 @@
+If you do not want to have insides of the apartments you can use "non interior version"
+
+Follow these steps:
+
+1. Copy files from this current folder
+2. Paste them into "prompt_sandy_apts\stream\replace_if_no_ints"
+3. Go into the "config.lua" and change "Config.ProximityEnabled = true" to be "false".
+4. That's it.
+
+If you also want to use shells, the names of the models to spawn are:
+
+1. prompt_sandy_apts_shell_1bd
+2. prompt_sandy_apts_shell_2bd

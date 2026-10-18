@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>bld2_prompt_sandy_apts_2bdr_1nd_1</name>
+ <parent />
+ <flags value="1" />
+ <contentFlags value="9" />
+ <streamingExtentsMin x="-10000" y="-10000" z="-10000" />
+ <streamingExtentsMax x="10000" y="10000" z="10000" />
+ <entitiesExtentsMin x="-10000" y="-10000" z="-10000" />
+ <entitiesExtentsMax x="10000" y="10000" z="10000" />
+ <entities>
+  <Item type="CMloInstanceDef">
+   <archetypeName>hash_A8067F85</archetypeName>
+   <flags value="32" />
+   <guid value="0" />
+   <position x="1429.21619" y="3531.25928" z="36" />
+   <rotation x="0" y="0" z="0.09973603" w="0.995013952" />
+   <scaleXY value="1" />
+   <scaleZ value="1" />
+   <parentIndex value="-1" />
+   <lodDist value="20" />
+   <childLodDist value="0" />
+   <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+   <numChildren value="0" />
+   <priorityLevel>PRI_REQUIRED</priorityLevel>
+   <extensions />
+   <ambientOcclusionMultiplier value="255" />
+   <artificialAmbientOcclusion value="255" />
+   <tintValue value="0" />
+   <groupId value="0" />
+   <floorId value="0" />
+   <defaultEntitySets />
+   <numExitPortals value="0" />
+   <MLOInstflags value="0" />
+  </Item>
+ </entities>
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries />
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>bld2_prompt_sandy_apts_2bdr_1nd_1</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>14 December 2025 01:46</time>
+ </block>
+</CMapData>
