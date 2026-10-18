@@ -455,3 +455,15 @@ i `cfx_prompt_sandy_mapdata` nie ma w tym repozytorium — analizę oparto o kod
 który te zasoby ładują; sam mechanizm eventów jest dla nich wiążący. Do potwierdzenia
 na serwerze: po restarcie zasobów w komunikacie checkera „Gas" powinien zniknąć
 z listy Missing, a link powinien zawierać `+Gas`.
+
+Po dopisaniu folderów do repozytorium zweryfikowano ich zawartość: `prompt_sandy_shared`
+nie zawiera żadnego Lua (tylko wspólne assety stream), a `cfx_prompt_sandy_mapdata/sv_MapDataHandler.lua`
+jedynie odpowiada listą obsługiwanych map (`prompt:mapdata_sendList`) — samo wykrywanie nadal
+wykonuje `remote_sv/map/script.lua` działający wewnątrz pozostałych map. Pierwszy test na serwerze
+wciąż nie wykrywał „Gas"; prawdopodobne przyczyny: na serwerze gier był jeszcze starszy `server.lua`
+albo jednorazowe zapytania checkera (ok. 5 s po starcie każdej mapy) padły, zanim ten zasób zdążył
+wystartować w ramach kategorii `[promptmaps]`. W odpowiedzi: handlery wykrywania rejestrowane są
+teraz przez `RegisterNetEvent` (parytet 1:1 ze zdalnym skryptem, nadal z walidacją callbacku),
+a start zasobu loguje linię potwierdzającą rejestrację. Harness po zmianie: **55/55 sprawdzeń**.
+Jeśli mimo obecnego logu checker nadal nie widzi mapy, przyczyną jest kolejność startu — zasób
+powinien startować przed pozostałymi mapami Prompt (np. osobne `ensure` przed kategorią).
