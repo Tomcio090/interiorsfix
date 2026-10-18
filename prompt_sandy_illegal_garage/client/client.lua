@@ -17,7 +17,7 @@ local garageCoords = vector3(1996.6924, 3787.7312, 32.2094)
 local interiorID = nil
 
 -- Forward declarations (deklaracje wyprzedzające, żeby uniknąć błędów nil value)
-local createProp, createCollision, createLinkedProp, animateProp, animatePropObject, playStaticAnimation, getOxTargetLabels
+local createProp, createCollision, createLinkedProp, animateProp, playPropAnimation, playStaticAnimation, getOxTargetLabels
 
 -- Funkcja wyszukująca ID wnętrza dla podanych współrzędnych
 local function getGarageInterior()
@@ -107,17 +107,18 @@ local activeZones = {}
 local oxTargetZones = {}
 local zoneEnterCounts = {}
 local activeZoneData = {}
+local propSpawnPending = {}
 
 -- Pomocnicza funkcja sprawdzająca czy to roleta garażowa w Sandy
 local function isGarageRollup(propName)
     return type(propName) == "string" and propName == "prompt_sandy_is_garage_rollup"
 end
 
--- Inicjalizacja stanu globalnego, jeśli nie istnieje
-local function initializeGlobalState()
-    if not GlobalState.ilegal_carwash then
-        TriggerServerEvent("ilegal_anims:initializeState", {})
-    end
+-- Jedyna droga inicjowania zmiany stanu przez klienta: prośba do serwera.
+-- Serwer waliduje prop/dystans/uprawnienia/busy, zmienia GlobalState,
+-- a wszyscy klienci (też inicjator) odtwarzają animację ze state-baga.
+local function requestPropState(propName, state)
+    TriggerServerEvent("ilegal_anims:requestToggleProp", propName, state)
 end
 
 -- Funkcja pomocnicza do tworzenia obiektów (propów) bez offsetu
@@ -206,8 +207,12 @@ createLinkedProp = function(propData, parentName)
     return entity
 end
 
--- Odtwarzanie animacji dla encji
-local function playEntityAnimation(entity, animDict, animName, duration, loop, flag, playbackRate, playbackTime)
+-- Odtwarzanie animacji dla encji: klip gra DOKŁADNIE RAZ i trzyma ostatnią
+-- klatkę (otwarte drzwi / podniesiony lift mają zostać w pozycji końcowej).
+-- Wcześniej parametry duration/loop/flag/playbackRate były przekłamane:
+-- każde wywołanie trafiało do PlayEntityAnim jako bLoop=true oraz liczba 0.0
+-- jako bHoldLastFrame, więc każda animacja propa zapętlała się w kółko.
+local function playEntityAnimation(entity, animDict, animName)
     if not entity or not DoesEntityExist(entity) then return end
 
     local animLoadResult = lib.requestAnimDict(animDict)
@@ -215,7 +220,9 @@ local function playEntityAnimation(entity, animDict, animName, duration, loop, f
         animLoadResult.await()
     end
 
-    PlayEntityAnim(entity, animName, animDict, 8.0, flag or false, playbackRate or true, false, playbackTime or 0.0, 0)
+    -- PlayEntityAnim(entity, animName, animDict, blendDelta,
+    --                bLoop, bHoldLastFrame, bDriveToPose, startPhase, flags)
+    PlayEntityAnim(entity, animName, animDict, 8.0, false, true, false, 0.0, 0)
     RemoveAnimDict(animDict)
 end
 
@@ -227,7 +234,7 @@ playStaticAnimation = function(entity, propData)
     local dict = propData.animations.dict
     local staticAnim = propData.animations.static
 
-    playEntityAnimation(entity, dict, staticAnim, 0, false, true, 0.0, 0)
+    playEntityAnimation(entity, dict, staticAnim)
 
     if propData.linkedProps and propData.animations.linkedAnims then
         for index, linkedProp in ipairs(propData.linkedProps) do
@@ -235,7 +242,7 @@ playStaticAnimation = function(entity, propData)
             if linkedInfo and linkedInfo.entity and DoesEntityExist(linkedInfo.entity) then
                 local linkedAnim = propData.animations.linkedAnims[index]
                 if linkedAnim and linkedAnim.static then
-                    playEntityAnimation(linkedInfo.entity, dict, linkedAnim.static, 0, false, true, 0.0, 0)
+                    playEntityAnimation(linkedInfo.entity, dict, linkedAnim.static)
                 end
             end
         end
@@ -252,16 +259,21 @@ local function animateMultipleProps(propsList, animationsList, animDict, isOpen,
 
     if targetProp and targetProp.entity and DoesEntityExist(targetProp.entity) then
         local animName = isOpen and animationsList[index].open or animationsList[index].close
-        playEntityAnimation(targetProp.entity, animDict, animName, speed, false, true, 0.0, 0)
+        playEntityAnimation(targetProp.entity, animDict, animName)
     end
 
     animateMultipleProps(propsList, animationsList, animDict, isOpen, speed, index + 1)
 end
 
-animatePropObject = function(propConfig, propEntity, isOpen, animDict, animName, duration, isServerSync)
-    playEntityAnimation(propEntity, animDict, animName, duration, false, true, 0.0, 0)
+-- Odtwarza LOKALNIE animację propa do stanu ustawionego przez serwer
+-- (wywoływane z handlera state-baga oraz przy odtworzeniu stanu po spawnie).
+-- Nie wysyła żadnych eventów serwerowych: busy zwalnia serwerowy watchdog.
+-- emitLocalEvents: czy emitować lokalne eventy liftStateChanged/Complete
+-- (false przy cichym odtworzeniu stanu po spawnie propa).
+playPropAnimation = function(propConfig, propEntity, isOpen, animDict, animName, duration, emitLocalEvents)
+    playEntityAnimation(propEntity, animDict, animName)
 
-    if not isServerSync then
+    if emitLocalEvents then
         TriggerEvent("prompt_sandy_illegal_garage:liftStateChanged", propConfig.name, isOpen)
     end
 
@@ -272,61 +284,70 @@ animatePropObject = function(propConfig, propEntity, isOpen, animDict, animName,
     local collision = propConfig.collision
     if collision then
         local collisionEntity = collisionProps[collision.name]
+
         if collisionEntity and DoesEntityExist(collisionEntity) then
-            local startCoords = isOpen and collision.endCoords or collision.startCoords
-            local endCoords = isOpen and collision.startCoords or collision.endCoords
-            local moveTime = duration
-            local delay = 0
-            local easing = "easeInOut"
+            if collision.moveType == "coords" and collision.startCoords and collision.endCoords then
+                -- Konwencja zgodna z createCollision: otwarty = endCoords,
+                -- zamknięty = startCoords (wcześniej kierunek był odwrócony).
+                local startCoords = isOpen and collision.startCoords or collision.endCoords
+                local endCoords = isOpen and collision.endCoords or collision.startCoords
+                local moveTime = duration
+                local delay = 0
+                local easing = "easeInOut"
 
-            if collision.liftSettings then
-                if isOpen then
-                    delay = collision.liftSettings.upDelay or 200
-                    moveTime = duration * (collision.liftSettings.upSpeedFactor or 0.8)
-                    easing = collision.liftSettings.upCurve or "easeInOutQuad"
-                else
-                    moveTime = duration * (collision.liftSettings.downSpeedFactor or 1.2)
-                    easing = collision.liftSettings.downCurve or "easeOutCubic"
+                if collision.liftSettings then
+                    if isOpen then
+                        delay = collision.liftSettings.upDelay or 200
+                        moveTime = duration * (collision.liftSettings.upSpeedFactor or 0.8)
+                        easing = collision.liftSettings.upCurve or "easeInOutQuad"
+                    else
+                        moveTime = duration * (collision.liftSettings.downSpeedFactor or 1.2)
+                        easing = collision.liftSettings.downCurve or "easeOutCubic"
+                    end
+                elseif propConfig.name == "prompt_sandy_is_lift" then
+                    if isOpen then
+                        delay = 200
+                        moveTime = duration * 0.8
+                        easing = "easeInOutQuad"
+                    else
+                        moveTime = duration * 1.2
+                        easing = "easeOutCubic"
+                    end
                 end
-            elseif propConfig.name == "prompt_sandy_is_lift" then
-                if isOpen then
-                    delay = 200
-                    moveTime = duration * 0.8
-                    easing = "easeInOutQuad"
-                else
-                    moveTime = duration * 1.2
-                    easing = "easeOutCubic"
-                end
-            end
 
-            local extraDelay = isOpen and collision.openDelay or collision.closeDelay
-            if extraDelay then
-                SetTimeout(extraDelay, function()
+                local extraDelay = isOpen and collision.openDelay or collision.closeDelay
+                if extraDelay then
+                    SetTimeout(math.floor(extraDelay), function()
+                        AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                    end)
+                elseif delay > 0 then
+                    SetTimeout(delay, function()
+                        AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                    end)
+                else
                     AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
-                end)
-            elseif delay > 0 then
-                SetTimeout(delay, function()
-                    AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
-                end)
-            else
-                AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                end
+            elseif collision.moveType == "rotation" and collision.startRotation and collision.endRotation then
+                local startRotation = isOpen and collision.startRotation or collision.endRotation
+                local endRotation = isOpen and collision.endRotation or collision.startRotation
+                AnimateObjectRotation(collisionEntity, startRotation, endRotation, duration, "easeInOut")
             end
+            -- Kolizje statyczne (bez moveType, np. silnik): nic nie robimy.
+            -- Wcześniej otrzymywały AnimateObjectCoords(nil, nil), który
+            -- wyrzucał błąd w wątku przy każdej animacji.
         end
     end
 
-    if not isServerSync then
-        TriggerServerEvent("ilegal_anims:updatePropState", propConfig.name, isOpen)
-    end
-
-    SetTimeout(duration, function()
-        TriggerServerEvent("ilegal_anims:setPropBusy", propConfig.name, false)
-        if not isServerSync then
+    if emitLocalEvents then
+        SetTimeout(duration, function()
             TriggerEvent("prompt_sandy_illegal_garage:liftAnimationComplete", propConfig.name, isOpen)
-        end
-    end)
+        end)
+    end
 end
 
-animateProp = function(propName, isOpen, duration, customSpeed)
+-- Lokalne odtworzenie animacji propa po nazwie (TYLKO playback ze stanu
+-- serwerowego; do inicjowania zmian służy requestPropState powyżej).
+animateProp = function(propName, isOpen, emitLocalEvents)
     local propConfig = nil
     for _, config in pairs(Config.Props) do
         if config.name == propName then
@@ -337,6 +358,7 @@ animateProp = function(propName, isOpen, duration, customSpeed)
 
     local propEntity = spawnedProps[propName]
     if not propConfig or not propEntity or not DoesEntityExist(propEntity) then return false end
+    if not propConfig.animations or not propConfig.animations.dict then return false end
 
     local animDict = propConfig.animations.dict
     local animName = isOpen and propConfig.animations.open or propConfig.animations.close
@@ -348,47 +370,63 @@ animateProp = function(propName, isOpen, duration, customSpeed)
 
     local animDuration = GetAnimDuration(animDict, animName) * 1000
     if not animDuration or animDuration <= 0 then
-        animDuration = propConfig.animations.duration
+        animDuration = propConfig.animations.duration or 5000
     end
 
-    if propConfig.playerAnimation and not customSpeed then
-        local targetAnimName = isOpen and propConfig.playerAnimation.name or (propConfig.playerAnimation.closeName or propConfig.playerAnimation.name)
-        
-        TriggerServerEvent("ilegal_anims:requestPlayerAnimation", {
-            dict = propConfig.playerAnimation.dict,
-            anim = targetAnimName,
-            position = propConfig.playerAnimation.position,
-            heading = propConfig.playerAnimation.heading,
-            propName = propName,
-            state = isOpen
-        })
-    else
-        animatePropObject(propConfig, propEntity, isOpen, animDict, animName, animDuration, customSpeed)
-    end
-
+    playPropAnimation(propConfig, propEntity, isOpen, animDict, animName, animDuration, emitLocalEvents)
     return true
 end
 
--- Tworzenie pojedynczego propa na podstawie konfiguracji
-createProp = function(propData)
+-- Tworzenie pojedynczego propa na podstawie konfiguracji.
+-- attempt: numer próby — po chwilowej porażce spawnu ponawiamy próbę zamiast
+-- czekać, aż gracz wyjdzie i wróci w zasięg pointa (objaw: brak drzwi tuż po
+-- spawnie gracza przy garażu, mimo że model jest poprawny).
+createProp = function(propData, attempt)
     local existingEntity = spawnedProps[propData.name]
     if existingEntity and DoesEntityExist(existingEntity) then
+        -- Przy okazji ulecz ewentualnie brakującą kolizję / linked propy
+        -- (obie funkcje same odrzucają duplikaty).
+        if propData.collision then
+            createCollision(propData)
+        end
+        if propData.linkedProps then
+            for _, linkedData in ipairs(propData.linkedProps) do
+                createLinkedProp(linkedData, propData.name)
+            end
+        end
         return existingEntity
     end
 
+    -- spawnObjectModel yielduje przy ładowaniu modelu: równoległa próba
+    -- (onEnter pointa + retry) nie może utworzyć duplikatu.
+    if propSpawnPending[propData.name] then
+        return nil
+    end
+    propSpawnPending[propData.name] = true
+    attempt = attempt or 1
+
     debugPrint("[ILLEGAL GARAGE] Creating prop: " .. propData.name .. " with model: " .. tostring(propData.model))
     local entity = spawnObjectModel(propData.model, propData.coords, propData.rotation, false, false)
+    propSpawnPending[propData.name] = nil
 
     if not entity then
-        debugPrint("[ILLEGAL GARAGE ERROR] Failed to create entity for prop: " .. propData.name)
+        if attempt <= 5 then
+            SetTimeout(1000 * attempt, function()
+                createProp(propData, attempt + 1)
+            end)
+        else
+            debugPrint("[ILLEGAL GARAGE ERROR] Failed to create entity for prop: " .. propData.name)
+        end
         return nil
     end
 
     debugPrint("[ILLEGAL GARAGE] Successfully created prop entity: " .. propData.name .. " (entity: " .. tostring(entity) .. ")")
     spawnedProps[propData.name] = entity
 
-    if propData.collision then
-        createCollision(propData)
+    if propData.collision and not createCollision(propData) then
+        SetTimeout(1500, function()
+            createCollision(propData)
+        end)
     end
 
     if propData.linkedProps then
@@ -400,7 +438,7 @@ createProp = function(propData)
     local carwashState = GlobalState.ilegal_carwash
     if carwashState and carwashState[propData.name] ~= nil then
         SetTimeout(100, function()
-            animateProp(propData.name, carwashState[propData.name], true, true)
+            animateProp(propData.name, carwashState[propData.name], false)
         end)
     elseif propData.animations and propData.animations.static then
         SetTimeout(100, function()
@@ -491,8 +529,7 @@ local function registerOxTarget(propData)
                 onSelect = function()
                     OnPropInteraction(originalName, playerId, false)
                     if propData.onExecute then propData.onExecute(propData) end
-                    TriggerServerEvent("ilegal_anims:setPropBusy", originalName, true)
-                    animateProp(originalName, true)
+                    requestPropState(originalName, true)
                 end
             },
             {
@@ -508,8 +545,7 @@ local function registerOxTarget(propData)
                 onSelect = function()
                     OnPropInteraction(originalName, playerId, true)
                     if propData.onExecute then propData.onExecute(propData) end
-                    TriggerServerEvent("ilegal_anims:setPropBusy", originalName, true)
-                    animateProp(originalName, false)
+                    requestPropState(originalName, false)
                 end
             }
         }
@@ -548,9 +584,10 @@ exports("isLiftBusy", function(propName)
     return busyState[propName] or false
 end)
 
+-- Zleca zmianę stanu serwerowi (walidacja dystansu/uprawnień/busy po jego stronie).
+-- Animacja odtworzy się lokalnie dopiero po zmianie GlobalState (state-bag).
 exports("setLiftState", function(propName, state)
-    animateProp(propName, state)
-    TriggerServerEvent("ilegal_anims:setPropBusy", propName, true)
+    requestPropState(propName, state)
 end)
 
 -- Debugowanie eventów w trybie debug
@@ -593,7 +630,11 @@ local function getTestMenu()
             description = labelMsg .. " " .. propConfig.name,
             icon = "building",
             onSelect = function()
-                animateProp(propConfig.name, not isOpen)
+                if Config.AutoOpen and isGarageRollup(propConfig.name) then
+                    TriggerServerEvent("ilegal_anims:toggleLock", propConfig.name)
+                else
+                    requestPropState(propConfig.name, not isOpen)
+                end
             end
         })
     end
@@ -677,8 +718,7 @@ local function createInteractionZone(propData)
                 if IsControlJustPressed(0, Config.InteractionKey.control) then
                     OnPropInteraction(propData.name, zoneInfo.playerId, isOpen)
                     if propData.onExecute then propData.onExecute(propData) end
-                    TriggerServerEvent("ilegal_anims:setPropBusy", propData.name, true)
-                    animateProp(propData.name, not isOpen)
+                    requestPropState(propData.name, not isOpen)
                 end
             end
         end
@@ -785,6 +825,12 @@ local function createSpawnPoint(propData)
     if point then
         spawnedProps[propData.name] = nil
         debugPrint("[ILLEGAL GARAGE] Spawn point created and stored for: " .. propData.name)
+
+        -- Gracz może już stać w zasięgu (spawn przy propie / restart zasobu):
+        -- spróbuj od razu, nie polegaj wyłącznie na onEnter pointa.
+        if #(GetEntityCoords(cache.ped) - propData.coords) <= Config.SpawnDistance then
+            createProp(propData)
+        end
     else
         debugPrint("[ILLEGAL GARAGE WARNING] Failed to create spawn point for: " .. propData.name)
     end
@@ -798,58 +844,28 @@ end
 
 -- Zdarzenia sieciowe (Net Events)
 RegisterNetEvent("ilegal_anims:syncAnimation")
-AddEventHandler("ilegal_anims:syncAnimation", function(sourcePlayerId, animDict, animName, blendSpeed)
-    local targetPed = GetPlayerPed(GetPlayerFromServerId(sourcePlayerId))
-    if targetPed ~= cache.ped then
-        local animLoadResult = lib.requestAnimDict(animDict)
-        if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
-            animLoadResult.await()
-        end
+AddEventHandler("ilegal_anims:syncAnimation", function(sourcePlayerId, animDict, animName, duration)
+    if type(animDict) ~= "string" or type(animName) ~= "string" then return end
 
-        TaskPlayAnim(targetPed, animDict, animName, 8.0, -8.0, blendSpeed, 0, 0, false, false, false)
-        RemoveAnimDict(animDict)
-    end
-end)
+    local player = GetPlayerFromServerId(sourcePlayerId)
+    if player == -1 or not NetworkIsPlayerActive(player) then return end
 
-RegisterNetEvent("ilegal_anims:animatePropAfterPlayerAnim")
-AddEventHandler("ilegal_anims:animatePropAfterPlayerAnim", function(data)
-    local propName = data.propName
-    local state = data.state
-    local propConfig = nil
-
-    for _, config in pairs(Config.Props) do
-        if config.name == propName then
-            propConfig = config
-            break
-        end
-    end
-
-    if not propConfig then
-        debugPrint("[ILLEGAL GARAGE] Error: The prop configuration was not found: " .. propName)
-        return
-    end
-
-    local entity = spawnedProps[propName]
-    if not entity or not DoesEntityExist(entity) then
-        debugPrint("[ILLEGAL GARAGE] Error: The prop entity does not exist: " .. propName)
-        return
-    end
-
-    local animDict = propConfig.animations.dict
-    local animName = state and propConfig.animations.open or propConfig.animations.close
+    local targetPed = GetPlayerPed(player)
+    if not targetPed or targetPed == 0 or targetPed == cache.ped then return end
 
     local animLoadResult = lib.requestAnimDict(animDict)
     if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
         animLoadResult.await()
     end
 
-    local animDuration = GetAnimDuration(animDict, animName) * 1000
-    if not animDuration or animDuration <= 0 then
-        animDuration = propConfig.animations.duration
-    end
-
-    animatePropObject(propConfig, entity, state, animDict, animName, animDuration, false)
+    TaskPlayAnim(targetPed, animDict, animName, 8.0, -8.0,
+        type(duration) == "number" and duration or -1, 0, 0, false, false, false)
+    RemoveAnimDict(animDict)
 end)
+
+-- UWAGA: dawny handler ilegal_anims:animatePropAfterPlayerAnim został
+-- usunięty. Serwer po udanej animacji gracza zmienia GlobalState,
+-- a prop animuje się u wszystkich z handlera state-baga poniżej.
 
 -- Rejestracja handlerów zmian stanów (StateBag)
 local function registerPropStateHandlers()
@@ -861,7 +877,7 @@ local function registerPropStateHandlers()
             local propName = propConfig.name
             if value[propName] ~= nil and value[propName] ~= carwashState[propName] then
                 if spawnedProps[propName] and DoesEntityExist(spawnedProps[propName]) then
-                    animateProp(propName, value[propName], true, true)
+                    animateProp(propName, value[propName], true)
                 end
             end
         end
@@ -902,40 +918,55 @@ local function registerPropStateHandlers()
 end
 
 -- Rejestracja callbacku ox_lib do odtwarzania animacji gracza
+-- (serwer buduje animData z configa; klient dodatkowo toleruje kształty
+-- tabelaryczne position/heading per nazwa animacji — silnik domkrat_*)
 lib.callback.register("ilegal_anims:playPlayerAnimation", function(animData)
     if not animData or not animData.dict or not animData.anim or not animData.propName then
         debugPrint("[ILLEGAL GARAGE] Error: Incomplete data for the player animation")
         return false
     end
 
-    if not animData.position or not animData.heading then
+    local position = animData.position
+    if type(position) == "table" and position[animData.anim] then
+        position = position[animData.anim]
+    end
+
+    local heading = animData.heading
+    if type(heading) == "table" and heading[animData.anim] ~= nil then
+        heading = heading[animData.anim]
+    end
+
+    if not position or position.x == nil or position.y == nil or position.z == nil
+        or type(heading) ~= "number" then
         debugPrint("[ILLEGAL GARAGE] Error: Position or heading not provided for the animation")
         return false
     end
 
+    local targetPosition = vector3(position.x, position.y, position.z)
+
     local ped = PlayerPedId()
     ClearPedTasks(ped)
-    TaskGoStraightToCoord(ped, animData.position.x, animData.position.y, animData.position.z, 1.0, -1, animData.heading, 0.1)
+    TaskGoStraightToCoord(ped, targetPosition.x, targetPosition.y, targetPosition.z, 1.0, -1, heading, 0.1)
 
     local targetDistance = 0.5
     local startTime = GetGameTimer()
 
     while true do
         local currentCoords = GetEntityCoords(ped)
-        local distance = #(currentCoords - animData.position)
+        local distance = #(currentCoords - targetPosition)
         if targetDistance > distance then
             break
         end
 
         if GetGameTimer() - startTime > 5000 then
-            SetEntityCoords(ped, animData.position.x, animData.position.y, animData.position.z, false, false, false, false)
+            SetEntityCoords(ped, targetPosition.x, targetPosition.y, targetPosition.z, false, false, false, false)
             break
         end
         Wait(100)
     end
 
-    SetEntityCoordsNoOffset(ped, animData.position.x, animData.position.y, animData.position.z, false, false, false)
-    SetEntityHeading(ped, animData.heading)
+    SetEntityCoordsNoOffset(ped, targetPosition.x, targetPosition.y, targetPosition.z, false, false, false)
+    SetEntityHeading(ped, heading)
 
     local animLoadResult = lib.requestAnimDict(animData.dict)
     if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
@@ -1032,6 +1063,9 @@ RegisterCommand("testautodoors_ig_flow", function()
         local rollupConfig = Config.Props.garage_rollup
         local zoneCoords = rollupConfig.interactionZone.coords
         local outsideCoords = vector3(zoneCoords.x + 20.0, zoneCoords.y, zoneCoords.z)
+        -- Poza właściwą strefą (nie wyzwala auto-open), ale w zasięgu
+        -- serwerowej walidacji dystansu dla toggleLock.
+        local nearbyCoords = vector3(zoneCoords.x + 8.0, zoneCoords.y, zoneCoords.z)
 
         logInfo("^3========== Full-Flow Auto-Door Test (Illegal Garage) ==========^0")
         logTest("isGarageRollup client helper works", isGarageRollup("prompt_sandy_is_garage_rollup") == true)
@@ -1058,7 +1092,9 @@ RegisterCommand("testautodoors_ig_flow", function()
         SetEntityCoordsNoOffset(ped, outsideCoords.x, outsideCoords.y, outsideCoords.z, false, false, false)
         Wait(1000)
 
-        logInfo("Step 4: Unlocking door...")
+        logInfo("Step 4: Unlocking door (near, but outside the auto-open zone)...")
+        SetEntityCoordsNoOffset(ped, nearbyCoords.x, nearbyCoords.y, nearbyCoords.z, false, false, false)
+        Wait(500)
         TriggerServerEvent("ilegal_anims:toggleLock", targetRollupName)
         Wait(1000)
 
@@ -1091,7 +1127,16 @@ RegisterCommand("testautodoors_ig_flow", function()
         carwash = GlobalState.ilegal_carwash or {}
         logTest("Door auto-closes after leaving zone", not carwash[targetRollupName])
 
-        logInfo("Step 8: Re-locking door (cleanup)...")
+        logInfo("Step 8: Re-locking door (cleanup, near but outside the auto-open zone)...")
+        local relockStart = GetGameTimer()
+        while true do
+            local busyAfterClose = GlobalState.ilegal_carwash_busy or {}
+            if not busyAfterClose[targetRollupName] then break end
+            if GetGameTimer() - relockStart > 8000 then break end
+            Wait(200)
+        end
+        SetEntityCoordsNoOffset(ped, nearbyCoords.x, nearbyCoords.y, nearbyCoords.z, false, false, false)
+        Wait(500)
         TriggerServerEvent("ilegal_anims:toggleLock", targetRollupName)
         Wait(1000)
 
@@ -1113,15 +1158,15 @@ RegisterCommand("testautodoors_ig_flow", function()
 end, true)
 
 -- Główny wątek inicjalizujący skrypt
+-- (stan początkowy GlobalState ustawia wyłącznie serwer przy starcie)
 CreateThread(function()
-    initializeGlobalState()
     createInteractionZones()
     createSpawnPoints()
     registerPropStateHandlers()
     debugPrint("[ILLEGAL GARAGE ANIMS ENABLED] Sistema de props animados iniciado.")
 end)
 
--- Komenda testowa: /testanims
+-- Komenda testowa: /testanims (ACE: command.testanims)
 RegisterCommand("testanims", function()
     lib.registerContext({
         id = "test_anims_menu",
@@ -1129,4 +1174,4 @@ RegisterCommand("testanims", function()
         options = getTestMenu()
     })
     lib.showContext("test_anims_menu")
-end, false)
+end, true)

@@ -62,8 +62,8 @@ Config = {
                 startCoords = vector3(2002.692, 3791.269, 33.410),
                 endCoords = vector3(2002.692, 3791.269, 36.745),
                 moveType = "coords",
-                openDelay = 0,   -- 2.3s para desactivar colisión al abrir
-                closeDelay = 0.1 -- 1.9s para activar colisión al cerrar
+                openDelay = 0, -- ms delay before the collision starts moving when opening (0 = immediately)
+                closeDelay = 0 -- ms delay before the collision starts moving when closing (0 = immediately)
             },
             animations      = {
                 dict = "anim@prompt_sandy_is_lift",
@@ -121,11 +121,14 @@ Config = {
                 }
             },
 
+            -- Runs CLIENT-side on interaction. NOTE: use the resource export
+            -- (setLiftState) instead of client locals such as animateProp —
+            -- this shared file cannot see client/client.lua locals.
             onExecute       = function()
                 local liftState = GlobalState.ilegal_carwash and GlobalState.ilegal_carwash["prompt_sandy_is_lift"] or
                     false
                 if not liftState then
-                    animateProp('prompt_sandy_is_lift', true)
+                    exports[GetCurrentResourceName()]:setLiftState('prompt_sandy_is_lift', true)
                 end
             end
         },
