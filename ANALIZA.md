@@ -467,3 +467,14 @@ teraz przez `RegisterNetEvent` (parytet 1:1 ze zdalnym skryptem, nadal z walidac
 a start zasobu loguje linię potwierdzającą rejestrację. Harness po zmianie: **55/55 sprawdzeń**.
 Jeśli mimo obecnego logu checker nadal nie widzi mapy, przyczyną jest kolejność startu — zasób
 powinien startować przed pozostałymi mapami Prompt (np. osobne `ensure` przed kategorią).
+
+Aktualizacja po kolejnym teście: log startowy potwierdził, że nowy `server.lua` działa
+i startuje przed pozostałymi mapami, a „Gas" nadal nie był wykrywany. Winowajcą okazał się
+prawdopodobnie własny bezpiecznik w handlerach: callback checkera przychodzi z **innego
+zasobu** jako referencja funkcyjna FXServera, dla której `type(cb)` nie musi zwracać
+`"function"` — filtr `type(cb)=="function"` po cichu odrzucał więc odpowiedzi. Handlery
+odpowiadają teraz jak oficjalny skrypt (wywołanie wprost), zabezpieczone jedynie `pcall`,
+i logują każde zapytanie checkera. Przy okazji zsynchronizowano decyzję właściciela:
+plik `sv_loader.lua` usunięto także z gałęzi (wcześniej usunięty na `main`), a komentarz
+w manifeście opisuje stan docelowy. Harness po zmianie: **56/56 sprawdzeń** (w tym test
+callbacku-callable o typie innym niż `function`).

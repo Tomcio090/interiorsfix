@@ -879,22 +879,28 @@ end, true)
 -- (static = prompt_sandy_gasstation_carwash, locations = {"sandy"}
 -- w rejestrze all_data_full), a serwer niczego nie pobiera z sieci.
 -- Handlery wykrywania rejestrujemy przez RegisterNetEvent dokładnie jak
--- zdalny skrypt (callback i tak walidujemy typem, więc event wywołany
--- z klienta niczego nie psuje); legacy name/final zostają czysto lokalne.
-local PROMPT_MAP_ID = "prompt_sandy_gasstation_carwash" -- musi być = MapId w sv_loader.lua
+-- zdalny skrypt; legacy name/final zostają czysto lokalne.
+local PROMPT_MAP_ID = "prompt_sandy_gasstation_carwash" -- MapId w rejestrze Prompt (all_data_full)
 local PROMPT_MAP_NAME = "Gas"
 local PROMPT_MAP_LOCATIONS = { "sandy" }
 
-RegisterNetEvent(PROMPT_MAP_ID .. ":mapExists", function(cb)
-    if type(cb) == "function" then cb(true) end
-end)
+-- Callback przychodzi z INNEGO zasobu jako referencja funkcyjna FXServera
+-- (function reference): type(cb) NIE musi wtedy zwracać "function", mimo
+-- że wartość jest wywoływalna. Filtr type(cb)=="function" po cichu
+-- odrzucał więc odpowiedzi i mapa była niewidoczna dla checkera.
+-- Odpowiadamy jak oficjalny skrypt (wołamy callback wprost), tylko przez
+-- pcall, żeby śmieciowy argument z eventu sieciowego niczego nie wywalił.
+local function replyExists(cb)
+    print(("[%s] Prompt mapdata: checker pyta o istnienie mapy %s - odpowiadam true"):format(
+        GetCurrentResourceName(), PROMPT_MAP_ID))
+    if cb ~= nil then pcall(cb, true) end
+end
 
-RegisterNetEvent("promptmap:i_exist_" .. PROMPT_MAP_ID, function(cb)
-    if type(cb) == "function" then cb(true) end
-end)
+RegisterNetEvent(PROMPT_MAP_ID .. ":mapExists", replyExists)
+RegisterNetEvent("promptmap:i_exist_" .. PROMPT_MAP_ID, replyExists)
 
 RegisterNetEvent("promptmap:locations_" .. PROMPT_MAP_ID, function(cb)
-    if type(cb) == "function" then cb(PROMPT_MAP_LOCATIONS) end
+    if cb ~= nil then pcall(cb, PROMPT_MAP_LOCATIONS) end
 end)
 
 AddEventHandler(PROMPT_MAP_ID .. ":mapFullNameSend", function(returnEvent, id)
