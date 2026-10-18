@@ -434,3 +434,24 @@ Nazwy modeli i słowników animacji zweryfikowano względem listy plików `strea
 (wszystkie istnieją). Mockowany harness po poprawkach: **49/49 sprawdzeń** (doszły testy
 flag `PlayEntityAnim` oraz retry spawnu). Do potwierdzenia pozostaje jedynie ponowny
 smoke test w grze po tych dwóch poprawkach.
+
+### 9.4. Wykrywanie mapy przez Prompt mapdata bez `sv_loader.lua`
+
+Po dodaniu na serwerze zasobów mapdata/shared checker nie wykrywał tego interioru
+(lista „Missing" zawierała **Gas**, a w linku do mapdata brakowało `+Gas`). Analiza
+oficjalnego kodu checkera (`Prompt-Coder/mapdatachecker`, `remote_sv/map/script.lua`
+— tego samego, który `sv_loader.lua` pobierał i wykonywał) pokazała, że wykrywanie
+zainstalowanych map opiera się wyłącznie na **lokalnych eventach serwerowych**
+`<static>:mapExists` z callbackiem, dla każdego `static` z rejestru `all_data_full`
+(tutaj: `prompt_sandy_gasstation_carwash` = „Gas", `locations={"sandy"}`). Handlery
+normalnie rejestrował zdalny skrypt z `sv_loadera`; po jego wyłączeniu (7.1/8.1)
+nikt nie odpowiadał, więc mapa była niewidoczna.
+
+Rozwiązanie bez przywracania zdalnego kodu i telemetrii: `server/server.lua` rejestruje
+lokalnie te same handlery (`:mapExists`, `promptmap:i_exist_*`, `promptmap:locations_*`,
+`:mapFullNameSend`, `:mapFinal`) przez `AddEventHandler`, z walidacją callbacku.
+Mockowany harness po zmianie: **54/54 sprawdzeń**. Uwaga: folderów `prompt_sandy_shared`
+i `cfx_prompt_sandy_mapdata` nie ma w tym repozytorium — analizę oparto o kod checkera,
+który te zasoby ładują; sam mechanizm eventów jest dla nich wiążący. Do potwierdzenia
+na serwerze: po restarcie zasobów w komunikacie checkera „Gas" powinien zniknąć
+z listy Missing, a link powinien zawierać `+Gas`.

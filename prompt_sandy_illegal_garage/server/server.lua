@@ -869,6 +869,43 @@ RegisterCommand("testautodoors_ig", function(playerSource, args)
     end
 end, true)
 
+-- ── Rejestracja mapy dla Prompt mapdata (bez sv_loader.lua) ────────
+-- Oficjalny checker mapdata (Prompt-Coder/mapdatachecker:
+-- remote_sv/map/script.lua, normalnie ładowany przez sv_loader każdej
+-- mapy) wykrywa zainstalowane mapy WYŁĄCZNIE lokalnymi eventami
+-- serwerowymi "<MapId>:mapExists" z callbackiem. Nasz sv_loader jest
+-- wyłączony celowo (zdalny kod + telemetria), więc te same handlery
+-- rejestrujemy sami, lokalnie — mapdata widzi tę mapę jako "Gas"
+-- (static = prompt_sandy_gasstation_carwash, locations = {"sandy"}
+-- w rejestrze all_data_full), a serwer niczego nie pobiera z sieci.
+-- Używamy AddEventHandler (eventy czysto lokalne; wariant RegisterNetEvent
+-- ze zdalnego skryptu był dodatkowo wywoływalny z klientów).
+local PROMPT_MAP_ID = "prompt_sandy_gasstation_carwash" -- musi być = MapId w sv_loader.lua
+local PROMPT_MAP_NAME = "Gas"
+local PROMPT_MAP_LOCATIONS = { "sandy" }
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapExists", function(cb)
+    if type(cb) == "function" then cb(true) end
+end)
+
+AddEventHandler("promptmap:i_exist_" .. PROMPT_MAP_ID, function(cb)
+    if type(cb) == "function" then cb(true) end
+end)
+
+AddEventHandler("promptmap:locations_" .. PROMPT_MAP_ID, function(cb)
+    if type(cb) == "function" then cb(PROMPT_MAP_LOCATIONS) end
+end)
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapFullNameSend", function(returnEvent, id)
+    if type(returnEvent) == "string" then
+        TriggerEvent(returnEvent, PROMPT_MAP_NAME, id)
+    end
+end)
+
+AddEventHandler(PROMPT_MAP_ID .. ":mapFinal", function()
+    -- legacy: checker powiadamia ostatnią wykrytą mapę; nic nie robimy
+end)
+
 -- ── Debug: log zmian stanu ──────────────────────────────────────────
 
 if Config.Debug then
