@@ -622,3 +622,65 @@ prawdopodobnie zagubiony/escrowed element pakietu; na tę chwilę ładowanie IPL
   `RegisterResourceAsset` + `RegisterStreamingFileFromCache`) zostawione bez zmian —
   to lokalny mechanizm assetów mapdata, nie telemetryczny, a ruszenie go mogłoby
   uszkodzić streaming tej mapy.
+
+## 11. Wspólna permisja ACE dla komend pakietu (`command.sandyshores`)
+
+Data: 2026-10-18. Wszystkie komendy z repo sprawdzają teraz **jeden** obiekt ACE:
+`command.sandyshores`. Konfiguracja serwera (server.cfg):
+
+```cfg
+# Prompt Sandy Shores — dostęp do komend (testsound, testanims, testautodoors_ig(_flow),
+# marketipls, pm_ipl) dla wybranej grupy:
+add_ace group.admin command.sandyshores allow
+add_principal identifier.license:XXXX group.admin
+```
+
+Stare, rozproszone ACE (`command.testanims`, `command.testautodoors_ig`, ewentualne
+`command.marketipls`) **nie są już sprawdzane** — linie w server.cfg można usunąć.
+
+### 11.1. Zasady implementacji
+
+- Komendy rejestrują się z `restricted = false` i sprawdzają permisję **ręczne** w handlerze
+  (wbudowany flag FiveM patrzy na osobne `command.<nazwa_komendy>`, więc z `true` posiadacz
+  `command.sandyshores` i tak zostałby zablokowany przed handlerem).
+- Klient (`prompt_sandy_illegal_garage/client/client.lua`, `prompt_sandy_market/client.lua`):
+  `IsAceAllowed("command.sandyshores")` — poprawna natywa po stronie klienta (por. 7.4);
+  odmowa = komunikat w konsoli i przerwanie. Helper `canUseSandyCommand()` w obu plikach.
+- Serwer (`prompt_sandy_illegal_garage/server/server.lua`, komenda `/testautodoors_ig`):
+  `IsPlayerAceAllowed(source, ...)`; **konsola serwera (source 0) przechodzi zawsze**
+  (jak dotychczas); próba gracza bez ACE jest logowana i odrzucana.
+- **Egzekwowanie serwerowe w markecie** (`prompt_sandy_market/server.lua`): eventy
+  `ipl_manager:requestLoad/requestUnload/requestToggle/requestLoadAllEnabled/requestUnloadAll`
+  są `RegisterNetEvent`, więc klient mógłby je wywołać z pominięciem komend — wszystkie
+  pięć sprawdza teraz to samo ACE po stronie serwera (gracz bez ACE nie zmieni stanu IPL
+  nawet zmodowanym klientem). Wyjątek: `ipl_manager:requestSync` (sam odczyt stanu) zostaje
+  otwarty — IPL-e marketu to widoki świata i **każdy** klient musi je zaaplikować lokalnie
+  (zablokowanie synca sprawiłoby, że gracze bez ACE widzieliby market bez stoisk).
+- `Config.Command.restricted` w `prompt_sandy_market/config.lua` usunięty (zastąpiony
+  wspólną permisją); zostają `name`/`description`.
+- Poza zakresem (niekomendowe): `open_functions.lua` nadal obsługuje opcjonalne ACE
+  per-prop (`propConfig.acePermission`) — to inna warstwa uprawnień, nietknięta. Eksporty
+  zasobów (`loadIPL`, `loadIPLServer`, `setLiftState`, …) wywoływane między zasobami nie
+  przechodzą bramki gracza (kontroluje je wywołujący zasób).
+
+### 11.2. Lista objętych komend
+
+| Komenda | Zasób | Strona | Poprzednie ograniczenie |
+|---|---|---|---|
+| `/testsound` | illegal_garage | client | `command.testsound` (wbudowane) |
+| `/testautodoors_ig_flow` | illegal_garage | client | `command.testautodoors_ig_flow` (wbudowane) |
+| `/testanims` | illegal_garage | client | `command.testanims` (wbudowane) |
+| `/testautodoors_ig` | illegal_garage | server | `command.testautodoors_ig` (wbudowane) |
+| `/marketipls` | market | client | `Config.Command.restricted` (domyślnie brak) |
+| `/pm_ipl` | market | client | brak (dostępna dla wszystkich) |
+
+### 11.3. Weryfikacja
+
+- Składnia: 18/18 plików Lua.
+- Harness: **10/10 scenariuszy** — doszły: S9 (eventy mutujące marketu odrzucone bez ACE,
+  broadcast `stateChanged` z ACE, `requestSync` otwarty dla wszystkich) i S10 (komendy
+  marketu zarejestrowane z `restricted=false`, odmowa bez ACE bez żądań serwerowych,
+  menu/`pm_ipl` działają z ACE).
+- Do sprawdzenia w grze: odmowa komendy bez ACE (komunikat w konsoli F8), przejście
+  z nadanym `command.sandyshores`, `/testautodoors_ig` z konsoli serwera, wizualna
+  obecność stoisk marketu u gracza BEZ ACE (efekt „requestSync otwarty").

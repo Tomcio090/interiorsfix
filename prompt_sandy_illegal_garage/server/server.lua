@@ -701,11 +701,22 @@ if Config.AutoOpen then
     end)
 end
 
--- ── Komenda testowa: /testautodoors_ig (ACE: command.testautodoors_ig) ──
+-- ── Komenda testowa: /testautodoors_ig (ACE: command.sandyshores) ───
+-- Wspólna permisja dla komend pakietu (ANALIZA.md, rozdz. 11):
+--   add_ace group.admin command.sandyshores allow
+-- Konsola serwera (source 0) przechodzi zawsze; gracz wymaga ACE.
 -- UWAGA: testy MUTUJĄ żywy stan (GlobalState, occupants, dozwolone joby)
 -- i na końcu na sztywno zostawiają roletę ZAMKNIĘTĄ, not busy, ZABLOKOWANĄ.
 
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
 RegisterCommand("testautodoors_ig", function(playerSource, args)
+    if validateSource(playerSource) and not IsPlayerAceAllowed(playerSource, SANDY_COMMAND_ACE) then
+        print(("^1[SANDY] Gracz %s (%s) próbował /testautodoors_ig bez ACE %s^0"):format(
+            tostring(GetPlayerName(playerSource)), tostring(playerSource), SANDY_COMMAND_ACE))
+        return
+    end
+
     local passed = 0
     local failed = 0
     local results = {}
@@ -867,7 +878,7 @@ RegisterCommand("testautodoors_ig", function(playerSource, args)
             duration = 5000
         })
     end
-end, true)
+end, false)
 
 -- ── Rejestracja mapy dla Prompt mapdata (bez sv_loader.lua) ────────
 -- Oficjalny checker mapdata (Prompt-Coder/mapdatachecker:

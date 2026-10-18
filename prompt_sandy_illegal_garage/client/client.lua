@@ -1009,8 +1009,28 @@ AddEventHandler("onResourceStop", function(resourceName)
     debugPrint("[ILLEGAL GARAGE] Resource stopped - restored default entity set")
 end)
 
+-- ── Wspólna permisja ACE dla komend pakietu Prompt Sandy Shores ─────
+-- Wszystkie komendy diagnostyczne/admin z tego repo sprawdzają JEDEN obiekt
+-- ACE: command.sandyshores (ANALIZA.md, rozdz. 11). Konfiguracja serwera:
+--   add_ace group.admin command.sandyshores allow
+--   add_principal identifier.license:XXXX group.admin
+-- Na kliencie poprawną natywką jest IsAceAllowed (IsPlayerAceAllowed to API
+-- serwerowe — patrz ustalenie 7.4).
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
+    end
+    print("^1[SANDY] Missing ACE permission: " .. SANDY_COMMAND_ACE .. "^0")
+    return false
+end
+
 -- Komenda testowa: /testsound
 RegisterCommand("testsound", function(source, args)
+    if not canUseSandyCommand() then
+        return
+    end
     if #args < 2 then
         print("[SOUND] Usage: /testsound <audioName> <audioRef> [spatial]")
         print("[SOUND] Example: /testsound BOLT_LOCK GTAO_APT_DOOR_SOUNDS")
@@ -1030,10 +1050,13 @@ RegisterCommand("testsound", function(source, args)
         PlaySoundFrontend(-1, audioName, audioRef, true)
         print("[SOUND] PlaySoundFrontend: " .. audioName .. " / " .. audioRef)
     end
-end, true)
+end, false)
 
 -- Komenda testowa: /testautodoors_ig_flow
 RegisterCommand("testautodoors_ig_flow", function()
+    if not canUseSandyCommand() then
+        return
+    end
     if not Config.AutoOpen then
         print("^1[TEST] Config.AutoOpen is false — cannot run flow test^0")
         return
@@ -1155,7 +1178,7 @@ RegisterCommand("testautodoors_ig_flow", function()
             duration = 8000
         })
     end)
-end, true)
+end, false)
 
 -- Główny wątek inicjalizujący skrypt
 -- (stan początkowy GlobalState ustawia wyłącznie serwer przy starcie)
@@ -1166,12 +1189,15 @@ CreateThread(function()
     debugPrint("[ILLEGAL GARAGE ANIMS ENABLED] Sistema de props animados iniciado.")
 end)
 
--- Komenda testowa: /testanims (ACE: command.testanims)
+-- Komenda testowa: /testanims (ACE: command.sandyshores — wspólna permisja)
 RegisterCommand("testanims", function()
+    if not canUseSandyCommand() then
+        return
+    end
     lib.registerContext({
         id = "test_anims_menu",
         title = Config.Messages.menuTitle,
         options = getTestMenu()
     })
     lib.showContext("test_anims_menu")
-end, true)
+end, false)
