@@ -2,7 +2,7 @@ fx_version "cerulean"
 games { 'gta5' }
 
 author 'Prompt Mods'
-description 'Roads+Downtown+Firestation2+Hospital2+Uni+Corner+Apts+Bank+Market+Motel+Gas+Mechanic+Church+Dealer+Cityhall+Houses1+Trainstation+Marina+Boathouse+Sheriff+Airfield'
+description 'Roads+Firestation2+Hospital2+Corner+Apts+Bank+Market+Gas+Mechanic+Church+Dealer+Cityhall+Houses1+Marina+Boathouse+Sheriff'
 version '1.0.0'
 
 this_is_a_map 'yes'
