@@ -47,8 +47,15 @@ client_scripts {
 }
 
 server_scripts {
-	'sv_loader.lua',
+	-- Lokalna rejestracja wykrywania mapy (zamiennik sv_loadera — bez
+	-- zdalnego kodu i telemetrii; patrz ANALIZA.md, rozdz. 7.1/10/13)
+	'sv_mapdata.lua',
 	'server/*.lua',
 	'ipls_server.lua'
 }
+-- ox_lib jest wymagany (lib.points/lib.zones/lib.callback w kliencie) —
+-- zależność gwarantuje kolejność startu (poprzednio wykrywanie
+-- GetResourceState("ox_lib") == "started" działo się tylko raz, przy
+-- ładowaniu client.lua — patrz ANALIZA.md, rozdz. 7.4 i naprawy garażu)
+dependency 'ox_lib'
 dependency '/assetpacks'

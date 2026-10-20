@@ -718,3 +718,108 @@ odpowiadania przy braku obcych checkerów, odmowa komend debug bez ACE.
 
 Uwaga: nowe mapy nie były analizowane funkcjonalnie na poziomie rynku/garażu
 (skala „rozdziału 7") — dotknięto wyłącznie ich integracji z mapdata i permisjami.
+
+## 13. Runda: `prompt_sandy_church`, `prompt_sandy_cityhall`, `prompt_sandy_sheriff` (+ ostatnie pliki `prompt_sandy_apts`)
+
+Data: 2026-10-20. Ostatnie zasoby z **kodem dekompilatora** (wzorce `L0_1`/`A0_2`/
+`goto lbl_N` — dokładnie 9 plików) oraz jedyne trzy mapy, które jeszcze nosiły
+`sv_loader.lua`. Po tej rundzie w repo **nie ma ani jednego pliku dekompilowanego
+ani jednej aktywnej referencji do `sv_loader`** (pozostałe wzmianki to komentarze
+dokumentacyjne).
+
+### 13.1. Przepisane pliki (6, in situ, wartości 1:1)
+
+| Plik | Zawartość po przepisie |
+|---|---|
+| `prompt_sandy_cityhall/client/utils.lua` | biblioteka easingu Bezier (A/B/C, `calcBezier`, `getSlope`, `newtonRaphsonIterate`, `bezier`, `math.lerp`/`math.invlerp` — globalnie, celowo) + `TranslateObjectCoordsCubicBezier(entity, endCoords, duration, curveType, curveKey, targetFloor, startTime)`; `EASING_PRESETS` zachowany jako udokumentowany nie-używany local (dekompilacja go definiowała) |
+| `prompt_sandy_cityhall/internal_config.lua` | czysty `Config.Elevator` — wszystkie współrzędne/krzywe/czasy 1:1 z dekompilacją, komentarze PL |
+| `prompt_sandy_cityhall/server/server.lua` | `GlobalState.elevator` (inicjalizacja), `waitForPlayerDoorAnimation` (deadline 7000 ms, poll 50 ms), `elevator:updateState` (walidacja: tabela, `isMoving`, istnienie `targetFloor` ≠ `currentFloor`, `serverId` tylko jeśli `== source`, blokada `doorAnimationBusy`, clamp duration 3000..15000, `SetTimeout(duration + doorDur*2 + 300)` → stan arrive → odblokowanie), relacja animacji białą listą dict/anim; **zachowana** bezręczna linia `RegisterServerEvent("prompt_elevator:send:animation")` — zarejestrowane bez handlera; to poprawne API FXServera (potwierdzone użyciem w publicznych `server.lua`) |
+| `prompt_sandy_cityhall/client/client.lua` | pełny klient windy: bramki `ox_lib`/`static_elevator_replace` (przebudowane na early-return — semantyka identyczna), `interiorId` z `GetInteriorAtCoords(1753.6223, 3804.645, 35.4474)`, globalne API dla `open.lua` (`getNearestFloor`, `calculateElevatorDuration`, `SelectFloor`, `CallElevator`, 4 funkcje dźwięku/animacji), strefa spawnu `lib.points` (promień 35), statebag `"elevator"` (`moving` → zamknięcie drzwi + wątek `animateIndicators`/`moveElevatorToFloor`; `arrived` → dzwonek + otwarcie), callback `elevator:playerDoorAnimation` (matematyka rotacji, `TaskPedSlideToCoord` limit 5 s), netevent `prompt_elevator:sync:animation` (bramka room −1984934778, `TaskPlayAnim` z `lockZ` = przekazany heading bez zmian), sprzątanie przy `onResourceStop` |
+| `prompt_sandy_apts/interior_manager.lua` | 3 zbiory budynków (strefy target 50 m, ukrywanie `CreateModelHide` promień 50, próg Z 46), wątki 5 s / 1 s / baner 3 s |
+| `prompt_sandy_apts/proximity_loader.lua` | strategię `auto_stream_only`/`proximity_ipl`, strefy wykluczenia (ściana + box), harmonogram `CheckScaling`, entity sets (furnished/shell_only), wątki: anti-autostream przy starcie, pętla bliskości (max 6 najbliższych), sweep 10 s, init statycznych (5×1 s), eksporty 1:1 (`GetInteriorMode`/`SetInteriorMode`/`GetLoadedIPLsCount`/`IsIPLLoaded`/`GetStrategy`) |
+
+### 13.2. Świadome normalizacje i usuwanie martwego kodu (brak zmiany zachowania)
+
+- **`AddStateBagChangeHandler`** — kolejność argumentów potwierdzona deklaracją
+  natywnej CFX: callback to `(bagName, key, value, reserved, replicated)`,
+  rejestracja `(keyFilter, bagFilter, handler)`. W przepisie:
+  `AddStateBagChangeHandler("elevator", nil, function(bagName, key, newState)`.
+- `AttachEntityToEntity`: `vertexIndex = false` → `0`, `collision = 2` → `true`
+  (normalizacja do formy garażowej po naprawie).
+- `TaskPlayAnim`: 12. argument (`lockZ`) przechodzi **bez zmian** (wierność,
+  nie normalizacja) — w oryginale był tam heading.
+- Wywołanie animacji drzwi windy jest **bajt w bajt** identyczne z naprawioną
+  formą garażu (`PlayEntityAnim(entity, anim, dict, 8.0, false, true, false, 0.0, 0)`)
+  → nie wymagała naprawy pętli, tylko przepisania.
+- Usunięte martwe fragmenty (wynik nikt nie odczytywał / bez skutków ubocznych):
+  - `ensureElevatorState` (client) — syła event `elevator:initializeState`, na który
+    **nie ma żadnego handlera**;
+  - nie-używany local `isInsideElevator` (globalny prowadzi `open.lua`);
+  - `isPlayerInAnyKnownInterior` + jej martwe wywołanie (apts, wątek 1 s);
+  - duplikat `IsInteriorEntitySetActive` w `setupEntitySetsForIpl` (apts).
+- `pointInPolygon` (apts): pętla krawędzi przepisana na `(punkty[i], punkty[i+1])`
+  — ten sam zbiór krawędzi co w dekompilacji (odwrotna orientacja indeksów nie
+  zmienia wyniku — test `pointOnSegment` jest niezależny od orientacji).
+
+### 13.3. `sv_loader` → lokalny `sv_mapdata` (church / cityhall / sheriff)
+
+- **Usunięte**: `prompt_sandy_church/sv_loader.lua`, `prompt_sandy_cityhall/sv_loader.lua`,
+  `prompt_sandy_sheriff/sv_loader.lua` (decyzja właściciela 7.1/8.1 — zdalny kod + telemetria).
+- **Dodane**: `sv_mapdata.lua` w każdym z trzech (wzór apts/market/fire2/hospital2):
+  wyłącznie handlery wykrywania (`<MapId>:mapExists`, `promptmap:i_exist_<MapId>`,
+  `promptmap:locations_<MapId>`, `<MapId>:mapFullNameSend`, legacy `:mapFinal`),
+  callbacki odpowiadają przez `pcall` (referencja funkcyjna z innego zasobu),
+  brak sieci. Stałe: `prompt_sandy_church`/„Church", `prompt_sandy_cityhall`/„Cityhall",
+  `prompt_sandy_sheriff`/„Sheriff", `MAP_LOCATIONS = { "sandy" }` (nazwy 1:1 z rejestrem
+  `PROMPT_MAP_REGISTRY` w `prompt_sandy_illegal_garage`).
+- **Manifesty**: `server_scripts` — `sv_loader.lua` → `sv_mapdata.lua`;
+  `prompt_sandy_cityhall/fxmanifest.lua` dodatkowo `dependency 'ox_lib'`
+  (klient używa `lib.points`/`lib.zones`/`lib.callback` — poprzednio tylko kontrola
+  `GetResourceState("ox_lib")` raz przy starcie); `dependency '/assetpacks'`
+  zachowane wszędzie. `prompt_sandy_apts/fxmanifest.lua` — bez zmian (już po 12. rundzie).
+
+### 13.4. Cityhall: ACE + wzmocnienia (wzór 10.2/11)
+
+- `/cityhall` → `RegisterCommand("cityhall", ..., false)` + `canUseSandyCommand()`
+  (client: `IsAceAllowed("command.sandyshores")`) — po tej rundzie **wszystkie komendy
+  pakietu (19) są pod jednym ACE** `command.sandyshores`.
+- `ipls_server.lua`: oba handlery (`ipls:sync:toggleIPL`, `ipls:sync:toggleEntitySet`)
+  teraz: `IsPlayerAceAllowed(source, "command.sandyshores")` **i** walidacja nazwy
+  przeciw białej liście (12 IPL / 4 entity sets, lista 1:1 z inicjalizacją
+  `GlobalState`). Sfałszowany klient nie może już wpisać do replikowanego statebag
+  dowolnego klucza. Dodatkowo: `state` normalizowane do boola i straż `GlobalState.ipls
+  == nil` (wyścig startu; oryginał wywalał błąd, stan i tak by się nie zmienił).
+- `ipls_command.lua`: `pairs()` w trzech menu → **stabilne kolejności**
+  (`IPL_ORDER`/`ENTITY_SET_ORDER`/`PRESET_ORDER`) — ta sama poprawka co w marketu (10.2).
+  `ipls:openMenu` (netevent klienta) zostaje otwarty — otwiera tylko menu po stronie
+  klienta; każda mutacja stanu idzie przez zablokowane serwerek eventy.
+
+### 13.5. Weryfikacja
+
+- **Harness lupa** (mocki globali FiveM, wykonanie kodu top-level każdego pliku):
+  wszystkie pliki kodowe OK. Harness **wyłapał realny błąd przepisu**: `vec3(...)`
+  zamiast `vector3(...)` w `internal_config.lua` (4 miejsca) — naprawiono.
+- **Artefakt harnessa (ważne do powtórzenia)**: buildy Lua w lupa 2.8 kompilują
+  wywołania `f 'a' 'b'` (≥2 łącznie-rozdzielone argumenty-łańcuchy) jako
+  `(f 'a')('b')` — sprawdzone na `print 'a' 'b'` nawet w wariancie `lua54`.
+  To błąd samego lupa, NIE Lua 5.4 (FiveM) — dlatego manifesty (pełne tej składni,
+  standardowo w FiveM) zweryfikowano niezależnym parserem.
+- **`luaparser`** (niezależna gramatyka Lua 5.3/5.4 z PyPI): **47/47** plików `.lua`
+  poza `stream/` w całym repo — zero błędów składni.
+- Grep: zero wzorców dekompilatora poza komentarzami-nagłówkami plików przepisanych;
+  zero aktywnych referencji `sv_loader` (same komentarze).
+
+### 13.6. Do sprawdzenia w grze
+
+- Pełny cykl windy: wezwanie (strefa call), wejście, wybór piętra, animacje drzwi
+  (otwarcie/zamknięcie + slide gracza), dojazd z easingiem, dzwonek, spawn przy wyjściu.
+- `/cityhall` bez ACE — odmowa (komunikat w konsoli F8); z `command.sandyshores` —
+  menu; kolejność pozycji menu stała (12 IPL w kolejności `IPL_ORDER`).
+- Zmiany z menu widoczne u wszystkich graczy (statebag) — i tylko z ACE
+  (próbna zmiana bez ACE nie zmienia stanu).
+- Apts: budynki chowają się wewnątrz / odzyskują po wyjściu; IPL ładowane wg
+  odległości (strategia `proximity_ipl`) albo auto-stream (`auto_stream_only`).
+- Raport mapdata: `Church`, `Cityhall`, `Sheriff` widoczne jako obecne bez zdalnego
+  checkera.
+
+Uwaga: `stream/` jak zawsze nietknięte (trwała decyzja właściciela).

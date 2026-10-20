@@ -1,1719 +1,636 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1
-L0_1 = GetResourceState
-L1_1 = "ox_lib"
-L0_1 = L0_1(L1_1)
-L0_1 = "started" == L0_1
-L1_1 = GetInteriorAtCoords
-L2_1 = 1753.6223
-L3_1 = 3804.645
-L4_1 = 35.4474
-L1_1 = L1_1(L2_1, L3_1, L4_1)
-if not L0_1 then
-  L2_1 = print
-  L3_1 = "[PROMPT ELEVATOR DISABLED - ox_lib not found]"
-  L2_1(L3_1)
-  L2_1 = ActivateInteriorEntitySet
-  L3_1 = L1_1
-  L4_1 = "static_elevator"
-  L2_1(L3_1, L4_1)
-  L2_1 = RefreshInterior
-  L3_1 = L1_1
-  L2_1(L3_1)
-  return
+---------------------------------------------------------------------
+-- PROMPT SANDY CITYHALL — Elevator (client)
+-- Funkcjonalna winda ratusza: platformsa + drzwi + kolizje +
+-- strzałki pięter, sterowanie przez strefy (open.lua) i state-bag
+-- "elevator" (stan pilnuje serwer, patrz server/server.lua).
+--
+-- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- na czytelny kod. Zachowano: wszystkie nazwy globalne (open.lua
+-- używa getNearestFloor/SelectFloor/CallElevator), eventy, czasy,
+-- współrzędne, kolejność wywołań native. Patrz ANALIZA.md, rozdz. 13.
+--
+-- Świadome odstępstwa od dosłownego zapisu (identyczne zachowanie):
+--   * Argументy AttachEntityToEntity: w dekompilacji vertexIndex
+--     wyszedł jako `false`, a collision jako `2` (w bindingu natywnym
+--     false=0, 2=true) — znormalizowane na `0`/`true`.
+--   * Ostatni argумент TaskPlayAnim w sync animacji (lockZ) w
+--     dekompliacji to wartość headingu (niezerowa = true) —
+--     przepuszczamy ją dalej bez zmian (patrz komentarz w miejscu).
+--   * Usunięty martwy local `ensureElevatorState` (nigdy nieniywany;
+--     wysyłał "elevator:initializeState", dla którego serwer NIE ma
+--     handlera) oraz nieużywany local `isInsideElevator` (globalną
+--     nazwą o tej samej nazwie zarządza open.lua).
+---------------------------------------------------------------------
+
+local hasOxLib = GetResourceState("ox_lib") == "started"
+local interiorId = GetInteriorAtCoords(1753.6223, 3804.645, 35.4474)
+
+-- Brak ox_lib albo winda wyłączona w configu -> statyczne entity set
+if not hasOxLib then
+    print("[PROMPT ELEVATOR DISABLED - ox_lib not found]")
+    ActivateInteriorEntitySet(interiorId, "static_elevator")
+    RefreshInterior(interiorId)
+    return
 end
-L2_1 = Config
-L2_1 = L2_1.FunctionalElevator
-if L2_1 then
-  L2_1 = DeactivateInteriorEntitySet
-  L3_1 = L1_1
-  L4_1 = "static_elevator"
-  L2_1(L3_1, L4_1)
-  L2_1 = RefreshInterior
-  L3_1 = L1_1
-  L2_1(L3_1)
-  L2_1 = nil
-  L3_1 = nil
-  L4_1 = nil
-  L5_1 = {}
-  L6_1 = false
-  L7_1 = {}
-  L8_1 = {}
-  function L9_1()
-    local L0_2, L1_2, L2_2
-    L0_2 = GlobalState
-    L0_2 = L0_2.elevator
-    if not L0_2 then
-      L0_2 = TriggerServerEvent
-      L1_2 = "elevator:initializeState"
-      L2_2 = {}
-      L2_2.currentFloor = 1
-      L2_2.targetFloor = nil
-      L2_2.isMoving = false
-      L2_2.doorsOpen = true
-      L0_2(L1_2, L2_2)
-    end
-  end
-  function L10_1(A0_2, A1_2, A2_2, A3_2, A4_2)
-    local L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-    if not A1_2 or not A2_2 then
-      return
-    end
-    L5_2 = GetEntityCoords
-    L6_2 = A1_2
-    L5_2 = L5_2(L6_2)
-    L6_2 = playDoorElevatorSound
-    L7_2 = A0_2
-    L8_2 = L5_2
-    L9_2 = A4_2
-    L6_2(L7_2, L8_2, L9_2)
-    if A0_2 then
-      L6_2 = Config
-      L6_2 = L6_2.Elevator
-      L6_2 = L6_2.door
-      L6_2 = L6_2.animations
-      L6_2 = L6_2.open
-      L6_2 = L6_2.name
-      if L6_2 then
-        goto lbl_30
-      end
-    end
-    L6_2 = Config
-    L6_2 = L6_2.Elevator
-    L6_2 = L6_2.door
-    L6_2 = L6_2.animations
-    L6_2 = L6_2.close
-    L6_2 = L6_2.name
-    ::lbl_30::
-    L7_2 = pcall
-    L8_2 = lib
-    L8_2 = L8_2.requestAnimDict
-    L9_2 = Config
-    L9_2 = L9_2.Elevator
-    L9_2 = L9_2.door
-    L9_2 = L9_2.animations
-    L9_2 = L9_2.dict
-    L7_2 = L7_2(L8_2, L9_2)
-    if L7_2 then
-      L8_2 = PlayEntityAnim
-      L9_2 = A1_2
-      L10_2 = L6_2
-      L11_2 = Config
-      L11_2 = L11_2.Elevator
-      L11_2 = L11_2.door
-      L11_2 = L11_2.animations
-      L11_2 = L11_2.dict
-      L12_2 = 8.0
-      L13_2 = false
-      L14_2 = true
-      L15_2 = false
-      L16_2 = 0.0
-      L17_2 = 0
-      L8_2(L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2)
-    end
-    L8_2 = 900
-    L9_2 = GetGameTimer
-    L9_2 = L9_2()
-    L10_2 = CreateThread
-    function L11_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3
-      while true do
-        L0_3 = GetGameTimer
-        L0_3 = L0_3()
-        L1_3 = L9_2
-        L0_3 = L0_3 - L1_3
-        L1_3 = L8_2
-        if not (L0_3 < L1_3) then
-          break
+
+if not Config.FunctionalElevator then
+    print("[PROMPT ELEVATOR DISABLED]")
+    ActivateInteriorEntitySet(interiorId, "static_elevator")
+    RefreshInterior(interiorId)
+    return
+end
+
+-- Wymiana statycznego entity set na funkcyjną windę
+DeactivateInteriorEntitySet(interiorId, "static_elevator")
+RefreshInterior(interiorId)
+
+-- ── Stan lokalny (encje windy) ─────────────────────────────────────
+local elevatorObj = nil          -- platformsa windy
+local doorObj = nil              -- drzwi (widok)
+local doorCollision = nil        -- drzwi (kolizja)
+local indicatorObjs = {}         -- strzałki wskazujące piętro
+local floorDoorObjs = {}         -- [numer piętra] = drzwi piętra (widok)
+local floorDoorCollisions = {}   -- [numer piętra] = drzwi piętra (kolizja)
+
+-- Najbliższe piętro dla podanej wysokości (z)
+function getNearestFloor(z)
+    local floors = Config.Elevator.floors
+    local bestFloor = 1
+    local bestDistance = math.abs(floors[1].coords.z - z)
+
+    for i = 2, #floors do
+        local distance = math.abs(floors[i].coords.z - z)
+        if bestDistance > distance then
+            bestDistance = distance
+            bestFloor = i
         end
-        L0_3 = GetGameTimer
-        L0_3 = L0_3()
-        L1_3 = L9_2
-        L0_3 = L0_3 - L1_3
-        L1_3 = L8_2
-        L0_3 = L0_3 / L1_3
-        L1_3 = A3_2
-        if L1_3 then
-          L1_3 = Config
-          L1_3 = L1_3.Elevator
-          L1_3 = L1_3.door
-          L1_3 = L1_3.offset
-          L2_3 = A0_2
-          if L2_3 then
-            L2_3 = -0.8
-            if L2_3 then
-              goto lbl_31
+    end
+
+    return bestFloor
+end
+
+-- Dźwięk drzwi (OPENING/CLOSING) — gra tylko dla gracza w roomie
+-- danego piętra lub w roomie całego wnętrza.
+function playDoorElevatorSound(open, coords, floor)
+    local roomId = Config.Elevator.sounds_roomid[floor]
+    if not roomId then return end
+
+    local myRoom = GetRoomKeyFromEntity(cache.ped)
+    if myRoom ~= roomId and myRoom ~= -1984934778 then
+        return
+    end
+
+    local soundName = open and "OPENING" or "CLOSING"
+    PlaySoundFromCoord(-1, soundName, coords.x, coords.y, coords.z,
+        "MP_PROPERTIES_ELEVATOR_DOORS", true, 0, false)
+end
+
+-- Animuje drzwi windy (klip na obiekcie drzwi + ruch kolizji).
+-- open: bool
+-- doorEntity/collisionEntity: encje drzwi (głównych albo piętra)
+-- attachedTo: encja platformsy (nil dla drzwi pięter — są statyczne)
+-- floor: numer piętra (dla dźwięku i offsetu drzwi piętra)
+--
+-- Przez 900 ms (Config.Elevator.door.animations.duration) wątek
+-- co klatkę przesuwa kolizję: drzwi główne są odłączane i
+-- dołączane na bieżący offset względem platformsy, drzwi pięter
+-- dostają lerp od 0 do config.offset. Wywołanie BLOKUJE 900 ms.
+local function playDoorAnimation(open, doorEntity, collisionEntity, attachedTo, floor)
+    if not doorEntity or not collisionEntity then return end
+
+    local coords = GetEntityCoords(doorEntity)
+    playDoorElevatorSound(open, coords, floor)
+
+    local animName = Config.Elevator.door.animations.close.name
+    if open then
+        animName = Config.Elevator.door.animations.open.name
+    end
+
+    local animDict = Config.Elevator.door.animations.dict
+    if pcall(lib.requestAnimDict, animDict) then
+        -- PlayEntityAnim(entity, animName, animDict, blendDelta, bLoop,
+        --                bHoldLastFrame, bDriveToPose, startPhase, flags)
+        -- bLoop=false + bHoldLastFrame=true: klip gra raz i trzyma
+        -- pozycję końcową (identycznie jak po naprawie w garażu, 9.3).
+        PlayEntityAnim(doorEntity, animName, animDict, 8.0, false, true, false, 0.0, 0)
+    end
+
+    local doorDuration = 900
+    local start = GetGameTimer()
+    CreateThread(function()
+        while true do
+            if not (GetGameTimer() - start < doorDuration) then
+                break
             end
-          end
-          L2_3 = 0.0
-          ::lbl_31::
-          L3_3 = vector3
-          L4_3 = L1_3.x
-          L5_3 = L2_3 * L0_3
-          L4_3 = L4_3 + L5_3
-          L5_3 = L1_3.y
-          L6_3 = L1_3.z
-          L3_3 = L3_3(L4_3, L5_3, L6_3)
-          L4_3 = DetachEntity
-          L5_3 = A2_2
-          L6_3 = false
-          L7_3 = false
-          L4_3(L5_3, L6_3, L7_3)
-          L4_3 = AttachEntityToEntity
-          L5_3 = A2_2
-          L6_3 = A3_2
-          L7_3 = 0
-          L8_3 = L3_3.x
-          L9_3 = L3_3.y
-          L10_3 = L3_3.z
-          L11_3 = 0.0
-          L12_3 = 0.0
-          L13_3 = 0.0
-          L14_3 = false
-          L15_3 = false
-          L16_3 = true
-          L17_3 = false
-          L18_3 = 2
-          L19_3 = true
-          L4_3(L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3)
-        else
-          L1_3 = GetEntityCoords
-          L2_3 = A1_2
-          L1_3 = L1_3(L2_3)
-          L2_3 = nil
-          L3_3 = pairs
-          L4_3 = Config
-          L4_3 = L4_3.Elevator
-          L4_3 = L4_3.floorDoors
-          L3_3, L4_3, L5_3, L6_3 = L3_3(L4_3)
-          for L7_3, L8_3 in L3_3, L4_3, L5_3, L6_3 do
-            L9_3 = L7_1
-            L9_3 = L9_3[L7_3]
-            L10_3 = A1_2
-            if L9_3 == L10_3 then
-              L2_3 = L8_3
-              break
+            local progress = (GetGameTimer() - start) / doorDuration
+
+            if attachedTo then
+                -- Drzwi główne: kolizja wędruje z platformsą
+                local slideOffset = open and -0.8 or 0.0
+                local pos = vector3(
+                    Config.Elevator.door.offset.x + slideOffset * progress,
+                    Config.Elevator.door.offset.y,
+                    Config.Elevator.door.offset.z
+                )
+                DetachEntity(collisionEntity, false, false)
+                AttachEntityToEntity(collisionEntity, attachedTo, 0,
+                    pos.x, pos.y, pos.z, 0.0, 0.0, 0.0,
+                    false, false, true, 0, true, true)
+            else
+                -- Drzwi piętra: kolizja przesuwana względem drzwi
+                local base = GetEntityCoords(doorEntity)
+                local doorConfig = nil
+                for floorId, data in pairs(Config.Elevator.floorDoors) do
+                    if floorDoorObjs[floorId] == doorEntity then
+                        doorConfig = data
+                        break
+                    end
+                end
+                if doorConfig then
+                    local offset = open and doorConfig.offset or vector3(0.0, 0.0, 0.0)
+                    local moved = vector3(
+                        math.lerp(0, offset.x, progress),
+                        math.lerp(0, offset.y, progress),
+                        0.0
+                    )
+                    SetEntityCoords(collisionEntity,
+                        base.x + moved.x, base.y + moved.y, base.z,
+                        false, false, false, false)
+                end
             end
-          end
-          if L2_3 then
-            L3_3 = A0_2
-            if L3_3 then
-              L3_3 = L2_3.offset
-              if L3_3 then
-                goto lbl_96
-              end
+            Wait(0)
+        end
+    end)
+
+    Wait(doorDuration)
+end
+
+-- Tworzy drzwi na każdym piętrze (widok + kolizja, zamrożone)
+local function createFloorDoors()
+    for floorId, data in pairs(Config.Elevator.floorDoors) do
+        lib.requestModel(Config.Elevator.door.model)
+        local visual = CreateObjectNoOffset(joaat(Config.Elevator.door.model),
+            data.coords.x, data.coords.y, data.coords.z, false, false, false)
+
+        lib.requestModel(Config.Elevator.door.collisionModel)
+        local collision = CreateObjectNoOffset(joaat(Config.Elevator.door.collisionModel),
+            data.coords.x, data.coords.y, data.coords.z, false, false, false)
+
+        SetEntityRotation(visual, data.rotation.x, data.rotation.y, data.rotation.z, 2, true)
+        SetEntityRotation(collision, data.rotation.x, data.rotation.y, data.rotation.z, 2, true)
+
+        SetEntityCollision(visual, false, false)
+        SetEntityCollision(collision, true, true)
+        FreezeEntityPosition(collision, true)
+        FreezeEntityPosition(visual, true)
+        SetEntityVisible(collision, false)
+
+        floorDoorObjs[floorId] = visual
+        floorDoorCollisions[floorId] = collision
+    end
+end
+
+-- Tworzy strzałki wskazujące piętro (wszystkie na obecne piętro)
+local function createIndicators()
+    for _, indicator in ipairs(indicatorObjs) do
+        DeleteEntity(indicator)
+    end
+    indicatorObjs = {}
+
+    local currentFloor = GlobalState.elevator and GlobalState.elevator.currentFloor or 1
+
+    for _, position in ipairs(Config.Elevator.indicators.positions) do
+        lib.requestModel(Config.Elevator.indicators.model)
+        local obj = CreateObject(joaat(Config.Elevator.indicators.model),
+            position.coords.x, position.coords.y, position.coords.z, false, false, false)
+
+        -- Każda strzałka pokazuje piętro, na którym stoi winda
+        local rotation = Config.Elevator.indicators.positions[currentFloor].rotation
+        SetEntityRotation(obj, rotation.x, rotation.y, rotation.z, 2, true)
+        FreezeEntityPosition(obj, true)
+        table.insert(indicatorObjs, obj)
+    end
+end
+
+-- Animuje strzałki: obrót (osie y) od piętra bieżącego do docelowego
+local function animateIndicators(targetFloor, duration, startTime)
+    if not indicatorObjs or #indicatorObjs == 0 then return end
+
+    local currentRotation = Config.Elevator.indicators.positions[GlobalState.elevator.currentFloor].rotation
+    local targetRotation = Config.Elevator.indicators.positions[targetFloor].rotation
+    if not targetRotation then return end
+
+    local start = startTime or GetNetworkTimeAccurate()
+    local easing = bezier(0.42, 0, 0.58, 1)
+
+    local function lerpY(t)
+        return math.lerp(currentRotation.y, targetRotation.y, t)
+    end
+
+    CreateThread(function()
+        while true do
+            local t = math.min((GetNetworkTimeAccurate() - start) / duration, 1.0)
+            if t >= 1.0 then
+                for _, indicator in ipairs(indicatorObjs) do
+                    SetEntityRotation(indicator,
+                        targetRotation.x, targetRotation.y, targetRotation.z, 2, true)
+                end
+                break
             end
-            L3_3 = vector3
-            L4_3 = 0.0
-            L5_3 = 0.0
-            L6_3 = 0.0
-            L3_3 = L3_3(L4_3, L5_3, L6_3)
-            ::lbl_96::
-            L4_3 = vector3
-            L5_3 = math
-            L5_3 = L5_3.lerp
-            L6_3 = 0
-            L7_3 = L3_3.x
-            L8_3 = L0_3
-            L5_3 = L5_3(L6_3, L7_3, L8_3)
-            L6_3 = math
-            L6_3 = L6_3.lerp
-            L7_3 = 0
-            L8_3 = L3_3.y
-            L9_3 = L0_3
-            L6_3 = L6_3(L7_3, L8_3, L9_3)
-            L7_3 = 0.0
-            L4_3 = L4_3(L5_3, L6_3, L7_3)
-            L5_3 = SetEntityCoords
-            L6_3 = A2_2
-            L7_3 = L1_3.x
-            L8_3 = L4_3.x
-            L7_3 = L7_3 + L8_3
-            L8_3 = L1_3.y
-            L9_3 = L4_3.y
-            L8_3 = L8_3 + L9_3
-            L9_3 = L1_3.z
-            L10_3 = false
-            L11_3 = false
-            L12_3 = false
-            L13_3 = false
-            L5_3(L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3)
-          end
+
+            local y = lerpY(easing(t))
+            for _, indicator in ipairs(indicatorObjs) do
+                SetEntityRotation(indicator,
+                    vector3(currentRotation.x, y, currentRotation.z))
+            end
+            Wait(0)
         end
-        L1_3 = Wait
-        L2_3 = 0
-        L1_3(L2_3)
-      end
+    end)
+end
+
+-- Spawnuje platformę + drzwi + kolizje na podanym piętrze i
+-- odtwarza animacje drzwi zgodnie z bieżącym stanem.
+local function spawnElevator(floor)
+    if elevatorObj then return end
+
+    local floorData = Config.Elevator.floors[floor]
+    if not floorData then return end
+
+    while not IsModelValid(joaat(Config.Elevator.model)) do
+        Wait(0)
     end
-    L10_2(L11_2)
-    L10_2 = Wait
-    L11_2 = L8_2
-    L10_2(L11_2)
-  end
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2
-    L1_2 = Config
-    L1_2 = L1_2.Elevator
-    L1_2 = L1_2.floors
-    L2_2 = 1
-    L3_2 = math
-    L3_2 = L3_2.abs
-    L4_2 = L1_2[1]
-    L4_2 = L4_2.coords
-    L4_2 = L4_2.z
-    L4_2 = L4_2 - A0_2
-    L3_2 = L3_2(L4_2)
-    L4_2 = 2
-    L5_2 = #L1_2
-    L6_2 = 1
-    for L7_2 = L4_2, L5_2, L6_2 do
-      L8_2 = math
-      L8_2 = L8_2.abs
-      L9_2 = L1_2[L7_2]
-      L9_2 = L9_2.coords
-      L9_2 = L9_2.z
-      L9_2 = L9_2 - A0_2
-      L8_2 = L8_2(L9_2)
-      if L3_2 > L8_2 then
-        L3_2 = L8_2
-        L2_2 = L7_2
-      end
+    lib.requestModel(Config.Elevator.model)
+    elevatorObj = CreateObjectNoOffset(joaat(Config.Elevator.model),
+        floorData.coords.x, floorData.coords.y, floorData.coords.z, false, false, false)
+
+    local rotation = Config.Elevator.position.rotation
+    SetEntityRotation(elevatorObj, rotation.x, rotation.y, rotation.z, 2, true)
+
+    local elevatorCoords = GetEntityCoords(elevatorObj)
+    local doorCoords = elevatorCoords + Config.Elevator.door.offset
+
+    lib.requestModel(Config.Elevator.door.model)
+    doorObj = CreateObject(joaat(Config.Elevator.door.model),
+        doorCoords.x, doorCoords.y, doorCoords.z, false, false, false)
+    SetEntityRotation(doorObj, rotation.x, rotation.y, rotation.z, 2, true)
+
+    lib.requestModel(Config.Elevator.door.collisionModel)
+    doorCollision = CreateObject(joaat(Config.Elevator.door.collisionModel),
+        doorCoords.x, doorCoords.y, doorCoords.z, false, false, true)
+    SetEntityRotation(doorCollision, rotation.x, rotation.y, rotation.z, 2, true)
+
+    SetEntityCollision(doorObj, false, false)
+    SetEntityCollision(doorCollision, true, true)
+    FreezeEntityPosition(doorCollision, true)
+    SetEntityVisible(doorCollision, false)
+
+    AttachEntityToEntity(doorObj, elevatorObj, 0,
+        doorCoords.x, doorCoords.y, doorCoords.z, 0.0, 0.0, 0.0,
+        false, false, false, 0, true, true)
+
+    -- Kolizja drzwi startuje w pozycji zależnej od stanu (otwarte?)
+    local collisionOffset = Config.Elevator.door.animations.close.collisionOffset
+    if GlobalState.elevator and GlobalState.elevator.doorsOpen then
+        collisionOffset = Config.Elevator.door.animations.open.collisionOffset
     end
-    return L2_2
-  end
-  getNearestFloor = L11_1
-  function L11_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2
-    L1_2 = L2_1
-    if L1_2 then
-      return
-    end
-    L1_2 = Config
-    L1_2 = L1_2.Elevator
-    L1_2 = L1_2.floors
-    L1_2 = L1_2[A0_2]
-    if not L1_2 then
-      return
-    end
-    while true do
-      L2_2 = IsModelValid
-      L3_2 = joaat
-      L4_2 = Config
-      L4_2 = L4_2.Elevator
-      L4_2 = L4_2.model
-      L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2 = L3_2(L4_2)
-      L2_2 = L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
-      if L2_2 then
-        break
-      end
-      L2_2 = Wait
-      L3_2 = 0
-      L2_2(L3_2)
-    end
-    L2_2 = lib
-    L2_2 = L2_2.requestModel
-    L3_2 = Config
-    L3_2 = L3_2.Elevator
-    L3_2 = L3_2.model
-    L2_2(L3_2)
-    L2_2 = CreateObjectNoOffset
-    L3_2 = joaat
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.model
-    L3_2 = L3_2(L4_2)
-    L4_2 = L1_2.coords
-    L4_2 = L4_2.x
-    L5_2 = L1_2.coords
-    L5_2 = L5_2.y
-    L6_2 = L1_2.coords
-    L6_2 = L6_2.z
-    L7_2 = false
-    L8_2 = false
-    L9_2 = false
-    L2_2 = L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2)
-    L2_1 = L2_2
-    L2_2 = SetEntityRotation
-    L3_2 = L2_1
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.position
-    L4_2 = L4_2.rotation
-    L4_2 = L4_2.x
-    L5_2 = Config
-    L5_2 = L5_2.Elevator
-    L5_2 = L5_2.position
-    L5_2 = L5_2.rotation
-    L5_2 = L5_2.y
-    L6_2 = Config
-    L6_2 = L6_2.Elevator
-    L6_2 = L6_2.position
-    L6_2 = L6_2.rotation
-    L6_2 = L6_2.z
-    L7_2 = 2
-    L8_2 = true
-    L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2)
-    L2_2 = GetEntityCoords
-    L3_2 = L2_1
-    L2_2 = L2_2(L3_2)
-    L3_2 = Config
-    L3_2 = L3_2.Elevator
-    L3_2 = L3_2.door
-    L3_2 = L3_2.offset
-    L4_2 = L2_2 + L3_2
-    L5_2 = lib
-    L5_2 = L5_2.requestModel
-    L6_2 = Config
-    L6_2 = L6_2.Elevator
-    L6_2 = L6_2.door
-    L6_2 = L6_2.model
-    L5_2(L6_2)
-    L5_2 = CreateObject
-    L6_2 = joaat
-    L7_2 = Config
-    L7_2 = L7_2.Elevator
-    L7_2 = L7_2.door
-    L7_2 = L7_2.model
-    L6_2 = L6_2(L7_2)
-    L7_2 = L4_2.x
-    L8_2 = L4_2.y
-    L9_2 = L4_2.z
-    L10_2 = false
-    L11_2 = false
-    L12_2 = false
-    L5_2 = L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-    L3_1 = L5_2
-    L5_2 = SetEntityRotation
-    L6_2 = L3_1
-    L7_2 = Config
-    L7_2 = L7_2.Elevator
-    L7_2 = L7_2.position
-    L7_2 = L7_2.rotation
-    L7_2 = L7_2.x
-    L8_2 = Config
-    L8_2 = L8_2.Elevator
-    L8_2 = L8_2.position
-    L8_2 = L8_2.rotation
-    L8_2 = L8_2.y
-    L9_2 = Config
-    L9_2 = L9_2.Elevator
-    L9_2 = L9_2.position
-    L9_2 = L9_2.rotation
-    L9_2 = L9_2.z
-    L10_2 = 2
-    L11_2 = true
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-    L5_2 = lib
-    L5_2 = L5_2.requestModel
-    L6_2 = Config
-    L6_2 = L6_2.Elevator
-    L6_2 = L6_2.door
-    L6_2 = L6_2.collisionModel
-    L5_2(L6_2)
-    L5_2 = CreateObject
-    L6_2 = joaat
-    L7_2 = Config
-    L7_2 = L7_2.Elevator
-    L7_2 = L7_2.door
-    L7_2 = L7_2.collisionModel
-    L6_2 = L6_2(L7_2)
-    L7_2 = L4_2.x
-    L8_2 = L4_2.y
-    L9_2 = L4_2.z
-    L10_2 = false
-    L11_2 = false
-    L12_2 = true
-    L5_2 = L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-    L4_1 = L5_2
-    L5_2 = SetEntityRotation
-    L6_2 = L4_1
-    L7_2 = Config
-    L7_2 = L7_2.Elevator
-    L7_2 = L7_2.position
-    L7_2 = L7_2.rotation
-    L7_2 = L7_2.x
-    L8_2 = Config
-    L8_2 = L8_2.Elevator
-    L8_2 = L8_2.position
-    L8_2 = L8_2.rotation
-    L8_2 = L8_2.y
-    L9_2 = Config
-    L9_2 = L9_2.Elevator
-    L9_2 = L9_2.position
-    L9_2 = L9_2.rotation
-    L9_2 = L9_2.z
-    L10_2 = 2
-    L11_2 = true
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-    L5_2 = SetEntityCollision
-    L6_2 = L3_1
-    L7_2 = false
-    L8_2 = false
-    L5_2(L6_2, L7_2, L8_2)
-    L5_2 = SetEntityCollision
-    L6_2 = L4_1
-    L7_2 = true
-    L8_2 = true
-    L5_2(L6_2, L7_2, L8_2)
-    L5_2 = FreezeEntityPosition
-    L6_2 = L4_1
-    L7_2 = true
-    L5_2(L6_2, L7_2)
-    L5_2 = SetEntityVisible
-    L6_2 = L4_1
-    L7_2 = false
-    L5_2(L6_2, L7_2)
-    L5_2 = AttachEntityToEntity
-    L6_2 = L3_1
-    L7_2 = L2_1
-    L8_2 = 0
-    L9_2 = L3_2.x
-    L10_2 = L3_2.y
-    L11_2 = L3_2.z
-    L12_2 = 0.0
-    L13_2 = 0.0
-    L14_2 = 0.0
-    L15_2 = false
-    L16_2 = false
-    L17_2 = false
-    L18_2 = false
-    L19_2 = 2
-    L20_2 = true
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2)
-    L5_2 = GlobalState
-    L5_2 = L5_2.elevator
-    if L5_2 then
-      L5_2 = GlobalState
-      L5_2 = L5_2.elevator
-      L5_2 = L5_2.doorsOpen
-      if L5_2 then
-        L5_2 = Config
-        L5_2 = L5_2.Elevator
-        L5_2 = L5_2.door
-        L5_2 = L5_2.animations
-        L5_2 = L5_2.open
-        L5_2 = L5_2.collisionOffset
-        if L5_2 then
-          goto lbl_219
+    AttachEntityToEntity(doorCollision, elevatorObj, 0,
+        doorCoords.x + collisionOffset.x,
+        doorCoords.y + collisionOffset.y,
+        doorCoords.z + collisionOffset.z,
+        0.0, 0.0, 0.0, false, false, true, 0, true, true)
+
+    createFloorDoors()
+
+    if GlobalState.elevator then
+        local state = GlobalState.elevator
+        playDoorAnimation(state.doorsOpen, doorObj, doorCollision, elevatorObj, state.currentFloor)
+        if floorDoorObjs[state.currentFloor] then
+            playDoorAnimation(state.doorsOpen,
+                floorDoorObjs[state.currentFloor],
+                floorDoorCollisions[state.currentFloor], nil, state.currentFloor)
         end
-      end
     end
-    L5_2 = Config
-    L5_2 = L5_2.Elevator
-    L5_2 = L5_2.door
-    L5_2 = L5_2.animations
-    L5_2 = L5_2.close
-    L5_2 = L5_2.collisionOffset
-    ::lbl_219::
-    L6_2 = AttachEntityToEntity
-    L7_2 = L4_1
-    L8_2 = L2_1
-    L9_2 = 0
-    L10_2 = L3_2.x
-    L11_2 = L5_2.x
-    L10_2 = L10_2 + L11_2
-    L11_2 = L3_2.y
-    L12_2 = L5_2.y
-    L11_2 = L11_2 + L12_2
-    L12_2 = L3_2.z
-    L13_2 = L5_2.z
-    L12_2 = L12_2 + L13_2
-    L13_2 = 0.0
-    L14_2 = 0.0
-    L15_2 = 0.0
-    L16_2 = false
-    L17_2 = false
-    L18_2 = true
-    L19_2 = false
-    L20_2 = 2
-    L21_2 = true
-    L6_2(L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
-    L6_2 = createFloorDoors
-    L6_2()
-    L6_2 = GlobalState
-    L6_2 = L6_2.elevator
-    if L6_2 then
-      L6_2 = L10_1
-      L7_2 = GlobalState
-      L7_2 = L7_2.elevator
-      L7_2 = L7_2.doorsOpen
-      L8_2 = L3_1
-      L9_2 = L4_1
-      L10_2 = L2_1
-      L11_2 = GlobalState
-      L11_2 = L11_2.elevator
-      L11_2 = L11_2.currentFloor
-      L6_2(L7_2, L8_2, L9_2, L10_2, L11_2)
-      L6_2 = GlobalState
-      L6_2 = L6_2.elevator
-      L6_2 = L6_2.currentFloor
-      L7_2 = L7_1
-      L7_2 = L7_2[L6_2]
-      if L7_2 then
-        L7_2 = L8_1
-        L7_2 = L7_2[L6_2]
-        if L7_2 then
-          L7_2 = L10_1
-          L8_2 = GlobalState
-          L8_2 = L8_2.elevator
-          L8_2 = L8_2.doorsOpen
-          L9_2 = L7_1
-          L9_2 = L9_2[L6_2]
-          L10_2 = L8_1
-          L10_2 = L10_2[L6_2]
-          L11_2 = nil
-          L12_2 = GlobalState
-          L12_2 = L12_2.elevator
-          L12_2 = L12_2.currentFloor
-          L7_2(L8_2, L9_2, L10_2, L11_2, L12_2)
+end
+
+-- Strefa spawnu windy (promień 35 m)
+local spawnPoint = lib.points.new({
+    coords = Config.Elevator.spawnZone.coords,
+    distance = Config.Elevator.spawnZone.radius,
+
+    onEnter = function()
+        local floor = GlobalState.elevator and GlobalState.elevator.currentFloor
+        if not floor then
+            floor = getNearestFloor(cache.coords.z)
         end
-      end
-    end
-  end
-  function L12_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2
-    L0_2 = pairs
-    L1_2 = Config
-    L1_2 = L1_2.Elevator
-    L1_2 = L1_2.floorDoors
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = lib
-      L6_2 = L6_2.requestModel
-      L7_2 = Config
-      L7_2 = L7_2.Elevator
-      L7_2 = L7_2.door
-      L7_2 = L7_2.model
-      L6_2(L7_2)
-      L6_2 = CreateObjectNoOffset
-      L7_2 = joaat
-      L8_2 = Config
-      L8_2 = L8_2.Elevator
-      L8_2 = L8_2.door
-      L8_2 = L8_2.model
-      L7_2 = L7_2(L8_2)
-      L8_2 = L5_2.coords
-      L8_2 = L8_2.x
-      L9_2 = L5_2.coords
-      L9_2 = L9_2.y
-      L10_2 = L5_2.coords
-      L10_2 = L10_2.z
-      L11_2 = false
-      L12_2 = false
-      L13_2 = false
-      L6_2 = L6_2(L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-      L7_2 = lib
-      L7_2 = L7_2.requestModel
-      L8_2 = Config
-      L8_2 = L8_2.Elevator
-      L8_2 = L8_2.door
-      L8_2 = L8_2.collisionModel
-      L7_2(L8_2)
-      L7_2 = CreateObjectNoOffset
-      L8_2 = joaat
-      L9_2 = Config
-      L9_2 = L9_2.Elevator
-      L9_2 = L9_2.door
-      L9_2 = L9_2.collisionModel
-      L8_2 = L8_2(L9_2)
-      L9_2 = L5_2.coords
-      L9_2 = L9_2.x
-      L10_2 = L5_2.coords
-      L10_2 = L10_2.y
-      L11_2 = L5_2.coords
-      L11_2 = L11_2.z
-      L12_2 = false
-      L13_2 = false
-      L14_2 = false
-      L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-      L8_2 = SetEntityRotation
-      L9_2 = L6_2
-      L10_2 = L5_2.rotation
-      L10_2 = L10_2.x
-      L11_2 = L5_2.rotation
-      L11_2 = L11_2.y
-      L12_2 = L5_2.rotation
-      L12_2 = L12_2.z
-      L13_2 = 2
-      L14_2 = true
-      L8_2(L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-      L8_2 = SetEntityRotation
-      L9_2 = L7_2
-      L10_2 = L5_2.rotation
-      L10_2 = L10_2.x
-      L11_2 = L5_2.rotation
-      L11_2 = L11_2.y
-      L12_2 = L5_2.rotation
-      L12_2 = L12_2.z
-      L13_2 = 2
-      L14_2 = true
-      L8_2(L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-      L8_2 = SetEntityCollision
-      L9_2 = L6_2
-      L10_2 = false
-      L11_2 = false
-      L8_2(L9_2, L10_2, L11_2)
-      L8_2 = SetEntityCollision
-      L9_2 = L7_2
-      L10_2 = true
-      L11_2 = true
-      L8_2(L9_2, L10_2, L11_2)
-      L8_2 = FreezeEntityPosition
-      L9_2 = L7_2
-      L10_2 = true
-      L8_2(L9_2, L10_2)
-      L8_2 = FreezeEntityPosition
-      L9_2 = L6_2
-      L10_2 = true
-      L8_2(L9_2, L10_2)
-      L8_2 = SetEntityVisible
-      L9_2 = L7_2
-      L10_2 = false
-      L8_2(L9_2, L10_2)
-      L8_2 = L7_1
-      L8_2[L4_2] = L6_2
-      L8_2 = L8_1
-      L8_2[L4_2] = L7_2
-    end
-  end
-  createFloorDoors = L12_1
-  function L12_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2
-    L0_2 = L5_1
-    if L0_2 then
-      L0_2 = ipairs
-      L1_2 = L5_1
-      L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-      for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-        L6_2 = DeleteEntity
-        L7_2 = L5_2
-        L6_2(L7_2)
-      end
-    end
-    L0_2 = {}
-    L5_1 = L0_2
-    L0_2 = GlobalState
-    L0_2 = L0_2.elevator
-    if L0_2 then
-      L0_2 = GlobalState
-      L0_2 = L0_2.elevator
-      L0_2 = L0_2.currentFloor
-      if L0_2 then
-        goto lbl_27
-      end
-    end
-    L0_2 = 1
-    ::lbl_27::
-    L1_2 = ipairs
-    L2_2 = Config
-    L2_2 = L2_2.Elevator
-    L2_2 = L2_2.indicators
-    L2_2 = L2_2.positions
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = lib
-      L7_2 = L7_2.requestModel
-      L8_2 = Config
-      L8_2 = L8_2.Elevator
-      L8_2 = L8_2.indicators
-      L8_2 = L8_2.model
-      L7_2(L8_2)
-      L7_2 = CreateObject
-      L8_2 = joaat
-      L9_2 = Config
-      L9_2 = L9_2.Elevator
-      L9_2 = L9_2.indicators
-      L9_2 = L9_2.model
-      L8_2 = L8_2(L9_2)
-      L9_2 = L6_2.coords
-      L9_2 = L9_2.x
-      L10_2 = L6_2.coords
-      L10_2 = L10_2.y
-      L11_2 = L6_2.coords
-      L11_2 = L11_2.z
-      L12_2 = false
-      L13_2 = false
-      L14_2 = false
-      L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-      L8_2 = Config
-      L8_2 = L8_2.Elevator
-      L8_2 = L8_2.indicators
-      L8_2 = L8_2.positions
-      L8_2 = L8_2[L0_2]
-      L8_2 = L8_2.rotation
-      L9_2 = SetEntityRotation
-      L10_2 = L7_2
-      L11_2 = L8_2.x
-      L12_2 = L8_2.y
-      L13_2 = L8_2.z
-      L14_2 = 2
-      L15_2 = true
-      L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-      L9_2 = FreezeEntityPosition
-      L10_2 = L7_2
-      L11_2 = true
-      L9_2(L10_2, L11_2)
-      L9_2 = table
-      L9_2 = L9_2.insert
-      L10_2 = L5_1
-      L11_2 = L7_2
-      L9_2(L10_2, L11_2)
-    end
-  end
-  function L13_1(A0_2, A1_2, A2_2)
-    local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-    L3_2 = L5_1
-    if L3_2 then
-      L3_2 = L5_1
-      L3_2 = #L3_2
-      if 0 ~= L3_2 then
-        goto lbl_9
-      end
-    end
-    do return end
-    ::lbl_9::
-    L3_2 = GlobalState
-    L3_2 = L3_2.elevator
-    L3_2 = L3_2.currentFloor
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.indicators
-    L4_2 = L4_2.positions
-    L4_2 = L4_2[L3_2]
-    L4_2 = L4_2.rotation
-    L5_2 = Config
-    L5_2 = L5_2.Elevator
-    L5_2 = L5_2.indicators
-    L5_2 = L5_2.positions
-    L5_2 = L5_2[A0_2]
-    L5_2 = L5_2.rotation
-    if not L5_2 then
-      return
-    end
-    L6_2 = A2_2 or L6_2
-    if not A2_2 then
-      L6_2 = GetNetworkTimeAccurate
-      L6_2 = L6_2()
-    end
-    L7_2 = bezier
-    L8_2 = 0.42
-    L9_2 = 0
-    L10_2 = 0.58
-    L11_2 = 1
-    L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2)
-    function L8_2(A0_3)
-      local L1_3, L2_3, L3_3, L4_3
-      L1_3 = math
-      L1_3 = L1_3.lerp
-      L2_3 = L4_2.y
-      L3_3 = L5_2.y
-      L4_3 = A0_3
-      return L1_3(L2_3, L3_3, L4_3)
-    end
-    L9_2 = CreateThread
-    function L10_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3
-      while true do
-        L0_3 = GetNetworkTimeAccurate
-        L0_3 = L0_3()
-        L1_3 = math
-        L1_3 = L1_3.min
-        L2_3 = L6_2
-        L2_3 = L0_3 - L2_3
-        L3_3 = A1_2
-        L2_3 = L2_3 / L3_3
-        L3_3 = 1.0
-        L1_3 = L1_3(L2_3, L3_3)
-        if L1_3 >= 1.0 then
-          L2_3 = ipairs
-          L3_3 = L5_1
-          L2_3, L3_3, L4_3, L5_3 = L2_3(L3_3)
-          for L6_3, L7_3 in L2_3, L3_3, L4_3, L5_3 do
-            L8_3 = SetEntityRotation
-            L9_3 = L7_3
-            L10_3 = L5_2.x
-            L11_3 = L5_2.y
-            L12_3 = L5_2.z
-            L13_3 = 2
-            L14_3 = true
-            L8_3(L9_3, L10_3, L11_3, L12_3, L13_3, L14_3)
-          end
-          break
+        spawnElevator(floor)
+        createIndicators()
+    end,
+
+    onExit = function()
+        if elevatorObj then
+            DeleteEntity(elevatorObj)
+            DeleteEntity(doorObj)
+            DeleteEntity(doorCollision)
+            elevatorObj = nil
+            doorObj = nil
+            doorCollision = nil
         end
-        L2_3 = L7_2
-        L3_3 = L1_3
-        L2_3 = L2_3(L3_3)
-        L3_3 = L8_2
-        L4_3 = L2_3
-        L3_3 = L3_3(L4_3)
-        L4_3 = ipairs
-        L5_3 = L5_1
-        L4_3, L5_3, L6_3, L7_3 = L4_3(L5_3)
-        for L8_3, L9_3 in L4_3, L5_3, L6_3, L7_3 do
-          L10_3 = vector3
-          L11_3 = L4_2.x
-          L12_3 = L3_3
-          L13_3 = L4_2.z
-          L10_3 = L10_3(L11_3, L12_3, L13_3)
-          L11_3 = SetEntityRotation
-          L12_3 = L9_3
-          L13_3 = L10_3.x
-          L14_3 = L10_3.y
-          L15_3 = L10_3.z
-          L16_3 = 2
-          L17_3 = true
-          L11_3(L12_3, L13_3, L14_3, L15_3, L16_3, L17_3)
+        for _, indicator in ipairs(indicatorObjs) do
+            DeleteEntity(indicator)
         end
-        L4_3 = Wait
-        L5_3 = 0
-        L4_3(L5_3)
-      end
+        indicatorObjs = {}
+        for floorId, visual in pairs(floorDoorObjs) do
+            DeleteEntity(visual)
+            if floorDoorCollisions[floorId] then
+                DeleteEntity(floorDoorCollisions[floorId])
+            end
+        end
+        floorDoorObjs = {}
+        floorDoorCollisions = {}
     end
-    L9_2(L10_2)
-  end
-  L14_1 = lib
-  L14_1 = L14_1.points
-  L14_1 = L14_1.new
-  L15_1 = {}
-  L16_1 = Config
-  L16_1 = L16_1.Elevator
-  L16_1 = L16_1.spawnZone
-  L16_1 = L16_1.coords
-  L15_1.coords = L16_1
-  L16_1 = Config
-  L16_1 = L16_1.Elevator
-  L16_1 = L16_1.spawnZone
-  L16_1 = L16_1.radius
-  L15_1.distance = L16_1
-  function L16_1()
-    local L0_2, L1_2, L2_2, L3_2
-    L0_2 = cache
-    L0_2 = L0_2.coords
-    L1_2 = getNearestFloor
-    L2_2 = L0_2.z
-    L1_2 = L1_2(L2_2)
-    L2_2 = L11_1
-    L3_2 = GlobalState
-    L3_2 = L3_2.elevator
-    L3_2 = L3_2.currentFloor
-    if not L3_2 then
-      L3_2 = L1_2
+})
+
+-- Czas przejazdu między piętrami (clamp 3000..15000 ms)
+function calculateElevatorDuration(fromFloor, toFloor)
+    local floorDifference = math.abs(toFloor - fromFloor)
+    local floorDistance = math.abs(Config.Elevator.floors[2].coords.z - Config.Elevator.floors[1].coords.z)
+    local msPerFloor = floorDistance / Config.Elevator.moveSpeed * 5000
+    local total = msPerFloor * floorDifference
+    return math.max(3000, math.min(total, 15000))
+end
+
+-- Wybór piętra z wnętrza windy (menu w open.lua)
+function SelectFloor(targetFloor, currentFloor)
+    local duration = calculateElevatorDuration(currentFloor, targetFloor)
+    local state = {
+        currentFloor = currentFloor,
+        targetFloor = targetFloor,
+        isMoving = true,
+        doorsOpen = false,
+        duration = duration
+    }
+
+    -- Opcjonalna animacja gracza przy drzwiach (decyduje serwer)
+    if Config.EnablePlayerAnimations then
+        local serverId = GetPlayerServerId(PlayerId())
+        if serverId then
+            state.serverId = serverId
+        end
     end
-    L2_2(L3_2)
-    L2_2 = L12_1
-    L2_2()
-  end
-  L15_1.onEnter = L16_1
-  function L16_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-    L0_2 = L2_1
-    if L0_2 then
-      L0_2 = DeleteEntity
-      L1_2 = L2_1
-      L0_2(L1_2)
-      L0_2 = DeleteEntity
-      L1_2 = L3_1
-      L0_2(L1_2)
-      L0_2 = DeleteEntity
-      L1_2 = L4_1
-      L0_2(L1_2)
-      L0_2 = nil
-      L2_1 = L0_2
-      L0_2 = nil
-      L3_1 = L0_2
-      L0_2 = nil
-      L4_1 = L0_2
+
+    playSelectFloorSound()
+    TriggerServerEvent("elevator:updateState", state)
+end
+
+-- Wezwanie windy z korytarza (przycisk w open.lua)
+function CallElevator(soundCoords, targetFloor)
+    local currentFloor = GlobalState.elevator.currentFloor
+    local duration = calculateElevatorDuration(currentFloor, targetFloor)
+    local state = {
+        currentFloor = currentFloor,
+        targetFloor = targetFloor,
+        isMoving = true,
+        doorsOpen = false,
+        duration = duration
+    }
+
+    TriggerServerEvent("elevator:updateState", state)
+
+    if Config.EnablePlayerAnimations then
+        playPlayerButtonAnimation(targetFloor)
+        Wait(1300)
     end
-    L0_2 = L5_1
-    if L0_2 then
-      L0_2 = ipairs
-      L1_2 = L5_1
-      L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-      for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-        L6_2 = DeleteEntity
-        L7_2 = L5_2
-        L6_2(L7_2)
-      end
-      L0_2 = {}
-      L5_1 = L0_2
+    playSelectFloorSound(soundCoords)
+end
+
+-- Sprzątanie przy stopie zasobu
+AddEventHandler("onResourceStop", function(resource)
+    if GetCurrentResourceName() ~= resource then return end
+
+    if elevatorObj then
+        DeleteEntity(elevatorObj)
+        DeleteEntity(doorObj)
+        DeleteEntity(doorCollision)
     end
-    L0_2 = pairs
-    L1_2 = L7_1
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = DeleteEntity
-      L7_2 = L5_2
-      L6_2(L7_2)
-      L6_2 = L8_1
-      L6_2 = L6_2[L4_2]
-      if L6_2 then
-        L6_2 = DeleteEntity
-        L7_2 = L8_1
-        L7_2 = L7_2[L4_2]
-        L6_2(L7_2)
-      end
+    for _, indicator in ipairs(indicatorObjs) do
+        DeleteEntity(indicator)
     end
-    L0_2 = {}
-    L7_1 = L0_2
-    L0_2 = {}
-    L8_1 = L0_2
-  end
-  L15_1.onExit = L16_1
-  L14_1 = L14_1(L15_1)
-  function L15_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-    L2_2 = math
-    L2_2 = L2_2.abs
-    L3_2 = A1_2 - A0_2
-    L2_2 = L2_2(L3_2)
-    L3_2 = math
-    L3_2 = L3_2.abs
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.floors
-    L4_2 = L4_2[2]
-    L4_2 = L4_2.coords
-    L4_2 = L4_2.z
-    L5_2 = Config
-    L5_2 = L5_2.Elevator
-    L5_2 = L5_2.floors
-    L5_2 = L5_2[1]
-    L5_2 = L5_2.coords
-    L5_2 = L5_2.z
-    L4_2 = L4_2 - L5_2
-    L3_2 = L3_2(L4_2)
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.moveSpeed
-    L4_2 = L3_2 / L4_2
-    L4_2 = L4_2 * 5000
-    L5_2 = L4_2 * L2_2
-    L6_2 = math
-    L6_2 = L6_2.max
-    L7_2 = 3000
-    L8_2 = math
-    L8_2 = L8_2.min
-    L9_2 = L5_2
-    L10_2 = 15000
-    L8_2, L9_2, L10_2 = L8_2(L9_2, L10_2)
-    L6_2 = L6_2(L7_2, L8_2, L9_2, L10_2)
-    L5_2 = L6_2
-    return L5_2
-  end
-  calculateElevatorDuration = L15_1
-  function L15_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2
-    L2_2 = calculateElevatorDuration
-    L3_2 = A1_2
-    L4_2 = A0_2
-    L2_2 = L2_2(L3_2, L4_2)
-    L3_2 = {}
-    L3_2.currentFloor = A1_2
-    L3_2.targetFloor = A0_2
-    L3_2.isMoving = true
-    L3_2.doorsOpen = false
-    L3_2.duration = L2_2
-    L4_2 = Config
-    L4_2 = L4_2.EnablePlayerAnimations
-    if L4_2 then
-      L4_2 = GetPlayerServerId
-      L5_2 = PlayerId
-      L5_2, L6_2 = L5_2()
-      L4_2 = L4_2(L5_2, L6_2)
-      if L4_2 then
-        goto lbl_23
-      end
+    for floorId, visual in pairs(floorDoorObjs) do
+        DeleteEntity(visual)
+        if floorDoorCollisions[floorId] then
+            DeleteEntity(floorDoorCollisions[floorId])
+        end
     end
-    L4_2 = nil
-    ::lbl_23::
-    L3_2.serverId = L4_2
-    L4_2 = playSelectFloorSound
-    L4_2()
-    L4_2 = TriggerServerEvent
-    L5_2 = "elevator:updateState"
-    L6_2 = L3_2
-    L4_2(L5_2, L6_2)
-  end
-  SelectFloor = L15_1
-  function L15_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2
-    L2_2 = calculateElevatorDuration
-    L3_2 = GlobalState
-    L3_2 = L3_2.elevator
-    L3_2 = L3_2.currentFloor
-    L4_2 = A1_2
-    L2_2 = L2_2(L3_2, L4_2)
-    L3_2 = {}
-    L4_2 = GlobalState
-    L4_2 = L4_2.elevator
-    L4_2 = L4_2.currentFloor
-    L3_2.currentFloor = L4_2
-    L3_2.targetFloor = A1_2
-    L3_2.isMoving = true
-    L3_2.doorsOpen = false
-    L3_2.duration = L2_2
-    L4_2 = TriggerServerEvent
-    L5_2 = "elevator:updateState"
-    L6_2 = L3_2
-    L4_2(L5_2, L6_2)
-    L4_2 = Config
-    L4_2 = L4_2.EnablePlayerAnimations
-    if L4_2 then
-      L4_2 = playPlayerButtonAnimation
-      L5_2 = A1_2
-      L4_2(L5_2)
-      L4_2 = Wait
-      L5_2 = 1300
-      L4_2(L5_2)
-    end
-    L4_2 = playSelectFloorSound
-    L5_2 = A0_2
-    L4_2(L5_2)
-  end
-  CallElevator = L15_1
-  L15_1 = AddEventHandler
-  L16_1 = "onResourceStop"
-  function L17_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-    L1_2 = GetCurrentResourceName
-    L1_2 = L1_2()
-    if L1_2 ~= A0_2 then
-      return
-    end
-    L1_2 = L2_1
-    if L1_2 then
-      L1_2 = DeleteEntity
-      L2_2 = L2_1
-      L1_2(L2_2)
-      L1_2 = DeleteEntity
-      L2_2 = L3_1
-      L1_2(L2_2)
-      L1_2 = DeleteEntity
-      L2_2 = L4_1
-      L1_2(L2_2)
-    end
-    L1_2 = L5_1
-    if L1_2 then
-      L1_2 = ipairs
-      L2_2 = L5_1
-      L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-      for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-        L7_2 = DeleteEntity
-        L8_2 = L6_2
-        L7_2(L8_2)
-      end
-    end
-    L1_2 = pairs
-    L2_2 = L7_1
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = DeleteEntity
-      L8_2 = L6_2
-      L7_2(L8_2)
-      L7_2 = L8_1
-      L7_2 = L7_2[L5_2]
-      if L7_2 then
-        L7_2 = DeleteEntity
-        L8_2 = L8_1
-        L8_2 = L8_2[L5_2]
-        L7_2(L8_2)
-      end
-    end
-    L1_2 = nil
-    L2_1 = L1_2
-    L1_2 = nil
-    L3_1 = L1_2
-    L1_2 = nil
-    L4_1 = L1_2
-    L1_2 = {}
-    L5_1 = L1_2
-    L1_2 = {}
-    L7_1 = L1_2
-    L1_2 = {}
-    L8_1 = L1_2
-    L1_2 = false
-    L6_1 = L1_2
+
+    elevatorObj = nil
+    doorObj = nil
+    doorCollision = nil
+    indicatorObjs = {}
+    floorDoorObjs = {}
+    floorDoorCollisions = {}
     isInsideElevator = false
-  end
-  L15_1(L16_1, L17_1)
-  function L15_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2
-    L1_2 = L2_1
-    if not L1_2 then
-      return
-    end
-    L1_2 = GlobalState
-    L1_2 = L1_2.elevator
-    L1_2 = L1_2.currentFloor
-    L2_2 = GetEntityCoords
-    L3_2 = L2_1
-    L2_2 = L2_2(L3_2)
-    L3_2 = Config
-    L3_2 = L3_2.Elevator
-    L3_2 = L3_2.floors
-    L3_2 = L3_2[A0_2]
-    L3_2 = L3_2.coords
-    L4_2 = calculateElevatorDuration
-    L5_2 = L1_2
-    L6_2 = A0_2
-    L4_2 = L4_2(L5_2, L6_2)
-    L5_2 = math
-    L5_2 = L5_2.max
-    L6_2 = 3000
-    L7_2 = math
-    L7_2 = L7_2.min
-    L8_2 = L4_2
-    L9_2 = 15000
-    L7_2, L8_2, L9_2, L10_2, L11_2, L12_2 = L7_2(L8_2, L9_2)
-    L5_2 = L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-    L4_2 = L5_2
-    L5_2 = TranslateObjectCoordsCubicBezier
-    L6_2 = L2_1
-    L7_2 = L3_2
-    L8_2 = L4_2
-    L9_2 = Config
-    L9_2 = L9_2.Elevator
-    L9_2 = L9_2.bezierCurve
-    L10_2 = L1_2
-    L11_2 = "_to_"
-    L12_2 = A0_2
-    L10_2 = L10_2 .. L11_2 .. L12_2
-    L11_2 = A0_2
-    L12_2 = GetNetworkTimeAccurate
-    L12_2 = L12_2()
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-  end
-  L16_1 = AddStateBagChangeHandler
-  L17_1 = "elevator"
-  L18_1 = nil
-  function L19_1(A0_2, A1_2, A2_2, A3_2, A4_2)
-    local L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-    if A2_2 then
-      L5_2 = L2_1
-      if L5_2 then
-        goto lbl_7
-      end
-    end
-    do return end
-    ::lbl_7::
-    L5_2 = A2_2.targetFloor
-    if L5_2 then
-      L5_2 = A2_2.isMoving
-      if L5_2 then
-        L5_2 = L10_1
-        L6_2 = false
-        L7_2 = L3_1
-        L8_2 = L4_1
-        L9_2 = L2_1
-        L10_2 = A2_2.currentFloor
-        L5_2(L6_2, L7_2, L8_2, L9_2, L10_2)
-        L6_2 = A2_2.currentFloor
-        L5_2 = L7_1
-        L5_2 = L5_2[L6_2]
-        if L5_2 then
-          L5_2 = L10_1
-          L6_2 = false
-          L8_2 = A2_2.currentFloor
-          L7_2 = L7_1
-          L7_2 = L7_2[L8_2]
-          L9_2 = A2_2.currentFloor
-          L8_2 = L8_1
-          L8_2 = L8_2[L9_2]
-          L9_2 = nil
-          L10_2 = A2_2.currentFloor
-          L5_2(L6_2, L7_2, L8_2, L9_2, L10_2)
+end)
+
+-- Przesuwa platformę na piętro docelowe (krzywa cubic-bezier z utils)
+local function moveElevatorToFloor(targetFloor)
+    if not elevatorObj then return end
+
+    local currentFloor = GlobalState.elevator.currentFloor
+    local startCoords = GetEntityCoords(elevatorObj)
+    local endCoords = Config.Elevator.floors[targetFloor].coords
+    local duration = math.max(3000,
+        math.min(calculateElevatorDuration(currentFloor, targetFloor), 15000))
+    local curveKey = currentFloor .. "_to_" .. targetFloor
+    local startTime = GetNetworkTimeAccurate()
+
+    TranslateObjectCoordsCubicBezier(elevatorObj, endCoords, duration,
+        Config.Elevator.bezierCurve, curveKey, targetFloor, startTime)
+end
+
+-- Reakcja na zmianę stanu windy (serwer jest autorytatywny).
+-- Sygnatura callbacka CFX: (bagName, key, value, reserved, replicated)
+AddStateBagChangeHandler("elevator", nil, function(bagName, key, newState)
+    if not (newState and elevatorObj) then return end
+
+    if newState.targetFloor then
+        -- Winda ma ruszyć / jedzie
+        if newState.isMoving then
+            -- Zamknij drzwi (główne + drzwi piętra, na którym stoi)
+            playDoorAnimation(false, doorObj, doorCollision, elevatorObj, newState.currentFloor)
+            if floorDoorObjs[newState.currentFloor] then
+                playDoorAnimation(false,
+                    floorDoorObjs[newState.currentFloor],
+                    floorDoorCollisions[newState.currentFloor], nil, newState.currentFloor)
+            end
+
+            if newState.currentFloor ~= newState.targetFloor then
+                local duration = calculateElevatorDuration(
+                    newState.currentFloor, newState.targetFloor)
+                local startTime = GetNetworkTimeAccurate()
+                CreateThread(function()
+                    animateIndicators(newState.targetFloor, duration, startTime)
+                    moveElevatorToFloor(newState.targetFloor)
+                end)
+            end
         end
-        L5_2 = A2_2.currentFloor
-        L6_2 = A2_2.targetFloor
-        if L5_2 ~= L6_2 then
-          L5_2 = calculateElevatorDuration
-          L6_2 = A2_2.currentFloor
-          L7_2 = A2_2.targetFloor
-          L5_2 = L5_2(L6_2, L7_2)
-          L6_2 = GetNetworkTimeAccurate
-          L6_2 = L6_2()
-          L7_2 = CreateThread
-          function L8_2()
-            local L0_3, L1_3, L2_3, L3_3
-            L0_3 = L13_1
-            L1_3 = A2_2.targetFloor
-            L2_3 = L5_2
-            L3_3 = L6_2
-            L0_3(L1_3, L2_3, L3_3)
-            L0_3 = L15_1
-            L1_3 = A2_2.targetFloor
-            L0_3(L1_3)
-          end
-          L7_2(L8_2)
-        end
-    end
     else
-      L5_2 = A2_2.isMoving
-      if not L5_2 then
-        L5_2 = A2_2.doorsOpen
-        if L5_2 then
-          L5_2 = playElevatorArrivalSound
-          L6_2 = A2_2.currentFloor
-          L5_2(L6_2)
-          L5_2 = L10_1
-          L6_2 = true
-          L7_2 = L3_1
-          L8_2 = L4_1
-          L9_2 = L2_1
-          L10_2 = A2_2.currentFloor
-          L5_2(L6_2, L7_2, L8_2, L9_2, L10_2)
-          L6_2 = A2_2.currentFloor
-          L5_2 = L7_1
-          L5_2 = L5_2[L6_2]
-          if L5_2 then
-            L5_2 = L10_1
-            L6_2 = true
-            L8_2 = A2_2.currentFloor
-            L7_2 = L7_1
-            L7_2 = L7_2[L8_2]
-            L9_2 = A2_2.currentFloor
-            L8_2 = L8_1
-            L8_2 = L8_2[L9_2]
-            L9_2 = nil
-            L10_2 = A2_2.currentFloor
-            L5_2(L6_2, L7_2, L8_2, L9_2, L10_2)
-          end
+        -- Winda dotarła
+        if not newState.isMoving and newState.doorsOpen then
+            playElevatorArrivalSound(newState.currentFloor)
+            playDoorAnimation(true, doorObj, doorCollision, elevatorObj, newState.currentFloor)
+            if floorDoorObjs[newState.currentFloor] then
+                playDoorAnimation(true,
+                    floorDoorObjs[newState.currentFloor],
+                    floorDoorCollisions[newState.currentFloor], nil, newState.currentFloor)
+            end
         end
-      end
     end
-  end
-  L16_1(L17_1, L18_1, L19_1)
-  L16_1 = lib
-  L16_1 = L16_1.callback
-  L16_1 = L16_1.register
-  L17_1 = "elevator:playerDoorAnimation"
-  function L18_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2
-    L1_2 = L2_1
-    if not L1_2 then
-      L1_2 = false
-      return L1_2
+end)
+
+-- Animacja gracza przy drzwiach (wołana przez serwer callbackiem
+-- ox_lib). Prowadzi peda do drzwi, ustawia heading, zgłasza serwerowi
+-- (serwer broadcastuje innym graczom) i zwraca true po zakończeniu.
+lib.callback.register("elevator:playerDoorAnimation", function(open)
+    if not elevatorObj then
+        return false
     end
-    L1_2 = cache
-    L1_2 = L1_2.ped
-    if A0_2 then
-      L2_2 = "right_close"
-      if L2_2 then
-        goto lbl_14
-      end
+
+    local ped = cache.ped
+
+    local animName = "right_open"
+    if open then
+        animName = "right_close"
     end
-    L2_2 = "right_open"
-    ::lbl_14::
-    L3_2 = Config
-    L3_2 = L3_2.Elevator
-    L3_2 = L3_2.position
-    L3_2 = L3_2.rotation
-    L3_2 = L3_2.z
-    L4_2 = math
-    L4_2 = L4_2.rad
-    L5_2 = L3_2
-    L4_2 = L4_2(L5_2)
-    L5_2 = Config
-    L5_2 = L5_2.Elevator
-    L5_2 = L5_2.door
-    L5_2 = L5_2.playerAnimation
-    L5_2 = L5_2.rawOffset
-    L6_2 = {}
-    L7_2 = L5_2.x
-    L8_2 = math
-    L8_2 = L8_2.cos
-    L9_2 = L4_2
-    L8_2 = L8_2(L9_2)
-    L7_2 = L7_2 * L8_2
-    L8_2 = L5_2.y
-    L9_2 = math
-    L9_2 = L9_2.sin
-    L10_2 = L4_2
-    L9_2 = L9_2(L10_2)
-    L8_2 = L8_2 * L9_2
-    L7_2 = L7_2 + L8_2
-    L6_2.x = L7_2
-    L7_2 = L5_2.y
-    L8_2 = math
-    L8_2 = L8_2.cos
-    L9_2 = L4_2
-    L8_2 = L8_2(L9_2)
-    L7_2 = L7_2 * L8_2
-    L8_2 = L5_2.x
-    L9_2 = math
-    L9_2 = L9_2.sin
-    L10_2 = L4_2
-    L9_2 = L9_2(L10_2)
-    L8_2 = L8_2 * L9_2
-    L7_2 = L7_2 - L8_2
-    L6_2.y = L7_2
-    L7_2 = L5_2.z
-    L6_2.z = L7_2
-    L7_2 = L5_2.w
-    L6_2.w = L7_2
-    L7_2 = GetEntityCoords
-    L8_2 = L2_1
-    L7_2 = L7_2(L8_2)
-    L8_2 = GetEntityRotation
-    L9_2 = L2_1
-    L10_2 = 2
-    L8_2 = L8_2(L9_2, L10_2)
-    L9_2 = math
-    L9_2 = L9_2.rad
-    L10_2 = L8_2.z
-    L9_2 = L9_2(L10_2)
-    L10_2 = L7_2.x
-    L11_2 = L6_2.x
-    L12_2 = math
-    L12_2 = L12_2.cos
-    L13_2 = L9_2
-    L12_2 = L12_2(L13_2)
-    L11_2 = L11_2 * L12_2
-    L12_2 = L6_2.y
-    L13_2 = math
-    L13_2 = L13_2.sin
-    L14_2 = L9_2
-    L13_2 = L13_2(L14_2)
-    L12_2 = L12_2 * L13_2
-    L11_2 = L11_2 - L12_2
-    L10_2 = L10_2 + L11_2
-    L11_2 = L7_2.y
-    L12_2 = L6_2.y
-    L13_2 = math
-    L13_2 = L13_2.cos
-    L14_2 = L9_2
-    L13_2 = L13_2(L14_2)
-    L12_2 = L12_2 * L13_2
-    L13_2 = L6_2.x
-    L14_2 = math
-    L14_2 = L14_2.sin
-    L15_2 = L9_2
-    L14_2 = L14_2(L15_2)
-    L13_2 = L13_2 * L14_2
-    L12_2 = L12_2 + L13_2
-    L11_2 = L11_2 + L12_2
-    L12_2 = L7_2.z
-    L13_2 = L6_2.z
-    L12_2 = L12_2 + L13_2
-    L13_2 = TaskPedSlideToCoord
-    L14_2 = L1_2
-    L15_2 = L10_2
-    L16_2 = L11_2
-    L17_2 = L12_2
-    L18_2 = L6_2.w
-    L19_2 = 500
-    L13_2(L14_2, L15_2, L16_2, L17_2, L18_2, L19_2)
-    L13_2 = GetGameTimer
-    L13_2 = L13_2()
+
+    -- rawOffset obrócony o rotację windy (system współrzędnych windy)
+    local angle = math.rad(Config.Elevator.position.rotation.z)
+    local rawOffset = Config.Elevator.door.playerAnimation.rawOffset
+    local offset = {}
+    offset.x = rawOffset.x * math.cos(angle) + rawOffset.y * math.sin(angle)
+    offset.y = rawOffset.y * math.cos(angle) - rawOffset.x * math.sin(angle)
+    offset.z = rawOffset.z
+    offset.w = rawOffset.w
+
+    local elevatorCoords = GetEntityCoords(elevatorObj)
+    local pedAngle = math.rad(GetEntityRotation(ped, 2).z)
+
+    local targetX = elevatorCoords.x + offset.x * math.cos(pedAngle) - offset.y * math.sin(pedAngle)
+    local targetY = elevatorCoords.y + offset.y * math.cos(pedAngle) + offset.x * math.sin(pedAngle)
+    local targetZ = elevatorCoords.z + offset.z
+
+    -- Podchodzenie do drzwi (limit 5 s)
+    TaskPedSlideToCoord(ped, targetX, targetY, targetZ, offset.w, 500)
+    local start = GetGameTimer()
     while true do
-      L14_2 = GetEntityCoords
-      L15_2 = L1_2
-      L14_2 = L14_2(L15_2)
-      L15_2 = vector3
-      L16_2 = L10_2
-      L17_2 = L11_2
-      L18_2 = L12_2
-      L15_2 = L15_2(L16_2, L17_2, L18_2)
-      L15_2 = L15_2 - L14_2
-      L15_2 = #L15_2
-      L16_2 = 0.1
-      if L15_2 < L16_2 then
-        break
-      end
-      L16_2 = GetGameTimer
-      L16_2 = L16_2()
-      L16_2 = L16_2 - L13_2
-      L17_2 = 5000
-      if L16_2 > L17_2 then
-        break
-      end
-      L16_2 = Wait
-      L17_2 = 0
-      L16_2(L17_2)
-    end
-    L14_2 = SetEntityHeading
-    L15_2 = L1_2
-    L16_2 = L6_2.w
-    L14_2(L15_2, L16_2)
-    L14_2 = Wait
-    L15_2 = 100
-    L14_2(L15_2)
-    L14_2 = TriggerServerEvent
-    L15_2 = "prompt_elevator:send:animation"
-    L16_2 = Config
-    L16_2 = L16_2.Elevator
-    L16_2 = L16_2.door
-    L16_2 = L16_2.playerAnimation
-    L16_2 = L16_2.dict
-    L17_2 = L2_2
-    L18_2 = L6_2.w
-    L14_2(L15_2, L16_2, L17_2, L18_2)
-    L14_2 = Wait
-    L15_2 = 300
-    L14_2(L15_2)
-    L14_2 = true
-    return L14_2
-  end
-  L16_1(L17_1, L18_1)
-  L16_1 = RegisterNetEvent
-  L17_1 = "prompt_elevator:sync:animation"
-  L16_1(L17_1)
-  L16_1 = AddEventHandler
-  L17_1 = "prompt_elevator:sync:animation"
-  function L18_1(A0_2, A1_2, A2_2, A3_2)
-    local L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2
-    L4_2 = GetRoomKeyFromEntity
-    L5_2 = cache
-    L5_2 = L5_2.ped
-    L4_2 = L4_2(L5_2)
-    if -1984934778 ~= L4_2 then
-      return
-    end
-    L5_2 = GetPlayerFromServerId
-    L6_2 = A0_2
-    L5_2 = L5_2(L6_2)
-    if -1 == L5_2 then
-      return
-    end
-    L6_2 = GetPlayerPed
-    L7_2 = L5_2
-    L6_2 = L6_2(L7_2)
-    L7_2 = pcall
-    L8_2 = lib
-    L8_2 = L8_2.requestAnimDict
-    L9_2 = A1_2
-    L7_2 = L7_2(L8_2, L9_2)
-    if not L7_2 then
-      return
-    end
-    L7_2 = TaskPlayAnim
-    L8_2 = L6_2
-    L9_2 = A1_2
-    L10_2 = A2_2
-    L11_2 = 8.0
-    L12_2 = -8.0
-    L13_2 = -1
-    L14_2 = 0
-    L15_2 = 0
-    L16_2 = false
-    L17_2 = false
-    L18_2 = A3_2
-    L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2)
-  end
-  L16_1(L17_1, L18_1)
-  function L16_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-    L1_2 = A0_2 or nil
-    if not A0_2 then
-      L1_2 = GetEntityCoords
-      L2_2 = L2_1
-      L1_2 = L1_2(L2_2)
-    end
-    L2_2 = PlaySoundFromCoord
-    L3_2 = -1
-    L4_2 = "Pin_Centred"
-    L5_2 = L1_2.x
-    L6_2 = L1_2.y
-    L7_2 = L1_2.z
-    L8_2 = "DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS"
-    L9_2 = false
-    L10_2 = 0
-    L11_2 = false
-    L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-  end
-  playSelectFloorSound = L16_1
-  function L16_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2
-    L1_2 = Config
-    L1_2 = L1_2.Elevator
-    L1_2 = L1_2.sounds_roomid
-    L1_2 = L1_2[A0_2]
-    if not L1_2 then
-      return
-    end
-    L1_2 = GetRoomKeyFromEntity
-    L2_2 = cache
-    L2_2 = L2_2.ped
-    L1_2 = L1_2(L2_2)
-    L2_2 = Config
-    L2_2 = L2_2.Elevator
-    L2_2 = L2_2.sounds_roomid
-    L2_2 = L2_2[A0_2]
-    if L1_2 ~= L2_2 and -1984934778 ~= L1_2 then
-      return
-    end
-    L2_2 = L2_1
-    if not L2_2 then
-      return
-    end
-    L2_2 = GetEntityCoords
-    L3_2 = L2_1
-    L2_2 = L2_2(L3_2)
-    L3_2 = CreateThread
-    function L4_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3
-      L0_3 = GetGameTimer
-      L0_3 = L0_3()
-      L0_3 = L0_3 + 3000
-      while true do
-        L1_3 = RequestScriptAudioBank
-        L2_3 = "dlc_promptaudio/prompt_audio"
-        L3_3 = false
-        L1_3 = L1_3(L2_3, L3_3)
-        if L1_3 then
-          break
+        local pedCoords = GetEntityCoords(ped)
+        local distance = #(vector3(targetX, targetY, targetZ) - pedCoords)
+        if distance < 0.1 then
+            break
         end
-        L1_3 = GetGameTimer
-        L1_3 = L1_3()
-        if L0_3 < L1_3 then
-          return
+        if GetGameTimer() - start > 5000 then
+            break
         end
-        L1_3 = Wait
-        L2_3 = 100
-        L1_3(L2_3)
-      end
-      L1_3 = PlaySoundFromCoord
-      L2_3 = -1
-      L3_3 = "elevator_bell"
-      L4_3 = L2_2.x
-      L5_3 = L2_2.y
-      L6_3 = L2_2.z
-      L7_3 = "special_soundset"
-      L8_3 = false
-      L9_3 = 2
-      L10_3 = false
-      L1_3(L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3)
+        Wait(0)
     end
-    L3_2(L4_2)
-  end
-  playElevatorArrivalSound = L16_1
-  function L16_1(A0_2, A1_2, A2_2)
-    local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2
-    L3_2 = Config
-    L3_2 = L3_2.Elevator
-    L3_2 = L3_2.sounds_roomid
-    L3_2 = L3_2[A2_2]
-    if not L3_2 then
-      return
+
+    SetEntityHeading(ped, offset.w)
+    Wait(100)
+
+    -- Serwer przekaże animację innym graczom w windzie
+    TriggerServerEvent("prompt_elevator:send:animation",
+        Config.Elevator.door.playerAnimation.dict, animName, offset.w)
+    Wait(300)
+    return true
+end)
+
+-- Rejestracja nazwy eventu (oryginalna linia z dekompilacji) +
+-- odtworzenie animacji gracza u innych (tylko we wnętrzu ratusza)
+RegisterNetEvent("prompt_elevator:sync:animation")
+
+AddEventHandler("prompt_elevator:sync:animation", function(srcPlayerId, animDict, animName, heading)
+    if GetRoomKeyFromEntity(cache.ped) ~= -1984934778 then
+        return
     end
-    L3_2 = GetRoomKeyFromEntity
-    L4_2 = cache
-    L4_2 = L4_2.ped
-    L3_2 = L3_2(L4_2)
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.sounds_roomid
-    L4_2 = L4_2[A2_2]
-    if L3_2 ~= L4_2 and -1984934778 ~= L3_2 then
-      return
+
+    local localPlayer = GetPlayerFromServerId(srcPlayerId)
+    if localPlayer == -1 then
+        return
     end
-    if A0_2 then
-      L4_2 = PlaySoundFromCoord
-      L5_2 = -1
-      L6_2 = "OPENING"
-      L7_2 = A1_2.x
-      L8_2 = A1_2.y
-      L9_2 = A1_2.z
-      L10_2 = "MP_PROPERTIES_ELEVATOR_DOORS"
-      L11_2 = true
-      L12_2 = 0
-      L13_2 = false
-      L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-    else
-      L4_2 = PlaySoundFromCoord
-      L5_2 = -1
-      L6_2 = "CLOSING"
-      L7_2 = A1_2.x
-      L8_2 = A1_2.y
-      L9_2 = A1_2.z
-      L10_2 = "MP_PROPERTIES_ELEVATOR_DOORS"
-      L11_2 = true
-      L12_2 = 0
-      L13_2 = false
-      L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
+
+    local ped = GetPlayerPed(localPlayer)
+    if not pcall(lib.requestAnimDict, animDict) then
+        return
     end
-  end
-  playDoorElevatorSound = L16_1
-  function L16_1(A0_2)
-    local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2
-    L1_2 = cache
-    L1_2 = L1_2.ped
-    L2_2 = Config
-    L2_2 = L2_2.Elevator
-    L2_2 = L2_2.playerAskElevatorPositions
-    L2_2 = L2_2[A0_2]
-    if not L2_2 then
-      return
+
+    -- TaskPlayAnim(ped, dict, anim, blendIn, blendOut, duration, flag,
+    --               shift, playbackRate, lockX, lockY, lockZ)
+    -- duration=-1 (klip do czasu zastąpienia); 12. arg. (lockZ) w
+    -- dekompliacji przyjmował wartość headingu (niezerowa = true) —
+    -- przepuszczamy go bez zmian (identyczne zachowanie).
+    TaskPlayAnim(ped, animDict, animName, 8.0, -8.0, -1, 0, 0, false, false, heading)
+end)
+
+-- Dźwięk "pik" przy wyborze piętra (domyślnie przy windzie)
+function playSelectFloorSound(coords)
+    local pos = coords or GetEntityCoords(elevatorObj)
+    PlaySoundFromCoord(-1, "Pin_Centred", pos.x, pos.y, pos.z,
+        "DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS", false, 0, false)
+end
+
+-- Dzwonek przyjazdu — tylko dla gracza w roomie danego piętra
+-- (albo w roomie całego wnętrza); bank audio z prompt_audio.
+function playElevatorArrivalSound(floor)
+    local roomId = Config.Elevator.sounds_roomid[floor]
+    if not roomId then return end
+
+    local myRoom = GetRoomKeyFromEntity(cache.ped)
+    if myRoom ~= roomId and myRoom ~= -1984934778 then
+        return
     end
-    L3_2 = TaskPedSlideToCoord
-    L4_2 = L1_2
-    L5_2 = L2_2.coords
-    L5_2 = L5_2.x
-    L6_2 = L2_2.coords
-    L6_2 = L6_2.y
-    L7_2 = L2_2.coords
-    L7_2 = L7_2.z
-    L8_2 = L2_2.heading
-    L9_2 = 500
-    L3_2(L4_2, L5_2, L6_2, L7_2, L8_2, L9_2)
-    L3_2 = GetGameTimer
-    L3_2 = L3_2()
+    if not elevatorObj then return end
+
+    local coords = GetEntityCoords(elevatorObj)
+    CreateThread(function()
+        local deadline = GetGameTimer() + 3000
+        while true do
+            if RequestScriptAudioBank("dlc_promptaudio/prompt_audio", false) then
+                break
+            end
+            if GetGameTimer() > deadline then
+                return
+            end
+            Wait(100)
+        end
+        PlaySoundFromCoord(-1, "elevator_bell", coords.x, coords.y, coords.z,
+            "special_soundset", false, 2, false)
+    end)
+end
+
+-- Podchodzenie do przycisku + animacja naciśnięcia
+function playPlayerButtonAnimation(floor)
+    local position = Config.Elevator.playerAskElevatorPositions[floor]
+    if not position then return end
+
+    local ped = cache.ped
+    TaskPedSlideToCoord(ped,
+        position.coords.x, position.coords.y, position.coords.z,
+        position.heading, 500)
+
+    local start = GetGameTimer()
     while true do
-      L4_2 = GetEntityCoords
-      L5_2 = L1_2
-      L4_2 = L4_2(L5_2)
-      L5_2 = L2_2.coords
-      L5_2 = L5_2 - L4_2
-      L5_2 = #L5_2
-      L6_2 = 0.1
-      if L5_2 < L6_2 then
-        break
-      end
-      L6_2 = GetGameTimer
-      L6_2 = L6_2()
-      L6_2 = L6_2 - L3_2
-      L7_2 = 5000
-      if L6_2 > L7_2 then
-        break
-      end
-      L6_2 = Wait
-      L7_2 = 0
-      L6_2(L7_2)
+        local pedCoords = GetEntityCoords(ped)
+        if #(position.coords - pedCoords) < 0.1 then
+            break
+        end
+        if GetGameTimer() - start > 5000 then
+            break
+        end
+        Wait(0)
     end
-    L4_2 = SetEntityHeading
-    L5_2 = L1_2
-    L6_2 = L2_2.heading
-    L4_2(L5_2, L6_2)
-    L4_2 = Config
-    L4_2 = L4_2.Elevator
-    L4_2 = L4_2.buttonAnimation
-    L5_2 = lib
-    L5_2 = L5_2.requestAnimDict
-    L6_2 = L4_2.dict
-    L5_2(L6_2)
-    L5_2 = TaskPlayAnim
-    L6_2 = L1_2
-    L7_2 = L4_2.dict
-    L8_2 = L4_2.name
-    L9_2 = 8.0
-    L10_2 = -8.0
-    L11_2 = -1
-    L12_2 = 0
-    L13_2 = 0
-    L14_2 = false
-    L15_2 = false
-    L16_2 = false
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-  end
-  playPlayerButtonAnimation = L16_1
-else
-  L2_1 = print
-  L3_1 = "[PROMPT ELEVATOR DISABLED]"
-  L2_1(L3_1)
-  L2_1 = ActivateInteriorEntitySet
-  L3_1 = L1_1
-  L4_1 = "static_elevator"
-  L2_1(L3_1, L4_1)
-  L2_1 = RefreshInterior
-  L3_1 = L1_1
-  L2_1(L3_1)
+
+    SetEntityHeading(ped, position.heading)
+
+    local buttonAnim = Config.Elevator.buttonAnimation
+    lib.requestAnimDict(buttonAnim.dict)
+    TaskPlayAnim(ped, buttonAnim.dict, buttonAnim.name, 8.0, -8.0, -1, 0, 0, false, false, false)
 end

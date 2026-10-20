@@ -1,567 +1,207 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1
-function L0_1(...)
-  local L0_2, L1_2
-  L0_2 = Config
-  L0_2 = L0_2.Debug
-  if L0_2 then
-    L0_2 = print
-    L1_2 = ...
-    L0_2(L1_2)
-  end
-end
-L1_1 = {}
-L2_1 = {}
-L3_1 = vector3
-L4_1 = 1590.52673
-L5_1 = 3634.08862
-L6_1 = 42.6931839
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.targetCoords = L3_1
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1590.52673
-L6_1 = 3634.08862
-L7_1 = 42.6931839
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L5_1 = vector3
-L6_1 = 1590.53076
-L7_1 = 3634.08154
-L8_1 = 36.19072
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L6_1 = vector3
-L7_1 = 1599.24329
-L8_1 = 3618.98145
-L9_1 = 42.6912956
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L7_1 = vector3
-L8_1 = 1599.24329
-L9_1 = 3618.98145
-L10_1 = 36.191
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L8_1 = vector3
-L9_1 = 1570.31067
-L10_1 = 3623.349
-L11_1 = 42.6931839
-L8_1 = L8_1(L9_1, L10_1, L11_1)
-L9_1 = vector3
-L10_1 = 1570.28943
-L11_1 = 3623.386
-L12_1 = 36.19072
-L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1 = L9_1(L10_1, L11_1, L12_1)
-L3_1[1] = L4_1
-L3_1[2] = L5_1
-L3_1[3] = L6_1
-L3_1[4] = L7_1
-L3_1[5] = L8_1
-L3_1[6] = L9_1
-L3_1[7] = L10_1
-L3_1[8] = L11_1
-L3_1[9] = L12_1
-L3_1[10] = L13_1
-L3_1[11] = L14_1
-L3_1[12] = L15_1
-L3_1[13] = L16_1
-L3_1[14] = L17_1
-L3_1[15] = L18_1
-L3_1[16] = L19_1
-L2_1.interiorCoords = L3_1
-L3_1 = {}
-L4_1 = {}
-L4_1.name = "sm_cs4_apa_build01"
-L5_1 = vector3
-L6_1 = 1596.20239
-L7_1 = 3613.691
-L8_1 = 44.3552437
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.coords = L5_1
-L5_1 = {}
-L5_1.name = "sm_cs4_apa_build01_windows"
-L6_1 = vector3
-L7_1 = 1596.19788
-L8_1 = 3613.09229
-L9_1 = 46.9639778
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L5_1.coords = L6_1
-L3_1[1] = L4_1
-L3_1[2] = L5_1
-L2_1.models = L3_1
-L2_1.hidden = false
-L2_1.nearTarget = false
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1629.8584
-L6_1 = 3540.04663
-L7_1 = 43.583374
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.targetCoords = L4_1
-L4_1 = {}
-L5_1 = vector3
-L6_1 = 1644.82935
-L7_1 = 3539.47437
-L8_1 = 42.664875
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L6_1 = vector3
-L7_1 = 1644.82935
-L8_1 = 3539.47437
-L9_1 = 36.1650543
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L7_1 = vector3
-L8_1 = 1653.57581
-L9_1 = 3524.38525
-L10_1 = 42.6656151
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L8_1 = vector3
-L9_1 = 1653.57581
-L10_1 = 3524.38525
-L11_1 = 36.1693077
-L8_1 = L8_1(L9_1, L10_1, L11_1)
-L9_1 = vector3
-L10_1 = 1634.14856
-L11_1 = 3512.22681
-L12_1 = 42.6656151
-L9_1 = L9_1(L10_1, L11_1, L12_1)
-L10_1 = vector3
-L11_1 = 1634.16614
-L12_1 = 3512.19653
-L13_1 = 36.17069
-L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1 = L10_1(L11_1, L12_1, L13_1)
-L4_1[1] = L5_1
-L4_1[2] = L6_1
-L4_1[3] = L7_1
-L4_1[4] = L8_1
-L4_1[5] = L9_1
-L4_1[6] = L10_1
-L4_1[7] = L11_1
-L4_1[8] = L12_1
-L4_1[9] = L13_1
-L4_1[10] = L14_1
-L4_1[11] = L15_1
-L4_1[12] = L16_1
-L4_1[13] = L17_1
-L4_1[14] = L18_1
-L4_1[15] = L19_1
-L3_1.interiorCoords = L4_1
-L4_1 = {}
-L5_1 = {}
-L5_1.name = "sm_cs4_apa_build02"
-L6_1 = vector3
-L7_1 = 1638.59241
-L8_1 = 3539.52
-L9_1 = 44.2963257
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L5_1.coords = L6_1
-L6_1 = {}
-L6_1.name = "sm_cs4_apa_build02_deta"
-L7_1 = vector3
-L8_1 = 1622.81873
-L9_1 = 3544.061
-L10_1 = 45.6375923
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L6_1.coords = L7_1
-L7_1 = {}
-L7_1.name = "sm_cs4_apa_build02_windows"
-L8_1 = vector3
-L9_1 = 1638.08618
-L10_1 = 3539.81128
-L11_1 = 46.9058952
-L8_1 = L8_1(L9_1, L10_1, L11_1)
-L7_1.coords = L8_1
-L4_1[1] = L5_1
-L4_1[2] = L6_1
-L4_1[3] = L7_1
-L3_1.models = L4_1
-L3_1.hidden = false
-L3_1.nearTarget = false
-L4_1 = {}
-L5_1 = vector3
-L6_1 = 1414.19861
-L7_1 = 3541.53174
-L8_1 = 43.44409
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.targetCoords = L5_1
-L5_1 = {}
-L6_1 = vector3
-L7_1 = 1421.58618
-L8_1 = 3568.96216
-L9_1 = 42.52607
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L7_1 = vector3
-L8_1 = 1421.58459
-L9_1 = 3568.96973
-L10_1 = 36.02586
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L8_1 = vector3
-L9_1 = 1399.0022
-L10_1 = 3565.22046
-L11_1 = 42.52607
-L8_1 = L8_1(L9_1, L10_1, L11_1)
-L9_1 = vector3
-L10_1 = 1398.99341
-L11_1 = 3565.26367
-L12_1 = 36.02772
-L9_1 = L9_1(L10_1, L11_1, L12_1)
-L10_1 = vector3
-L11_1 = 1399.00159
-L12_1 = 3565.22314
-L13_1 = 42.52607
-L10_1 = L10_1(L11_1, L12_1, L13_1)
-L11_1 = vector3
-L12_1 = 1402.23767
-L13_1 = 3549.243
-L14_1 = 42.52607
-L11_1 = L11_1(L12_1, L13_1, L14_1)
-L12_1 = vector3
-L13_1 = 1402.2373
-L14_1 = 3549.24561
-L15_1 = 36.02772
-L12_1 = L12_1(L13_1, L14_1, L15_1)
-L13_1 = vector3
-L14_1 = 1429.21619
-L15_1 = 3531.25928
-L16_1 = 42.52418
-L13_1 = L13_1(L14_1, L15_1, L16_1)
-L14_1 = vector3
-L15_1 = 1429.21619
-L16_1 = 3531.25928
-L17_1 = 36.0
-L14_1 = L14_1(L15_1, L16_1, L17_1)
-L15_1 = vector3
-L16_1 = 1425.04163
-L17_1 = 3551.87427
-L18_1 = 42.52418
-L15_1 = L15_1(L16_1, L17_1, L18_1)
-L16_1 = vector3
-L17_1 = 1425.042
-L18_1 = 3551.87158
-L19_1 = 36.03373
-L16_1, L17_1, L18_1, L19_1 = L16_1(L17_1, L18_1, L19_1)
-L5_1[1] = L6_1
-L5_1[2] = L7_1
-L5_1[3] = L8_1
-L5_1[4] = L9_1
-L5_1[5] = L10_1
-L5_1[6] = L11_1
-L5_1[7] = L12_1
-L5_1[8] = L13_1
-L5_1[9] = L14_1
-L5_1[10] = L15_1
-L5_1[11] = L16_1
-L5_1[12] = L17_1
-L5_1[13] = L18_1
-L5_1[14] = L19_1
-L4_1.interiorCoords = L5_1
-L5_1 = {}
-L6_1 = {}
-L6_1.name = "sm_cs4_apa_build01ist"
-L7_1 = vector3
-L8_1 = 1420.33289
-L9_1 = 3547.79736
-L10_1 = 44.18813
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L6_1.coords = L7_1
-L7_1 = {}
-L7_1.name = "sm_cs4_apa_build01ist_windows"
-L8_1 = vector3
-L9_1 = 1420.145
-L10_1 = 3547.24
-L11_1 = 46.7969475
-L8_1 = L8_1(L9_1, L10_1, L11_1)
-L7_1.coords = L8_1
-L5_1[1] = L6_1
-L5_1[2] = L7_1
-L4_1.models = L5_1
-L4_1.hidden = false
-L4_1.nearTarget = false
-L1_1[1] = L2_1
-L1_1[2] = L3_1
-L1_1[3] = L4_1
-L2_1 = 50.0
-L3_1 = 50.0
-L4_1 = 46.0
-L5_1 = {}
-L6_1 = vector3
-L7_1 = 1592.25439
-L8_1 = 3605.72656
-L9_1 = 43.6112061
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L7_1 = vector3
-L8_1 = 1629.8584
-L9_1 = 3540.04663
-L10_1 = 43.583374
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L8_1 = vector3
-L9_1 = 1414.19861
-L10_1 = 3541.53174
-L11_1 = 43.44409
-L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1 = L8_1(L9_1, L10_1, L11_1)
-L5_1[1] = L6_1
-L5_1[2] = L7_1
-L5_1[3] = L8_1
-L5_1[4] = L9_1
-L5_1[5] = L10_1
-L5_1[6] = L11_1
-L5_1[7] = L12_1
-L5_1[8] = L13_1
-L5_1[9] = L14_1
-L5_1[10] = L15_1
-L5_1[11] = L16_1
-L5_1[12] = L17_1
-L5_1[13] = L18_1
-L5_1[14] = L19_1
-function L6_1(A0_2, A1_2, A2_2)
-  local L3_2
-  L3_2 = A0_2 - A1_2
-  L3_2 = #L3_2
-  L3_2 = A2_2 >= L3_2
-  return L3_2
-end
-function L7_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-  L0_2 = PlayerPedId
-  L0_2 = L0_2()
-  L1_2 = GetInteriorFromEntity
-  L2_2 = L0_2
-  L1_2 = L1_2(L2_2)
-  if 0 == L1_2 then
-    L2_2 = false
-    return L2_2
-  end
-  L2_2 = ipairs
-  L3_2 = L5_1
-  L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-  for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-    L8_2 = GetInteriorAtCoords
-    L9_2 = L7_2.x
-    L10_2 = L7_2.y
-    L11_2 = L7_2.z
-    L8_2 = L8_2(L9_2, L10_2, L11_2)
-    if L1_2 == L8_2 and 0 ~= L8_2 then
-      L9_2 = true
-      return L9_2
+---------------------------------------------------------------------
+-- PROMPT SANDY APARTMENTS — Building manager (client)
+-- Automatyczne ukrywanie/przywracanie modeli budynków apartamentów
+-- w zależności od bliskości (strefa target) i obecności we wnętrzu
+-- (MLO) — patrz Config (config.lua).
+--
+-- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- na czytelny kod — zachowane wszystkie współrzędne, promienie,
+-- progi i kolejność wątków; patrz ANALIZA.md, rozdz. 13.
+--
+-- Świadome odstępstwa od dosłownego zapisu (brak zmiany zachowania):
+--   * Usunięta funkcja isPlayerInAnyKnownInterior i jej martwe
+--     wywołanie w wątku 1 s — wynik NIGDY nie był odczytywany
+--     (czysta natywna, bez skutków ubocznych). Jeśli ktoś chce
+--     ją wykorzystać (np. rozszerzenie warunku ukrywania), wzór:
+--     GetInteriorFromEntity(PlayerPedId()) + GetInteriorAtCoords
+--     dla ALL_TARGET_COORDS.
+---------------------------------------------------------------------
+
+local function logDebug(...)
+    if Config.Debug then
+        print(...)
     end
-  end
-  L2_2 = false
-  return L2_2
 end
-function L8_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2
-  L1_2 = PlayerPedId
-  L1_2 = L1_2()
-  L2_2 = GetInteriorFromEntity
-  L3_2 = L1_2
-  L2_2 = L2_2(L3_2)
-  if 0 == L2_2 then
-    L3_2 = false
-    return L3_2
-  end
-  L3_2 = ipairs
-  L4_2 = A0_2
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-    L9_2 = GetInteriorAtCoords
-    L10_2 = L8_2.x
-    L11_2 = L8_2.y
-    L12_2 = L8_2.z
-    L9_2 = L9_2(L10_2, L11_2, L12_2)
-    if L2_2 == L9_2 and 0 ~= L9_2 then
-      L10_2 = true
-      return L10_2
+
+-- ── Zbiory budynków ────────────────────────────────────────────────
+-- Każdy zbiór:
+--   targetCoords   — punkt odniesienia bliskości (promień 50 m)
+--   interiorCoords — punkty sprawdzane, czy gracz stoi WE WNĘTRZU
+--                    (GetInteriorAtCoords -> ten sam interior co ped)
+--   models         — ukrywane/odtwarzane modele (CreateModelHide)
+--   hidden/nearTarget — stan runtime
+local BUILDING_SETS = {
+    [1] = {
+        targetCoords = vector3(1590.52673, 3634.08862, 42.6931839),
+        interiorCoords = {
+            vector3(1590.52673, 3634.08862, 42.6931839),
+            vector3(1590.53076, 3634.08154, 36.19072),
+            vector3(1599.24329, 3618.98145, 42.6912956),
+            vector3(1599.24329, 3618.98145, 36.191),
+            vector3(1570.31067, 3623.349, 42.6931839),
+            vector3(1570.28943, 3623.386, 36.19072)
+        },
+        models = {
+            { name = "sm_cs4_apa_build01", coords = vector3(1596.20239, 3613.691, 44.3552437) },
+            { name = "sm_cs4_apa_build01_windows", coords = vector3(1596.19788, 3613.09229, 46.9639778) }
+        },
+        hidden = false,
+        nearTarget = false
+    },
+    [2] = {
+        targetCoords = vector3(1629.8584, 3540.04663, 43.583374),
+        interiorCoords = {
+            vector3(1644.82935, 3539.47437, 42.664875),
+            vector3(1644.82935, 3539.47437, 36.1650543),
+            vector3(1653.57581, 3524.38525, 42.6656151),
+            vector3(1653.57581, 3524.38525, 36.1693077),
+            vector3(1634.14856, 3512.22681, 42.6656151),
+            vector3(1634.16614, 3512.19653, 36.17069)
+        },
+        models = {
+            { name = "sm_cs4_apa_build02", coords = vector3(1638.59241, 3539.52, 44.2963257) },
+            { name = "sm_cs4_apa_build02_deta", coords = vector3(1622.81873, 3544.061, 45.6375923) },
+            { name = "sm_cs4_apa_build02_windows", coords = vector3(1638.08618, 3539.81128, 46.9058952) }
+        },
+        hidden = false,
+        nearTarget = false
+    },
+    [3] = {
+        targetCoords = vector3(1414.19861, 3541.53174, 43.44409),
+        interiorCoords = {
+            vector3(1421.58618, 3568.96216, 42.52607),
+            vector3(1421.58459, 3568.96973, 36.02586),
+            vector3(1399.0022, 3565.22046, 42.52607),
+            vector3(1398.99341, 3565.26367, 36.02772),
+            vector3(1399.00159, 3565.22314, 42.52607),
+            vector3(1402.23767, 3549.243, 42.52607),
+            vector3(1402.2373, 3549.24561, 36.02772),
+            vector3(1429.21619, 3531.25928, 42.52418),
+            vector3(1429.21619, 3531.25928, 36.0),
+            vector3(1425.04163, 3551.87427, 42.52418),
+            vector3(1425.042, 3551.87158, 36.03373)
+        },
+        models = {
+            { name = "sm_cs4_apa_build01ist", coords = vector3(1420.33289, 3547.79736, 44.18813) },
+            { name = "sm_cs4_apa_build01ist_windows", coords = vector3(1420.145, 3547.24, 46.7969475) }
+        },
+        hidden = false,
+        nearTarget = false
+    }
+}
+
+local TARGET_RADIUS = 50.0    -- promień "w strefie target"
+local HIDE_RADIUS = 50.0      -- promień CreateModelHide/RemoveModelHide
+local HIDE_Z_THRESHOLD = 46.0 -- wyżej niż to Z nie chowamy (np. dachy)
+
+-- Punkty referencyjne wnętrz (patrz usunięta funkcja w nagłówku)
+local ALL_TARGET_COORDS = {
+    vector3(1592.25439, 3605.72656, 43.6112061),
+    vector3(1629.8584, 3540.04663, 43.583374),
+    vector3(1414.19861, 3541.53174, 43.44409)
+}
+
+-- Odległość 3D <= maxDistance?
+local function isWithinDistance(fromCoords, toCoords, maxDistance)
+    return maxDistance >= #(fromCoords - toCoords)
+end
+
+-- Czy ped gracza jest w którymś z wnętrz opisanych punktami coordsList
+local function isPlayerInInterior(coordsList)
+    local playerInterior = GetInteriorFromEntity(PlayerPedId())
+    if playerInterior == 0 then
+        return false
     end
-  end
-  L3_2 = false
-  return L3_2
-end
-function L9_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2
-  L1_2 = ipairs
-  L2_2 = A0_2
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = L0_1
-    L8_2 = "^1[MODEL HIDE]^7 Hiding: "
-    L9_2 = L6_2.name
-    L8_2 = L8_2 .. L9_2
-    L7_2(L8_2)
-    L7_2 = CreateModelHide
-    L8_2 = L6_2.coords
-    L8_2 = L8_2.x
-    L9_2 = L6_2.coords
-    L9_2 = L9_2.y
-    L10_2 = L6_2.coords
-    L10_2 = L10_2.z
-    L11_2 = L3_1
-    L12_2 = GetHashKey
-    L13_2 = L6_2.name
-    L12_2 = L12_2(L13_2)
-    L13_2 = true
-    L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-  end
-end
-function L10_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2
-  L1_2 = ipairs
-  L2_2 = A0_2
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = L0_1
-    L8_2 = "^2[MODEL SHOW]^7 Showing: "
-    L9_2 = L6_2.name
-    L8_2 = L8_2 .. L9_2
-    L7_2(L8_2)
-    L7_2 = RemoveModelHide
-    L8_2 = L6_2.coords
-    L8_2 = L8_2.x
-    L9_2 = L6_2.coords
-    L9_2 = L9_2.y
-    L10_2 = L6_2.coords
-    L10_2 = L10_2.z
-    L11_2 = L3_1
-    L12_2 = GetHashKey
-    L13_2 = L6_2.name
-    L12_2 = L12_2(L13_2)
-    L13_2 = false
-    L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-  end
-end
-L11_1 = CreateThread
-function L12_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-  while true do
-    L0_2 = GetEntityCoords
-    L1_2 = PlayerPedId
-    L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2 = L1_2()
-    L0_2 = L0_2(L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2)
-    L1_2 = ipairs
-    L2_2 = L1_1
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = L6_2.nearTarget
-      L8_2 = L6_1
-      L9_2 = L0_2
-      L10_2 = L6_2.targetCoords
-      L11_2 = L2_1
-      L8_2 = L8_2(L9_2, L10_2, L11_2)
-      L6_2.nearTarget = L8_2
-      L8_2 = L6_2.nearTarget
-      if L7_2 ~= L8_2 then
-        L8_2 = L6_2.nearTarget
-        if L8_2 then
-          L8_2 = L0_1
-          L9_2 = "^2[PROXIMITY]^7 Set "
-          L10_2 = L5_2
-          L11_2 = " - ENTERED target area"
-          L9_2 = L9_2 .. L10_2 .. L11_2
-          L8_2(L9_2)
-        else
-          L8_2 = L0_1
-          L9_2 = "^1[PROXIMITY]^7 Set "
-          L10_2 = L5_2
-          L11_2 = " - LEFT target area"
-          L9_2 = L9_2 .. L10_2 .. L11_2
-          L8_2(L9_2)
+
+    for _, coords in ipairs(coordsList) do
+        local interiorAtPoint = GetInteriorAtCoords(coords.x, coords.y, coords.z)
+        if playerInterior == interiorAtPoint and interiorAtPoint ~= 0 then
+            return true
         end
-      end
-      if L7_2 then
-        L8_2 = L6_2.nearTarget
-        if not L8_2 then
-          L8_2 = L6_2.hidden
-          if L8_2 then
-            L8_2 = L10_1
-            L9_2 = L6_2.models
-            L8_2(L9_2)
-            L6_2.hidden = false
-            L8_2 = L0_1
-            L9_2 = "^2[BUILDING]^7 Set "
-            L10_2 = L5_2
-            L11_2 = " - RESTORING buildings (left area)"
-            L9_2 = L9_2 .. L10_2 .. L11_2
-            L8_2(L9_2)
-          end
-        end
-      end
     end
-    L1_2 = Wait
-    L2_2 = 5000
-    L1_2(L2_2)
-  end
+
+    return false
 end
-L11_1(L12_1)
-L11_1 = CreateThread
-function L12_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2
-  while true do
-    L0_2 = GetEntityCoords
-    L1_2 = PlayerPedId
-    L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2 = L1_2()
-    L0_2 = L0_2(L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-    L1_2 = L0_2.z
-    L2_2 = L4_1
-    L1_2 = L1_2 > L2_2
-    L2_2 = L7_1
-    L2_2 = L2_2()
-    L3_2 = ipairs
-    L4_2 = L1_1
-    L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-    for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-      L9_2 = L8_2.nearTarget
-      if L9_2 then
-        L9_2 = L8_1
-        L10_2 = L8_2.interiorCoords
-        L9_2 = L9_2(L10_2)
-        L10_2 = L9_2 or L10_2
-        L10_2 = L9_2 and not L1_2 and L10_2
-        if L10_2 then
-          L11_2 = L8_2.hidden
-          if not L11_2 then
-            L11_2 = L9_1
-            L12_2 = L8_2.models
-            L11_2(L12_2)
-            L8_2.hidden = true
-            L11_2 = L0_1
-            L12_2 = "^1[BUILDING]^7 Set "
-            L13_2 = L7_2
-            L14_2 = " - HIDING buildings"
-            L12_2 = L12_2 .. L13_2 .. L14_2
-            L11_2(L12_2)
-        end
-        elseif not L10_2 then
-          L11_2 = L8_2.hidden
-          if L11_2 then
-            L11_2 = L10_1
-            L12_2 = L8_2.models
-            L11_2(L12_2)
-            L8_2.hidden = false
-            L11_2 = L0_1
-            L12_2 = "^2[BUILDING]^7 Set "
-            L13_2 = L7_2
-            L14_2 = " - SHOWING buildings"
-            L12_2 = L12_2 .. L13_2 .. L14_2
-            L11_2(L12_2)
-          end
-        end
-      end
+
+local function hideModels(models)
+    for _, model in ipairs(models) do
+        logDebug("^1[MODEL HIDE]^7 Hiding: " .. model.name)
+        CreateModelHide(model.coords.x, model.coords.y, model.coords.z,
+            HIDE_RADIUS, GetHashKey(model.name), true)
     end
-    L3_2 = Wait
-    L4_2 = 1000
-    L3_2(L4_2)
-  end
 end
-L11_1(L12_1)
-L11_1 = CreateThread
-function L12_1()
-  local L0_2, L1_2, L2_2, L3_2
-  L0_2 = Wait
-  L1_2 = 3000
-  L0_2(L1_2)
-  L0_2 = L0_1
-  L1_2 = "^5[BUILDING MANAGER]^7 Automatic interior-based building hide system started!"
-  L0_2(L1_2)
-  L0_2 = L0_1
-  L1_2 = "^5[BUILDING MANAGER]^7 Monitoring "
-  L2_2 = L1_1
-  L2_2 = #L2_2
-  L3_2 = " building sets"
-  L1_2 = L1_2 .. L2_2 .. L3_2
-  L0_2(L1_2)
+
+local function showModels(models)
+    for _, model in ipairs(models) do
+        logDebug("^2[MODEL SHOW]^7 Showing: " .. model.name)
+        RemoveModelHide(model.coords.x, model.coords.y, model.coords.z,
+            HIDE_RADIUS, GetHashKey(model.name), false)
+    end
 end
-L11_1(L12_1)
+
+-- Wątek 1 (5 s): śledzenie bliskości stref target + odzyskiwanie
+-- budynków po wyjściu ze strefy
+CreateThread(function()
+    while true do
+        local playerCoords = GetEntityCoords(PlayerPedId())
+
+        for setId, buildingSet in ipairs(BUILDING_SETS) do
+            local wasNear = buildingSet.nearTarget
+            buildingSet.nearTarget = isWithinDistance(playerCoords, buildingSet.targetCoords, TARGET_RADIUS)
+
+            if wasNear ~= buildingSet.nearTarget then
+                if buildingSet.nearTarget then
+                    logDebug(("^2[PROXIMITY]^7 Set %d - ENTERED target area"):format(setId))
+                else
+                    logDebug(("^1[PROXIMITY]^7 Set %d - LEFT target area"):format(setId))
+                end
+            end
+
+            -- Był blisko, teraz nie jest -> przywróć budynki
+            if wasNear and not buildingSet.nearTarget and buildingSet.hidden then
+                showModels(buildingSet.models)
+                buildingSet.hidden = false
+                logDebug(("^2[BUILDING]^7 Set %d - RESTORING buildings (left area)"):format(setId))
+            end
+        end
+
+        Wait(5000)
+    end
+end)
+
+-- Wątek 2 (1 s): ukrywanie budynków, gdy gracz jest w strefie
+-- target i WEWNĄTRZ budynku (chyba że wyżej niż HIDE_Z_THRESHOLD),
+-- oraz przywracanie, gdy powinien być widoczny
+CreateThread(function()
+    while true do
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        local zTooHigh = playerCoords.z > HIDE_Z_THRESHOLD
+
+        for setId, buildingSet in ipairs(BUILDING_SETS) do
+            if buildingSet.nearTarget then
+                local shouldHide = isPlayerInInterior(buildingSet.interiorCoords) and not zTooHigh
+
+                if shouldHide then
+                    if not buildingSet.hidden then
+                        hideModels(buildingSet.models)
+                        buildingSet.hidden = true
+                        logDebug(("^1[BUILDING]^7 Set %d - HIDING buildings"):format(setId))
+                    end
+                elseif buildingSet.hidden then
+                    showModels(buildingSet.models)
+                    buildingSet.hidden = false
+                    logDebug(("^2[BUILDING]^7 Set %d - SHOWING buildings"):format(setId))
+                end
+            end
+        end
+
+        Wait(1000)
+    end
+end)
+
+-- Baner startowy
+CreateThread(function()
+    Wait(3000)
+    logDebug("^5[BUILDING MANAGER]^7 Automatic interior-based building hide system started!")
+    logDebug("^5[BUILDING MANAGER]^7 Monitoring " .. #BUILDING_SETS .. " building sets")
+end)

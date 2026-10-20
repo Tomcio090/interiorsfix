@@ -1,296 +1,168 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1
-L0_1 = Config
-L1_1 = {}
-L1_1.name = "hospital_elevator"
-L1_1.model = "d1n_sch_elevator"
-L1_1.moveSpeed = 0.1
-L1_1.floorWaitTime = 3000
-L1_1.timePerFloor = 10000
-L1_1.bezierCurve = "easeInOut"
-L2_1 = {}
-L3_1 = vector3
-L4_1 = 1748.177
-L5_1 = 3807.138
-L6_1 = 35.741
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.coords = L3_1
-L3_1 = vector3
-L4_1 = 0
-L5_1 = 0
-L6_1 = 123.07747650146484
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.rotation = L3_1
-L1_1.position = L2_1
-L2_1 = {}
-L2_1.model = "d1n_sch_elevator_door_01"
-L2_1.collisionModel = "test_door_col"
-L3_1 = vector3
-L4_1 = -0.5784
-L5_1 = -0.8483
-L6_1 = -0.16
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.offset = L3_1
-L3_1 = {}
-L3_1.dict = "anim@hotel_door_test"
-L3_1.duration = 900
-L4_1 = {}
-L4_1.name = "d1n_sch_elevator_door_01_open"
-L5_1 = vector3
-L6_1 = -1.3784
-L7_1 = -0.8483
-L8_1 = -0.16
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.collisionOffset = L5_1
-L3_1.open = L4_1
-L4_1 = {}
-L4_1.name = "d1n_sch_elevator_door_01_close"
-L5_1 = vector3
-L6_1 = -0.5784
-L7_1 = -0.8483
-L8_1 = -0.16
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.collisionOffset = L5_1
-L3_1.close = L4_1
-L2_1.animations = L3_1
-L3_1 = {}
-L4_1 = {}
-L4_1.x = 0.2876
-L4_1.y = 0.3542
-L4_1.z = -0.2939
-L4_1.w = 300.9762
-L3_1.rawOffset = L4_1
-L3_1.dict = "prompt@lift_door"
-L2_1.playerAnimation = L3_1
-L1_1.door = L2_1
-L2_1 = {}
-L3_1 = {}
-L3_1.level = 1
-L4_1 = Config
-L4_1 = L4_1.Messages
-L4_1 = L4_1.floors
-L4_1 = L4_1.firstFloor
-L3_1.label = L4_1
-L4_1 = vector3
-L5_1 = 1748.177
-L6_1 = 3807.138
-L7_1 = 35.741
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L4_1 = {}
-L4_1.level = 2
-L5_1 = Config
-L5_1 = L5_1.Messages
-L5_1 = L5_1.floors
-L5_1 = L5_1.secondFloor
-L4_1.label = L5_1
-L5_1 = vector3
-L6_1 = 1748.177
-L7_1 = 3807.138
-L8_1 = 40.242
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.coords = L5_1
-L5_1 = {}
-L5_1.level = 3
-L6_1 = Config
-L6_1 = L6_1.Messages
-L6_1 = L6_1.floors
-L6_1 = L6_1.thirdFloor
-L5_1.label = L6_1
-L6_1 = vector3
-L7_1 = 1748.177
-L8_1 = 3807.138
-L9_1 = 43.493
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L5_1.coords = L6_1
-L2_1[1] = L3_1
-L2_1[2] = L4_1
-L2_1[3] = L5_1
-L1_1.floors = L2_1
-L2_1 = {}
-L2_1.model = "d1n_sch_elevator_number_arrow_01"
-L3_1 = {}
-L4_1 = {}
-L5_1 = vector3
-L6_1 = 1749.153
-L7_1 = 3807.774
-L8_1 = 36.771
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.coords = L5_1
-L5_1 = vector3
-L6_1 = 0.0
-L7_1 = -90.0
-L8_1 = 122.99
-L5_1 = L5_1(L6_1, L7_1, L8_1)
-L4_1.rotation = L5_1
-L5_1 = {}
-L6_1 = vector3
-L7_1 = 1749.153
-L8_1 = 3807.774
-L9_1 = 41.285
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L5_1.coords = L6_1
-L6_1 = vector3
-L7_1 = 0.0
-L8_1 = 0.0
-L9_1 = 122.99
-L6_1 = L6_1(L7_1, L8_1, L9_1)
-L5_1.rotation = L6_1
-L6_1 = {}
-L7_1 = vector3
-L8_1 = 1749.153
-L9_1 = 3807.774
-L10_1 = 44.535
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L6_1.coords = L7_1
-L7_1 = vector3
-L8_1 = 0.0
-L9_1 = 90.0
-L10_1 = 122.99
-L7_1 = L7_1(L8_1, L9_1, L10_1)
-L6_1.rotation = L7_1
-L3_1[1] = L4_1
-L3_1[2] = L5_1
-L3_1[3] = L6_1
-L2_1.positions = L3_1
-L1_1.indicators = L2_1
-L2_1 = {}
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1749.39794921875
-L6_1 = 3807.25
-L7_1 = 35.5629997253418
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L4_1 = vector3
-L5_1 = 0.0
-L6_1 = 0.0
-L7_1 = 122.99
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.rotation = L4_1
-L4_1 = vector3
-L5_1 = 0.43605079
-L6_1 = -0.672
-L7_1 = 0.0
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.offset = L4_1
-L2_1[1] = L3_1
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1749.398193359375
-L6_1 = 3807.250244140625
-L7_1 = 40.08377456665039
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L4_1 = vector3
-L5_1 = 0.0
-L6_1 = 0.0
-L7_1 = 122.99
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.rotation = L4_1
-L4_1 = vector3
-L5_1 = 0.43605079
-L6_1 = -0.672
-L7_1 = 0.0
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.offset = L4_1
-L2_1[2] = L3_1
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1749.39794921875
-L6_1 = 3807.25
-L7_1 = 43.3372917175293
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L4_1 = vector3
-L5_1 = 0.0
-L6_1 = 0.0
-L7_1 = 122.99
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.rotation = L4_1
-L4_1 = vector3
-L5_1 = 0.43605079
-L6_1 = -0.672
-L7_1 = 0.0
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.offset = L4_1
-L2_1[3] = L3_1
-L1_1.floorDoors = L2_1
-L2_1 = {}
-L3_1 = vector3
-L4_1 = 1748.261
-L5_1 = 3807.199
-L6_1 = 35.741
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.coords = L3_1
-L2_1.radius = 35.0
-L1_1.spawnZone = L2_1
-L2_1 = {}
-L3_1 = vec3
-L4_1 = 1749.79
-L5_1 = 3808.25
-L6_1 = 35.0
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.coords = L3_1
-L3_1 = vec3
-L4_1 = 2.1
-L5_1 = 1.5
-L6_1 = 19.9
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.size = L3_1
-L2_1.rotation = 302.5
-L1_1.callZone = L2_1
-L2_1 = {}
-L3_1 = vec3
-L4_1 = 1748.04
-L5_1 = 3807.04
-L6_1 = 35.0
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.coords = L3_1
-L3_1 = vec3
-L4_1 = 2.2
-L5_1 = 2.15
-L6_1 = 19.3
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L2_1.size = L3_1
-L2_1.rotation = 303.0
-L1_1.insideZone = L2_1
-L2_1 = {}
-L2_1[1] = 558935720
-L2_1[2] = 2106411162
-L2_1[3] = -1725345163
-L1_1.sounds_roomid = L2_1
-L2_1 = {}
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1750.1484
-L6_1 = 3807.7366
-L7_1 = 35.4476
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L3_1.heading = 124.6759
-L2_1[1] = L3_1
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1750.1484
-L6_1 = 3807.7366
-L7_1 = 39.9424
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L3_1.heading = 124.6759
-L2_1[2] = L3_1
-L3_1 = {}
-L4_1 = vector3
-L5_1 = 1750.1484
-L6_1 = 3807.7366
-L7_1 = 43.1909
-L4_1 = L4_1(L5_1, L6_1, L7_1)
-L3_1.coords = L4_1
-L3_1.heading = 124.6759
-L2_1[3] = L3_1
-L1_1.playerAskElevatorPositions = L2_1
-L2_1 = {}
-L2_1.dict = "missagency_heist_2a"
-L2_1.name = "push_button"
-L2_1.duration = 500
-L1_1.buttonAnimation = L2_1
-L0_1.Elevator = L1_1
+---------------------------------------------------------------------
+-- PROMPT SANDY CITYHALL — Internal config (Config.Elevator)
+--
+-- Plik przepisany z zapisu dekompilatora (L0_1/A0_2) na czytelny
+-- zapis tabeli — wszystkie wartości 1:1 z oryginałem; patrz
+-- ANALIZA.md, rozdz. 13.
+--
+-- Uwaga: etykiety pięter (floors.*.label) są odczytywane z
+-- Config.Messages (public_config.lua ładowany jest wcześniej,
+-- patrz kolejność shared_scripts w fxmanifest.lua).
+---------------------------------------------------------------------
+
+Config.Elevator = {
+    -- Nazwa logiczna windy i model platformsy
+    name = "hospital_elevator",
+    model = "d1n_sch_elevator",
+
+    -- Prędkość ruchu: jednostki (m) na sekundę — używana do
+    -- wyliczania czasu przejazdu między piętrami.
+    moveSpeed = 0.1,
+    floorWaitTime = 3000,
+    timePerFloor = 10000,
+
+    -- Krzywa animacji przemieszczania ("easeInOut"/"easeIn"/"easeOut")
+    bezierCurve = "easeInOut",
+
+    position = {
+        coords = vector3(1748.177, 3807.138, 35.741),
+        rotation = vector3(0, 0, 123.07747650146484)
+    },
+
+    door = {
+        model = "d1n_sch_elevator_door_01",
+        collisionModel = "test_door_col",
+
+        -- Offset drzwi względem pozycji platformsy
+        offset = vector3(-0.5784, -0.8483, -0.16),
+
+        animations = {
+            dict = "anim@hotel_door_test",
+            duration = 900,
+            open = {
+                name = "d1n_sch_elevator_door_01_open",
+                -- Pozycja kolizji drzwi w stanie OTWARTYM
+                collisionOffset = vector3(-1.3784, -0.8483, -0.16)
+            },
+            close = {
+                name = "d1n_sch_elevator_door_01_close",
+                -- Pozycja kolizji drzwi w stanie ZAMKNIĘTYM
+                collisionOffset = vector3(-0.5784, -0.8483, -0.16)
+            }
+        },
+
+        -- Animacja gracza przy drzwiach (prawo: prawe drzwi windy)
+        playerAnimation = {
+            rawOffset = { x = 0.2876, y = 0.3542, z = -0.2939, w = 300.9762 },
+            dict = "prompt@lift_door"
+        }
+    },
+
+    -- Piętra (indeks = numer piętra używany w GlobalState.elevator)
+    floors = {
+        [1] = {
+            level = 1,
+            label = Config.Messages.floors.firstFloor,
+            coords = vector3(1748.177, 3807.138, 35.741)
+        },
+        [2] = {
+            level = 2,
+            label = Config.Messages.floors.secondFloor,
+            coords = vector3(1748.177, 3807.138, 40.242)
+        },
+        [3] = {
+            level = 3,
+            label = Config.Messages.floors.thirdFloor,
+            coords = vector3(1748.177, 3807.138, 43.493)
+        }
+    },
+
+    -- Strzałki-pokazujące piętro (jedna na piętro; rotacja zależy
+    -- od piętra, na którym stoi winda — patrz animateIndicators)
+    indicators = {
+        model = "d1n_sch_elevator_number_arrow_01",
+        positions = {
+            [1] = {
+                coords = vector3(1749.153, 3807.774, 36.771),
+                rotation = vector3(0.0, -90.0, 122.99)
+            },
+            [2] = {
+                coords = vector3(1749.153, 3807.774, 41.285),
+                rotation = vector3(0.0, 0.0, 122.99)
+            },
+            [3] = {
+                coords = vector3(1749.153, 3807.774, 44.535),
+                rotation = vector3(0.0, 90.0, 122.99)
+            }
+        }
+    },
+
+    -- Drzwi na każdym piętrze (statyczne, nie przytwierdzone do
+    -- platformsy). offset = wektor przemieszczenia kolizji przy
+    -- otwieraniu (lerp od 0 do offset w 900 ms).
+    floorDoors = {
+        [1] = {
+            coords = vector3(1749.39794921875, 3807.25, 35.5629997253418),
+            rotation = vector3(0.0, 0.0, 122.99),
+            offset = vector3(0.43605079, -0.672, 0.0)
+        },
+        [2] = {
+            coords = vector3(1749.398193359375, 3807.250244140625, 40.08377456665039),
+            rotation = vector3(0.0, 0.0, 122.99),
+            offset = vector3(0.43605079, -0.672, 0.0)
+        },
+        [3] = {
+            coords = vector3(1749.39794921875, 3807.25, 43.3372917175293),
+            rotation = vector3(0.0, 0.0, 122.99),
+            offset = vector3(0.43605079, -0.672, 0.0)
+        }
+    },
+
+    -- Strefa, w której winda jest spawnowana (promień w metrach)
+    spawnZone = {
+        coords = vector3(1748.261, 3807.199, 35.741),
+        radius = 35.0
+    },
+
+    -- Strefa "wezwij windę" (na korytarzu, przy przycisku)
+    callZone = {
+        coords = vector3(1749.79, 3808.25, 35.0),
+        size = vector3(2.1, 1.5, 19.9),
+        rotation = 302.5
+    },
+
+    -- Strefa "wewnątrz windy" (wybór piętra klawiszem E)
+    insideZone = {
+        coords = vector3(1748.04, 3807.04, 35.0),
+        size = vector3(2.2, 2.15, 19.3),
+        rotation = 303.0
+    },
+
+    -- Room-id każdego piętra (dźwięki grają tylko dla gracza
+    -- znajdującego się w danym roomie lub w roomie wnętrza)
+    sounds_roomid = { 558935720, 2106411162, -1725345163 },
+
+    -- Pozycje, do których gracz jest prowadzony przy wezwaniu
+    -- windy / animacji przycisku (index = piętro)
+    playerAskElevatorPositions = {
+        [1] = {
+            coords = vector3(1750.1484, 3807.7366, 35.4476),
+            heading = 124.6759
+        },
+        [2] = {
+            coords = vector3(1750.1484, 3807.7366, 39.9424),
+            heading = 124.6759
+        },
+        [3] = {
+            coords = vector3(1750.1484, 3807.7366, 43.1909),
+            heading = 124.6759
+        }
+    },
+
+    -- Animacja naciśnięcia przycisku wezwania
+    buttonAnimation = {
+        dict = "missagency_heist_2a",
+        name = "push_button",
+        duration = 500
+    }
+}
