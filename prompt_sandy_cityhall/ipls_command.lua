@@ -51,6 +51,52 @@ local ENTITY_SET_LABELS = {
     ["eventroom_voting"] = "Voting Room"
 }
 
+-- Stała kolejność pozycji menu — pairs() daje kolejność losową
+-- (poprawka jak w prompt_sandy_market, ANALIZA.md, rozdz. 10.2)
+local IPL_ORDER = {
+    "p_prompt_sandy_cityhall_fences_backopened",
+    "p_prompt_sandy_cityhall_backtables",
+    "p_prompt_sandy_cityhall_tables",
+    "p_prompt_sandy_cityhall_coffin_closed",
+    "p_prompt_sandy_cityhall_coffin_opened",
+    "p_prompt_sandy_cityhall_fences_backclosed",
+    "p_prompt_sandy_cityhall_funeral_chairs",
+    "p_prompt_sandy_cityhall_funeral_picture",
+    "p_prompt_sandy_cityhall_leaves",
+    "p_prompt_sandy_cityhall_wedding_chairs",
+    "p_prompt_sandy_cityhall_wedding_spotlight",
+    "p_prompt_sandy_cityhall_wedding_venue",
+}
+local ENTITY_SET_ORDER = {
+    "static_elevator",
+    "conference_chairs",
+    "conference_meeting_table",
+    "eventroom_voting",
+}
+local PRESET_ORDER = {
+    "Dinner (Opened Back)",
+    "Dinner (Closed Back)",
+    "Wedding Ceremony",
+    "Funeral",
+}
+
+-- ── ACE — wspólna permisja komend pakietu (ANALIZA.md, rozdz. 11/13) ──
+-- Wszystkie komendy z repo sprawdzają JEDEN obiekt ACE: command.sandyshores
+--   add_ace group.admin command.sandyshores allow
+--   add_principal identifier.license:XXXX group.admin
+-- Na kliencie poprawną natywką jest IsAceAllowed (IsPlayerAceAllowed to
+-- API serwerowe). Komendy rejestrujemy z restricted=false i sprawdzamy
+-- ręcznie, bo wbudowany flag FiveM patrzy na osobne "command.<nazwa>".
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
+    end
+    print("^1[SANDY] Missing ACE permission: " .. SANDY_COMMAND_ACE .. "^0")
+    return false
+end
+
 -- Declaración anticipada de las funciones de menú
 local showMainMenu, showManualMenu, showPreconfiguradoMenu, showEntitySetsMenu
 
@@ -90,10 +136,12 @@ local function isConfigurationActive(listaIPLS)
 end
 
 -- Menú de activación manual de cada IPL
+-- (kolejność pozycji stała — IPL_ORDER, bo pairs() jest losowe)
 showManualMenu = function()
     local menuOptions = {}
 
-    for ipl, label in pairs(IPL_LABELS) do
+    for _, ipl in ipairs(IPL_ORDER) do
+        local label = IPL_LABELS[ipl]
         local isActive = IsIplActive(ipl)
         table.insert(menuOptions, {
             title = label,
@@ -119,10 +167,12 @@ showManualMenu = function()
 end
 
 -- Menú de Entity Sets
+-- (kolejność pozycji stała — ENTITY_SET_ORDER, bo pairs() jest losowe)
 showEntitySetsMenu = function()
     local menuOptions = {}
 
-    for entitySet, label in pairs(ENTITY_SET_LABELS) do
+    for _, entitySet in ipairs(ENTITY_SET_ORDER) do
+        local label = ENTITY_SET_LABELS[entitySet]
         local isActive = IsInteriorEntitySetActive(InteriorId, entitySet)
         table.insert(menuOptions, {
             title = label,
@@ -148,10 +198,12 @@ showEntitySetsMenu = function()
 end
 
 -- Menú de configuraciones preestablecidas
+-- (kolejność pozycji stała — PRESET_ORDER, bo pairs() jest losowe)
 showPreconfiguradoMenu = function()
     local menuOptions = {}
 
-    for grupo, listaIPLS in pairs(PRECONFIGURACIONES) do
+    for _, grupo in ipairs(PRESET_ORDER) do
+        local listaIPLS = PRECONFIGURACIONES[grupo]
         local isActive = isConfigurationActive(listaIPLS)
         table.insert(menuOptions, {
             title = grupo,
@@ -223,7 +275,12 @@ showMainMenu = function()
 end
 
 -- Registro del comando '/cityhall' para abrir el menú
+-- ACE: command.sandyshores (restricted=false + check ręczny — wbudowany
+-- flag FiveM sprawdzałby osobne "command.cityhall"; patrz nagłówek ACE)
 RegisterCommand("cityhall", function()
+    if not canUseSandyCommand() then
+        return
+    end
     showMainMenu()
 end, false)
 

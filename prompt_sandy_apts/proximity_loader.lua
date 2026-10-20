@@ -1,1037 +1,500 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1
-L0_1 = {}
-L1_1 = {}
-L2_1 = {}
-L3_1 = Config
-L3_1 = L3_1.InteriorMode
-L4_1 = Config
-L4_1 = L4_1.MaxConcurrentInteriors
-if not L4_1 then
-  L4_1 = 6
+---------------------------------------------------------------------
+-- PROMPT SANDY APARTMENTS — Proximity loader (client)
+-- Ładowanie/zwalnianie IPL apartamentów wg odległości od gracza
+-- (strategia "proximity_ipl") albo oparcie o auto-stream
+-- (strategia "auto_stream_only") + zarządzanie entity setami
+-- wnętrz (furnished / shell_only).
+--
+-- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- na czytelny kod — zachowane wszystkie nazwy eventów, eksporty,
+-- progi i kolejność wątków; patrz ANALIZA.md, rozdz. 13.
+--
+-- Świadome odstępstwa od dosłownego zapisu (brak zmiany zachowania):
+--   * W setupEntitySetsForIpl usunięty duplikat wywołania
+--     IsInteriorEntitySetActive (wynik drugiego odczytu nie był
+--     nigdzie używany — artifact dekompilacji).
+--   * pointInPolygon: dekompilacja testuje krawędzie w odwrotnej
+--     kolejności indeksów (punkty[i], punkty[i-1]) — to ten sam
+--     zbiór krawędzi; przepisane na (punkty[i], punkty[i+1]).
+---------------------------------------------------------------------
+
+local loadedIPLs = {}      -- [nazwa IPL] = true (załadowane przez nas)
+local entitySetTracking = {}  -- [nazwa IPL] = { interiorId, sets }
+local staticTracking = {}     -- [nazwa statycznego] = { interiorId, sets }
+
+local interiorMode = Config.InteriorMode
+local maxConcurrentInteriors = Config.MaxConcurrentInteriors or 6
+local strategy = Config.Strategy or "auto_stream_only"
+
+if strategy ~= "auto_stream_only" and strategy ~= "proximity_ipl" then
+    print(("^1[SANDY APTS]^7 Unknown Config.Strategy '%s' — falling back to auto_stream_only"):format(tostring(strategy)))
+    strategy = "auto_stream_only"
 end
-L5_1 = Config
-L5_1 = L5_1.Strategy
-if not L5_1 then
-  L5_1 = "auto_stream_only"
-end
-if "auto_stream_only" ~= L5_1 and "proximity_ipl" ~= L5_1 then
-  L6_1 = print
-  L7_1 = "^1[SANDY APTS]^7 Unknown Config.Strategy '%s' \226\128\148 falling back to auto_stream_only"
-  L8_1 = L7_1
-  L7_1 = L7_1.format
-  L9_1 = tostring
-  L10_1 = L5_1
-  L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1 = L9_1(L10_1)
-  L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1 = L7_1(L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1)
-  L6_1(L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1)
-  L5_1 = "auto_stream_only"
-end
-function L6_1(...)
-  local L0_2, L1_2
-  L0_2 = Config
-  L0_2 = L0_2.Debug
-  if L0_2 then
-    L0_2 = print
-    L1_2 = ...
-    L0_2(L1_2)
-  end
-end
-function L7_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2)
-  local L6_2, L7_2, L8_2
-  L6_2 = math
-  L6_2 = L6_2.sqrt
-  L7_2 = A3_2 - A0_2
-  L7_2 = L7_2 ^ 2
-  L8_2 = A4_2 - A1_2
-  L8_2 = L8_2 ^ 2
-  L7_2 = L7_2 + L8_2
-  L8_2 = A5_2 - A2_2
-  L8_2 = L8_2 ^ 2
-  L7_2 = L7_2 + L8_2
-  return L6_2(L7_2)
-end
-function L8_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2
-  L2_2 = Config
-  L2_2 = L2_2.ExclusionZoneEnabled
-  if not L2_2 then
-    L2_2 = false
-    return L2_2
-  end
-  L2_2 = Config
-  L2_2 = L2_2.ExclusionWallPoint1
-  L3_2 = Config
-  L3_2 = L3_2.ExclusionWallPoint2
-  L4_2 = L3_2.x
-  L5_2 = L2_2.x
-  L4_2 = L4_2 - L5_2
-  L5_2 = L2_2.y
-  L5_2 = A1_2 - L5_2
-  L4_2 = L4_2 * L5_2
-  L5_2 = L3_2.y
-  L6_2 = L2_2.y
-  L5_2 = L5_2 - L6_2
-  L6_2 = L2_2.x
-  L6_2 = A0_2 - L6_2
-  L5_2 = L5_2 * L6_2
-  L4_2 = L4_2 - L5_2
-  L4_2 = L4_2 < 0
-  return L4_2
-end
-function L9_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2)
-  local L6_2, L7_2, L8_2, L9_2
-  L6_2 = A0_2 - A2_2
-  L7_2 = A5_2 - A3_2
-  L6_2 = L6_2 * L7_2
-  L7_2 = A1_2 - A3_2
-  L8_2 = A4_2 - A2_2
-  L7_2 = L7_2 * L8_2
-  L6_2 = L6_2 - L7_2
-  L7_2 = math
-  L7_2 = L7_2.abs
-  L8_2 = L6_2
-  L7_2 = L7_2(L8_2)
-  L8_2 = 1.0E-4
-  if L7_2 > L8_2 then
-    L7_2 = false
-    return L7_2
-  end
-  L7_2 = A0_2 - A2_2
-  L8_2 = A4_2 - A2_2
-  L7_2 = L7_2 * L8_2
-  L8_2 = A1_2 - A3_2
-  L9_2 = A5_2 - A3_2
-  L8_2 = L8_2 * L9_2
-  L7_2 = L7_2 + L8_2
-  if L7_2 < 0 then
-    L8_2 = false
-    return L8_2
-  end
-  L8_2 = A4_2 - A2_2
-  L8_2 = L8_2 ^ 2
-  L9_2 = A5_2 - A3_2
-  L9_2 = L9_2 ^ 2
-  L8_2 = L8_2 + L9_2
-  L9_2 = L7_2 <= L8_2
-  return L9_2
-end
-function L10_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-  L3_2 = false
-  L4_2 = #A2_2
-  L5_2 = 1
-  L6_2 = #A2_2
-  L7_2 = 1
-  for L8_2 = L5_2, L6_2, L7_2 do
-    L9_2 = A2_2[L8_2]
-    L10_2 = A2_2[L4_2]
-    L11_2 = L9_1
-    L12_2 = A0_2
-    L13_2 = A1_2
-    L14_2 = L9_2.x
-    L15_2 = L9_2.y
-    L16_2 = L10_2.x
-    L17_2 = L10_2.y
-    L11_2 = L11_2(L12_2, L13_2, L14_2, L15_2, L16_2, L17_2)
-    if L11_2 then
-      L11_2 = true
-      return L11_2
+
+local function logDebug(...)
+    if Config.Debug then
+        print(...)
     end
-    L11_2 = L9_2.y
-    L11_2 = A1_2 < L11_2
-    L12_2 = L10_2.y
-    L12_2 = A1_2 < L12_2
-    L11_2 = L11_2 ~= L12_2
-    if L11_2 then
-      L3_2 = not L3_2
+end
+
+-- ── Geometria ──────────────────────────────────────────────────────
+
+local function distance3D(x1, y1, z1, x2, y2, z2)
+    return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2)
+end
+
+-- Strefa wykluczenia "ściana": zwraca true, gdy punkt (x,y) leży po
+-- stronie dodatniej przekątnej prostej przez ExclusionWallPoint1/2
+-- (iloczyn wektorowy < 0).
+local function isExcludedByWall(x, y)
+    if not Config.ExclusionZoneEnabled then
+        return false
     end
-    L4_2 = L8_2
-  end
-  return L3_2
+
+    local p1 = Config.ExclusionWallPoint1
+    local p2 = Config.ExclusionWallPoint2
+    local cross = (p2.x - p1.x) * (y - p1.y) - (p2.y - p1.y) * (x - p1.x)
+    return cross < 0
 end
-function L11_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2
-  L2_2 = Config
-  L2_2 = L2_2.ExclusionBoxEnabled
-  if not L2_2 then
-    L2_2 = false
-    return L2_2
-  end
-  L2_2 = Config
-  L2_2 = L2_2.ExclusionBoxPoints
-  if L2_2 then
-    L2_2 = Config
-    L2_2 = L2_2.ExclusionBoxPoints
-    L2_2 = #L2_2
-    if not (L2_2 < 3) then
-      goto lbl_18
+
+-- Punkt (x,y) leży na odcinku (x1,y1)-(x2,y2)?
+local function pointOnSegment(x, y, x1, y1, x2, y2)
+    -- Współliniowość: iloczyn wektorowy ~ 0
+    local cross = (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1)
+    if math.abs(cross) > 1.0e-4 then
+        return false
     end
-  end
-  L2_2 = false
-  do return L2_2 end
-  ::lbl_18::
-  L2_2 = L10_1
-  L3_2 = A0_2
-  L4_2 = A1_2
-  L5_2 = Config
-  L5_2 = L5_2.ExclusionBoxPoints
-  return L2_2(L3_2, L4_2, L5_2)
-end
-function L12_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-  L3_2 = Config
-  L3_2 = L3_2.ApartmentCenter
-  L4_2 = L7_1
-  L5_2 = A0_2
-  L6_2 = A1_2
-  L7_2 = A2_2
-  L8_2 = L3_2.x
-  L9_2 = L3_2.y
-  L10_2 = L3_2.z
-  L4_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2)
-  L5_2 = ipairs
-  L6_2 = Config
-  L6_2 = L6_2.CheckScaling
-  L5_2, L6_2, L7_2, L8_2 = L5_2(L6_2)
-  for L9_2, L10_2 in L5_2, L6_2, L7_2, L8_2 do
-    L11_2 = L10_2.distance
-    if L4_2 >= L11_2 then
-      L11_2 = L10_2.interval
-      return L11_2
+    -- Po właściwej stronie początku odcinka
+    local dot = (x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)
+    if dot < 0 then
+        return false
     end
-  end
-  L5_2 = Config
-  L5_2 = L5_2.CheckInterval
-  return L5_2
+    -- Wewnątrz długości odcinka
+    return dot <= (x2 - x1) ^ 2 + (y2 - y1) ^ 2
 end
-function L13_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2
-  L3_2 = GetInteriorAtCoords
-  L4_2 = A0_2
-  L5_2 = A1_2
-  L6_2 = A2_2
-  L3_2 = L3_2(L4_2, L5_2, L6_2)
-  if 0 == L3_2 then
-    L4_2 = nil
-    return L4_2
-  end
-  return L3_2
-end
-function L14_1(A0_2, A1_2, A2_2, A3_2)
-  local L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2
-  L4_2 = Citizen
-  L4_2 = L4_2.Wait
-  L5_2 = 100
-  L4_2(L5_2)
-  L4_2 = L13_1
-  L5_2 = A1_2
-  L6_2 = A2_2
-  L7_2 = A3_2
-  L4_2 = L4_2(L5_2, L6_2, L7_2)
-  if not L4_2 then
-    L5_2 = L6_1
-    L6_2 = "^3[ENTITYSET]^7 Warning: Could not find interior for '"
-    L7_2 = A0_2
-    L8_2 = "'"
-    L6_2 = L6_2 .. L7_2 .. L8_2
-    L5_2(L6_2)
-    L5_2 = false
-    return L5_2
-  end
-  L5_2 = IsInteriorEntitySetActive
-  L6_2 = L4_2
-  L7_2 = Config
-  L7_2 = L7_2.EntitySetFurniture
-  L5_2 = L5_2(L6_2, L7_2)
-  if not L5_2 then
-    L5_2 = IsInteriorEntitySetActive
-    L6_2 = L4_2
-    L7_2 = Config
-    L7_2 = L7_2.EntitySetFurniture
-    L5_2 = L5_2(L6_2, L7_2)
-    L6_2 = ActivateInteriorEntitySet
-    L7_2 = L4_2
-    L8_2 = Config
-    L8_2 = L8_2.EntitySetFurniture
-    L6_2(L7_2, L8_2)
-    L6_2 = Citizen
-    L6_2 = L6_2.Wait
-    L7_2 = 50
-    L6_2(L7_2)
-    L6_2 = IsInteriorEntitySetActive
-    L7_2 = L4_2
-    L8_2 = Config
-    L8_2 = L8_2.EntitySetFurniture
-    L6_2 = L6_2(L7_2, L8_2)
-    if not L6_2 then
-      L7_2 = L3_1
-      if "furnished" == L7_2 then
-        L7_2 = L6_1
-        L8_2 = "^1[ENTITYSET]^7 Skipping '"
-        L9_2 = A0_2
-        L10_2 = "' - interior "
-        L11_2 = L4_2
-        L12_2 = " doesn't have '"
-        L13_2 = Config
-        L13_2 = L13_2.EntitySetFurniture
-        L14_2 = "' entity set"
-        L8_2 = L8_2 .. L9_2 .. L10_2 .. L11_2 .. L12_2 .. L13_2 .. L14_2
-        L7_2(L8_2)
-        L7_2 = false
-        return L7_2
-      end
-    end
-  end
-  L5_2 = DeactivateInteriorEntitySet
-  L6_2 = L4_2
-  L7_2 = Config
-  L7_2 = L7_2.EntitySetFurniture
-  L5_2(L6_2, L7_2)
-  L5_2 = Citizen
-  L5_2 = L5_2.Wait
-  L6_2 = 0
-  L5_2(L6_2)
-  L5_2 = {}
-  L6_2 = L3_1
-  if "furnished" == L6_2 then
-    L6_2 = ActivateInteriorEntitySet
-    L7_2 = L4_2
-    L8_2 = Config
-    L8_2 = L8_2.EntitySetFurniture
-    L6_2(L7_2, L8_2)
-    L6_2 = table
-    L6_2 = L6_2.insert
-    L7_2 = L5_2
-    L8_2 = Config
-    L8_2 = L8_2.EntitySetFurniture
-    L6_2(L7_2, L8_2)
-    L6_2 = L6_1
-    L7_2 = "^2[ENTITYSET]^7 Activated '"
-    L8_2 = Config
-    L8_2 = L8_2.EntitySetFurniture
-    L9_2 = "' for: "
-    L10_2 = A0_2
-    L11_2 = " (interior: "
-    L12_2 = L4_2
-    L13_2 = ")"
-    L7_2 = L7_2 .. L8_2 .. L9_2 .. L10_2 .. L11_2 .. L12_2 .. L13_2
-    L6_2(L7_2)
-  else
-    L6_2 = table
-    L6_2 = L6_2.insert
-    L7_2 = L5_2
-    L8_2 = "shell_only"
-    L6_2(L7_2, L8_2)
-    L6_2 = L6_1
-    L7_2 = "^3[ENTITYSET]^7 Shell only mode for: "
-    L8_2 = A0_2
-    L7_2 = L7_2 .. L8_2
-    L6_2(L7_2)
-  end
-  L6_2 = RefreshInterior
-  L7_2 = L4_2
-  L6_2(L7_2)
-  L6_2 = L1_1
-  L7_2 = {}
-  L7_2.interiorId = L4_2
-  L7_2.sets = L5_2
-  L6_2[A0_2] = L7_2
-  L6_2 = true
-  return L6_2
-end
-function L15_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2
-  L1_2 = L13_1
-  L2_2 = A0_2.x
-  L3_2 = A0_2.y
-  L4_2 = A0_2.z
-  L1_2 = L1_2(L2_2, L3_2, L4_2)
-  if not L1_2 then
-    L2_2 = L6_1
-    L3_2 = "^3[ENTITYSET]^7 Warning: Could not find static interior '"
-    L4_2 = A0_2.name
-    L5_2 = "'"
-    L3_2 = L3_2 .. L4_2 .. L5_2
-    L2_2(L3_2)
-    L2_2 = false
-    return L2_2
-  end
-  L2_2 = ActivateInteriorEntitySet
-  L3_2 = L1_2
-  L4_2 = Config
-  L4_2 = L4_2.EntitySetFurniture
-  L2_2(L3_2, L4_2)
-  L2_2 = Citizen
-  L2_2 = L2_2.Wait
-  L3_2 = 50
-  L2_2(L3_2)
-  L2_2 = IsInteriorEntitySetActive
-  L3_2 = L1_2
-  L4_2 = Config
-  L4_2 = L4_2.EntitySetFurniture
-  L2_2 = L2_2(L3_2, L4_2)
-  if not L2_2 then
-    L3_2 = L3_1
-    if "furnished" == L3_2 then
-      L3_2 = L6_1
-      L4_2 = "^1[ENTITYSET]^7 Skipping static '"
-      L5_2 = A0_2.name
-      L6_2 = "' - interior "
-      L7_2 = L1_2
-      L8_2 = " doesn't have '"
-      L9_2 = Config
-      L9_2 = L9_2.EntitySetFurniture
-      L10_2 = "' entity set"
-      L4_2 = L4_2 .. L5_2 .. L6_2 .. L7_2 .. L8_2 .. L9_2 .. L10_2
-      L3_2(L4_2)
-      L3_2 = false
-      return L3_2
-    end
-  end
-  L3_2 = DeactivateInteriorEntitySet
-  L4_2 = L1_2
-  L5_2 = Config
-  L5_2 = L5_2.EntitySetFurniture
-  L3_2(L4_2, L5_2)
-  L3_2 = Citizen
-  L3_2 = L3_2.Wait
-  L4_2 = 0
-  L3_2(L4_2)
-  L3_2 = {}
-  L4_2 = L3_1
-  if "furnished" == L4_2 then
-    L4_2 = ActivateInteriorEntitySet
-    L5_2 = L1_2
-    L6_2 = Config
-    L6_2 = L6_2.EntitySetFurniture
-    L4_2(L5_2, L6_2)
-    L4_2 = table
-    L4_2 = L4_2.insert
-    L5_2 = L3_2
-    L6_2 = Config
-    L6_2 = L6_2.EntitySetFurniture
-    L4_2(L5_2, L6_2)
-    L4_2 = L6_1
-    L5_2 = "^2[ENTITYSET]^7 Activated '"
-    L6_2 = Config
-    L6_2 = L6_2.EntitySetFurniture
-    L7_2 = "' for static: "
-    L8_2 = A0_2.name
-    L9_2 = " (interior: "
-    L10_2 = L1_2
-    L11_2 = ")"
-    L5_2 = L5_2 .. L6_2 .. L7_2 .. L8_2 .. L9_2 .. L10_2 .. L11_2
-    L4_2(L5_2)
-  else
-    L4_2 = table
-    L4_2 = L4_2.insert
-    L5_2 = L3_2
-    L6_2 = "shell_only"
-    L4_2(L5_2, L6_2)
-    L4_2 = L6_1
-    L5_2 = "^3[ENTITYSET]^7 Shell only mode for static: "
-    L6_2 = A0_2.name
-    L5_2 = L5_2 .. L6_2
-    L4_2(L5_2)
-  end
-  L4_2 = RefreshInterior
-  L5_2 = L1_2
-  L4_2(L5_2)
-  L5_2 = A0_2.name
-  L4_2 = L2_1
-  L6_2 = {}
-  L6_2.interiorId = L1_2
-  L6_2.sets = L3_2
-  L4_2[L5_2] = L6_2
-  L4_2 = true
-  return L4_2
-end
-function L16_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L1_2 = L1_1
-  L1_2 = L1_2[A0_2]
-  if L1_2 then
-    L1_2 = L6_1
-    L2_2 = "^1[ENTITYSET]^7 Cleared tracking for: "
-    L3_2 = A0_2
-    L2_2 = L2_2 .. L3_2
-    L1_2(L2_2)
-    L1_2 = L1_1
-    L1_2[A0_2] = nil
-  end
-end
-function L17_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L1_2 = L0_1
-  L1_2 = L1_2[A0_2]
-  if not L1_2 then
-    L1_2 = RequestIpl
-    L2_2 = A0_2
-    L1_2(L2_2)
-    L1_2 = L0_1
-    L1_2[A0_2] = true
-    L1_2 = L6_1
-    L2_2 = "^2[PROXIMITY]^7 Loaded: "
-    L3_2 = A0_2
-    L2_2 = L2_2 .. L3_2
-    L1_2(L2_2)
-  end
-end
-function L18_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L1_2 = L0_1
-  L1_2 = L1_2[A0_2]
-  if L1_2 then
-    L1_2 = L16_1
-    L2_2 = A0_2
-    L1_2(L2_2)
-    L1_2 = RemoveIpl
-    L2_2 = A0_2
-    L1_2(L2_2)
-    L1_2 = L0_1
-    L1_2[A0_2] = nil
-    L1_2 = L6_1
-    L2_2 = "^1[PROXIMITY]^7 Unloaded: "
-    L3_2 = A0_2
-    L2_2 = L2_2 .. L3_2
-    L1_2(L2_2)
-  end
-end
-function L19_1(A0_2)
-  local L1_2, L2_2
-  L2_2 = A0_2.name
-  L1_2 = L0_1
-  L1_2 = L1_2[L2_2]
-  if not L1_2 then
-    L1_2 = L17_1
-    L2_2 = A0_2.name
-    L1_2(L2_2)
-    L1_2 = CreateThread
-    function L2_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3
-      L0_3 = L14_1
-      L1_3 = A0_2.name
-      L2_3 = A0_2.x
-      L3_3 = A0_2.y
-      L4_3 = A0_2.z
-      L0_3(L1_3, L2_3, L3_3, L4_3)
-    end
-    L1_2(L2_2)
-  end
-end
-function L20_1(A0_2)
-  local L1_2, L2_2
-  L2_2 = A0_2.name
-  L1_2 = L0_1
-  L1_2 = L1_2[L2_2]
-  if L1_2 then
-    L1_2 = L18_1
-    L2_2 = A0_2.name
-    L1_2(L2_2)
-  else
-    L1_2 = IsIplActive
-    L2_2 = A0_2.name
-    L1_2 = L1_2(L2_2)
-    if L1_2 then
-      L1_2 = RemoveIpl
-      L2_2 = A0_2.name
-      L1_2(L2_2)
-    end
-  end
-end
-function L21_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L2_2 = A0_2.proximityDistance
-  if not L2_2 then
-    L2_2 = Config
-    L2_2 = L2_2.ProximityDistance
-  end
-  L3_2 = A0_2.zThreshold
-  if not L3_2 then
-    L3_2 = Config
-    L3_2 = L3_2.ProximityZThreshold
-  end
-  L4_2 = L7_1
-  L5_2 = A1_2.x
-  L6_2 = A1_2.y
-  L7_2 = A1_2.z
-  L8_2 = A0_2.x
-  L9_2 = A0_2.y
-  L10_2 = A0_2.z
-  L4_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2)
-  L5_2 = math
-  L5_2 = L5_2.abs
-  L6_2 = A1_2.z
-  L7_2 = A0_2.z
-  L6_2 = L6_2 - L7_2
-  L5_2 = L5_2(L6_2)
-  L6_2 = L2_2 >= L4_2 and L3_2 >= L5_2
-  return L6_2
-end
-function L22_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2
-  L2_2 = Config
-  L2_2 = L2_2.AdditionalProximityIPLs
-  if not L2_2 then
-    return
-  end
-  L2_2 = ipairs
-  L3_2 = Config
-  L3_2 = L3_2.AdditionalProximityIPLs
-  L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-  for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-    L8_2 = L7_2.name
-    if not L8_2 then
-      L8_2 = L6_1
-      L9_2 = "^1[PROXIMITY]^7 Skipping additional IPL entry with missing name"
-      L8_2(L9_2)
-    elseif A1_2 then
-      L8_2 = L18_1
-      L9_2 = L7_2.name
-      L8_2(L9_2)
-    else
-      L8_2 = L7_2.x
-      if L8_2 then
-        L8_2 = L7_2.y
-        if L8_2 then
-          L8_2 = L7_2.z
+
+-- Punkt wewnątrz wielokąta (metoda promieni — ray casting)
+local function pointInPolygon(x, y, points)
+    local inside = false
+    local count = #points
+
+    for i = 1, count do
+        local current = points[i]
+        local nextPoint = points[i % count + 1]
+
+        -- Punkt dokładnie na krawędzi = wewnątrz
+        if pointOnSegment(x, y, current.x, current.y, nextPoint.x, nextPoint.y) then
+            return true
         end
-      end
-      if not L8_2 then
-        L9_2 = L6_1
-        L10_2 = "^1[PROXIMITY]^7 Skipping additional IPL '"
-        L11_2 = L7_2.name
-        L12_2 = "' (missing coordinates)"
-        L10_2 = L10_2 .. L11_2 .. L12_2
-        L9_2(L10_2)
-        L9_2 = L18_1
-        L10_2 = L7_2.name
-        L9_2(L10_2)
-      else
-        L9_2 = L21_1
-        L10_2 = L7_2
-        L11_2 = A0_2
-        L9_2 = L9_2(L10_2, L11_2)
-        if L9_2 then
-          L9_2 = L17_1
-          L10_2 = L7_2.name
-          L9_2(L10_2)
+
+        -- Krawędź przecina promień poziomy w prawo?
+        if (y < current.y) ~= (y < nextPoint.y) then
+            inside = not inside
+        end
+    end
+
+    return inside
+end
+
+-- Strefa wykluczenia "box": wielokąt ExclusionBoxPoints
+local function isExcludedByBox(x, y)
+    if not Config.ExclusionBoxEnabled then
+        return false
+    end
+
+    local points = Config.ExclusionBoxPoints
+    if not (points and #points >= 3) then
+        return false
+    end
+
+    return pointInPolygon(x, y, points)
+end
+
+-- ── Harmonogram sprawdzania (im dalej, tym rzadziej) ─────────────
+
+local function getCheckInterval(x, y, z)
+    local distanceFromCenter = distance3D(
+        x, y, z,
+        Config.ApartmentCenter.x, Config.ApartmentCenter.y, Config.ApartmentCenter.z)
+
+    -- Sprawdzane po kolei; pierwszy pasujący próg wygrywa
+    for _, entry in ipairs(Config.CheckScaling) do
+        if distanceFromCenter >= entry.distance then
+            return entry.interval
+        end
+    end
+
+    return Config.CheckInterval
+end
+
+-- ── Entity sets (furnished / shell_only) ──────────────────────────
+
+local function getInteriorIdAt(x, y, z)
+    local interior = GetInteriorAtCoords(x, y, z)
+    if interior == 0 then
+        return nil
+    end
+    return interior
+end
+
+-- Konfiguracja entity setów dla wnętrza przy danym IPL:
+-- sprawdza dostępność, przełącza na tryb z Config.InteriorMode,
+-- odświeża interior i zapamiętuje śledzenie.
+local function setupEntitySetsForIpl(iplName, x, y, z)
+    Citizen.Wait(100)
+
+    local interiorId = getInteriorIdAt(x, y, z)
+    if not interiorId then
+        logDebug("^3[ENTITYSET]^7 Warning: Could not find interior for '" .. iplName .. "'")
+        return false
+    end
+
+    if not IsInteriorEntitySetActive(interiorId, Config.EntitySetFurniture) then
+        ActivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+        Citizen.Wait(50)
+        if not IsInteriorEntitySetActive(interiorId, Config.EntitySetFurniture) then
+            if interiorMode == "furnished" then
+                logDebug(("^1[ENTITYSET]^7 Skipping '%s' - interior %d doesn't have '%s' entity set"):format(
+                    iplName, interiorId, Config.EntitySetFurniture))
+                return false
+            end
+        end
+    end
+
+    DeactivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+    Citizen.Wait(0)
+
+    local activeSets = {}
+    if interiorMode == "furnished" then
+        ActivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+        table.insert(activeSets, Config.EntitySetFurniture)
+        logDebug(("^2[ENTITYSET]^7 Activated '%s' for: %s (interior: %d)"):format(
+            Config.EntitySetFurniture, iplName, interiorId))
+    else
+        table.insert(activeSets, "shell_only")
+        logDebug("^3[ENTITYSET]^7 Shell only mode for: " .. iplName)
+    end
+
+    RefreshInterior(interiorId)
+    entitySetTracking[iplName] = { interiorId = interiorId, sets = activeSets }
+    return true
+end
+
+-- To samo dla wnętrz "statycznych" (Config.StaticInteriors)
+local function setupEntitySetsForStatic(staticDef)
+    local interiorId = getInteriorIdAt(staticDef.x, staticDef.y, staticDef.z)
+    if not interiorId then
+        logDebug("^3[ENTITYSET]^7 Warning: Could not find static interior '" .. staticDef.name .. "'")
+        return false
+    end
+
+    ActivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+    Citizen.Wait(50)
+    if not IsInteriorEntitySetActive(interiorId, Config.EntitySetFurniture) then
+        if interiorMode == "furnished" then
+            logDebug(("^1[ENTITYSET]^7 Skipping static '%s' - interior %d doesn't have '%s' entity set"):format(
+                staticDef.name, interiorId, Config.EntitySetFurniture))
+            return false
+        end
+    end
+
+    DeactivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+    Citizen.Wait(0)
+
+    local activeSets = {}
+    if interiorMode == "furnished" then
+        ActivateInteriorEntitySet(interiorId, Config.EntitySetFurniture)
+        table.insert(activeSets, Config.EntitySetFurniture)
+        logDebug(("^2[ENTITYSET]^7 Activated '%s' for static: %s (interior: %d)"):format(
+            Config.EntitySetFurniture, staticDef.name, interiorId))
+    else
+        table.insert(activeSets, "shell_only")
+        logDebug("^3[ENTITYSET]^7 Shell only mode for static: " .. staticDef.name)
+    end
+
+    RefreshInterior(interiorId)
+    staticTracking[staticDef.name] = { interiorId = interiorId, sets = activeSets }
+    return true
+end
+
+local function clearIplTracking(iplName)
+    if entitySetTracking[iplName] then
+        logDebug("^1[ENTITYSET]^7 Cleared tracking for: " .. iplName)
+        entitySetTracking[iplName] = nil
+    end
+end
+
+-- ── Ładowanie / zrzucanie IPL ─────────────────────────────────────
+
+local function loadIpl(iplName)
+    if not loadedIPLs[iplName] then
+        RequestIpl(iplName)
+        loadedIPLs[iplName] = true
+        logDebug("^2[PROXIMITY]^7 Loaded: " .. iplName)
+    end
+end
+
+local function unloadIpl(iplName)
+    if loadedIPLs[iplName] then
+        clearIplTracking(iplName)
+        RemoveIpl(iplName)
+        loadedIPLs[iplName] = nil
+        logDebug("^1[PROXIMITY]^7 Unloaded: " .. iplName)
+    end
+end
+
+-- Gwarantuje, że IPL jest załadowany (+ konfiguracja entity sets)
+local function ensureIplLoaded(iplDef)
+    if not loadedIPLs[iplDef.name] then
+        loadIpl(iplDef.name)
+        CreateThread(function()
+            setupEntitySetsForIpl(iplDef.name, iplDef.x, iplDef.y, iplDef.z)
+        end)
+    end
+end
+
+-- Gwarantuje, że IPL nie jest załadowane (zrzucamy też auto-stream)
+local function ensureIplUnloaded(iplDef)
+    if loadedIPLs[iplDef.name] then
+        unloadIpl(iplDef.name)
+    elseif IsIplActive(iplDef.name) then
+        RemoveIpl(iplDef.name)
+    end
+end
+
+-- ── Logika bliskości ──────────────────────────────────────────────
+
+local function isWithinProximity(iplDef, playerCoords)
+    local maxDistance = iplDef.proximityDistance or Config.ProximityDistance
+    local maxZDifference = iplDef.zThreshold or Config.ProximityZThreshold
+
+    local distance = distance3D(
+        playerCoords.x, playerCoords.y, playerCoords.z,
+        iplDef.x, iplDef.y, iplDef.z)
+    local zDifference = math.abs(playerCoords.z - iplDef.z)
+
+    return maxDistance >= distance and maxZDifference >= zDifference
+end
+
+-- Dodatkowe IPL z configa (AdditionalProximityIPLs)
+local function handleAdditionalIPLs(playerCoords, forceUnload)
+    if not Config.AdditionalProximityIPLs then
+        return
+    end
+
+    for _, entry in ipairs(Config.AdditionalProximityIPLs) do
+        if not entry.name then
+            logDebug("^1[PROXIMITY]^7 Skipping additional IPL entry with missing name")
+        elseif forceUnload then
+            unloadIpl(entry.name)
         else
-          L9_2 = L18_1
-          L10_2 = L7_2.name
-          L9_2(L10_2)
+            local hasCoords = entry.x and entry.y and entry.z
+            if not hasCoords then
+                logDebug(("^1[PROXIMITY]^7 Skipping additional IPL '%s' (missing coordinates)"):format(entry.name))
+                unloadIpl(entry.name)
+            elseif isWithinProximity(entry, playerCoords) then
+                loadIpl(entry.name)
+            else
+                unloadIpl(entry.name)
+            end
         end
-      end
     end
-  end
 end
-function L23_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2
-  L0_2 = PlayerPedId
-  L0_2 = L0_2()
-  L1_2 = GetEntityCoords
-  L2_2 = L0_2
-  L1_2 = L1_2(L2_2)
-  L2_2 = L8_1
-  L3_2 = L1_2.x
-  L4_2 = L1_2.y
-  L2_2 = L2_2(L3_2, L4_2)
-  if not L2_2 then
-    L2_2 = L11_1
-    L3_2 = L1_2.x
-    L4_2 = L1_2.y
-    L2_2 = L2_2(L3_2, L4_2)
-    if not L2_2 then
-      goto lbl_34
-    end
-  end
-  L2_2 = ipairs
-  L3_2 = Config
-  L3_2 = L3_2.IplLocations
-  L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-  for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-    L8_2 = L20_1
-    L9_2 = L7_2
-    L8_2(L9_2)
-  end
-  L2_2 = L22_1
-  L3_2 = L1_2
-  L4_2 = true
-  L2_2(L3_2, L4_2)
-  do return end
-  ::lbl_34::
-  L2_2 = {}
-  L3_2 = ipairs
-  L4_2 = Config
-  L4_2 = L4_2.IplLocations
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-    L9_2 = L7_1
-    L10_2 = L1_2.x
-    L11_2 = L1_2.y
-    L12_2 = L1_2.z
-    L13_2 = L8_2.x
-    L14_2 = L8_2.y
-    L15_2 = L8_2.z
-    L9_2 = L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-    L10_2 = math
-    L10_2 = L10_2.abs
-    L11_2 = L1_2.z
-    L12_2 = L8_2.z
-    L11_2 = L11_2 - L12_2
-    L10_2 = L10_2(L11_2)
-    L11_2 = Config
-    L11_2 = L11_2.ProximityDistance
-    if L9_2 <= L11_2 then
-      L11_2 = Config
-      L11_2 = L11_2.ProximityZThreshold
-      if L10_2 <= L11_2 then
-        L11_2 = #L2_2
-        L11_2 = L11_2 + 1
-        L12_2 = {}
-        L12_2.ipl = L8_2
-        L12_2.distance = L9_2
-        L2_2[L11_2] = L12_2
-    end
-    else
-      L11_2 = L20_1
-      L12_2 = L8_2
-      L11_2(L12_2)
-    end
-  end
-  L3_2 = table
-  L3_2 = L3_2.sort
-  L4_2 = L2_2
-  function L5_2(A0_3, A1_3)
-    local L2_3, L3_3
-    L2_3 = A0_3.distance
-    L3_3 = A1_3.distance
-    L2_3 = L2_3 < L3_3
-    return L2_3
-  end
-  L3_2(L4_2, L5_2)
-  L3_2 = ipairs
-  L4_2 = L2_2
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-    L9_2 = L4_1
-    if L7_2 <= L9_2 then
-      L9_2 = L19_1
-      L10_2 = L8_2.ipl
-      L9_2(L10_2)
-    else
-      L9_2 = L20_1
-      L10_2 = L8_2.ipl
-      L9_2(L10_2)
-    end
-  end
-  L3_2 = L22_1
-  L4_2 = L1_2
-  L5_2 = false
-  L3_2(L4_2, L5_2)
-end
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = L5_1
-  if "proximity_ipl" ~= L0_2 then
-    return
-  end
-  L0_2 = ipairs
-  L1_2 = Config
-  L1_2 = L1_2.IplLocations
-  L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-  for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-    L6_2 = RemoveIpl
-    L7_2 = L5_2.name
-    L6_2(L7_2)
-  end
-  L0_2 = Config
-  L0_2 = L0_2.AdditionalProximityIPLs
-  if L0_2 then
-    L0_2 = ipairs
-    L1_2 = Config
-    L1_2 = L1_2.AdditionalProximityIPLs
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = L5_2.name
-      if L6_2 then
-        L6_2 = RemoveIpl
-        L7_2 = L5_2.name
-        L6_2(L7_2)
-      end
-    end
-  end
-  L0_2 = L6_1
-  L1_2 = "^5[ANTI-AUTOSTREAM]^7 Removed all "
-  L2_2 = Config
-  L2_2 = L2_2.IplLocations
-  L2_2 = #L2_2
-  L3_2 = " apartment IPLs at startup"
-  L1_2 = L1_2 .. L2_2 .. L3_2
-  L0_2(L1_2)
-end
-L24_1(L25_1)
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2
-  L0_2 = L5_1
-  if "proximity_ipl" ~= L0_2 then
-    return
-  end
-  L0_2 = Config
-  L0_2 = L0_2.ProximityEnabled
-  if not L0_2 then
-    L0_2 = L6_1
-    L1_2 = "^3[PROXIMITY]^7 Proximity loading is DISABLED (ProximityEnabled=false)"
-    L0_2(L1_2)
-    return
-  end
-  while true do
-    L0_2 = GetEntityCoords
-    L1_2 = PlayerPedId
-    L1_2, L2_2, L3_2, L4_2 = L1_2()
-    L0_2 = L0_2(L1_2, L2_2, L3_2, L4_2)
-    L1_2 = L12_1
-    L2_2 = L0_2.x
-    L3_2 = L0_2.y
-    L4_2 = L0_2.z
-    L1_2 = L1_2(L2_2, L3_2, L4_2)
-    L2_2 = L23_1
-    L2_2()
-    L2_2 = Wait
-    L3_2 = L1_2
-    L2_2(L3_2)
-  end
-end
-L24_1(L25_1)
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L0_2 = L5_1
-  if "proximity_ipl" ~= L0_2 then
-    return
-  end
-  L0_2 = Wait
-  L1_2 = 5000
-  L0_2(L1_2)
-  while true do
-    L0_2 = ipairs
-    L1_2 = Config
-    L1_2 = L1_2.IplLocations
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L7_2 = L5_2.name
-      L6_2 = L0_1
-      L6_2 = L6_2[L7_2]
-      if not L6_2 then
-        L6_2 = IsIplActive
-        L7_2 = L5_2.name
-        L6_2 = L6_2(L7_2)
-        if L6_2 then
-          L6_2 = RemoveIpl
-          L7_2 = L5_2.name
-          L6_2(L7_2)
-          L6_2 = L6_1
-          L7_2 = "^5[SWEEP]^7 Removed auto-streamed: "
-          L8_2 = L5_2.name
-          L7_2 = L7_2 .. L8_2
-          L6_2(L7_2)
+
+-- Główna aktualizacja: zbliżone IPL wg odległości (max
+-- MaxConcurrentInteriors najbliższych), reszta zrzucana
+local function updateProximity(playerCoords)
+    -- Strefy wykluczenia: zrzucić wszystko i wyjść
+    if isExcludedByWall(playerCoords.x, playerCoords.y)
+        or isExcludedByBox(playerCoords.x, playerCoords.y) then
+        for _, iplDef in ipairs(Config.IplLocations) do
+            ensureIplUnloaded(iplDef)
         end
-      end
+        handleAdditionalIPLs(playerCoords, true)
+        return
     end
-    L0_2 = Wait
-    L1_2 = 10000
-    L0_2(L1_2)
-  end
-end
-L24_1(L25_1)
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L0_2 = Wait
-  L1_2 = 3000
-  L0_2(L1_2)
-  L0_2 = L6_1
-  L1_2 = "^5[ENTITYSET]^7 Initializing static interiors..."
-  L0_2(L1_2)
-  L0_2 = ipairs
-  L1_2 = Config
-  L1_2 = L1_2.StaticInteriors
-  L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-  for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-    L6_2 = 0
-    L7_2 = false
-    while L6_2 < 5 and not L7_2 do
-      L8_2 = L15_1
-      L9_2 = L5_2
-      L8_2 = L8_2(L9_2)
-      L7_2 = L8_2
-      if not L7_2 then
-        L6_2 = L6_2 + 1
-        L8_2 = Wait
-        L9_2 = 1000
-        L8_2(L9_2)
-      end
-    end
-    if not L7_2 then
-      L8_2 = L6_1
-      L9_2 = "^1[ENTITYSET]^7 Failed to initialize: "
-      L10_2 = L5_2.name
-      L9_2 = L9_2 .. L10_2
-      L8_2(L9_2)
-    end
-  end
-  L0_2 = L6_1
-  L1_2 = "^5[ENTITYSET]^7 Static interior initialization complete!"
-  L0_2(L1_2)
-end
-L24_1(L25_1)
-L24_1 = exports
-L25_1 = "GetInteriorMode"
-function L26_1()
-  local L0_2, L1_2
-  L0_2 = L3_1
-  return L0_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "SetInteriorMode"
-function L26_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2
-  if "shell_only" ~= A0_2 and "furnished" ~= A0_2 then
-    L1_2 = false
-    return L1_2
-  end
-  L3_1 = A0_2
-  L1_2 = L6_1
-  L2_2 = "^5[PROXIMITY]^7 Interior mode changed to: "
-  L3_2 = L3_1
-  L2_2 = L2_2 .. L3_2
-  L1_2(L2_2)
-  L1_2 = pairs
-  L2_2 = L0_1
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = ipairs
-    L8_2 = Config
-    L8_2 = L8_2.IplLocations
-    L7_2, L8_2, L9_2, L10_2 = L7_2(L8_2)
-    for L11_2, L12_2 in L7_2, L8_2, L9_2, L10_2 do
-      L13_2 = L12_2.name
-      if L13_2 == L5_2 then
-        L13_2 = CreateThread
-        function L14_2()
-          local L0_3, L1_3, L2_3, L3_3, L4_3
-          L0_3 = L14_1
-          L1_3 = L12_2.name
-          L2_3 = L12_2.x
-          L3_3 = L12_2.y
-          L4_3 = L12_2.z
-          L0_3(L1_3, L2_3, L3_3, L4_3)
+
+    local nearby = {}
+    for _, iplDef in ipairs(Config.IplLocations) do
+        local distance = distance3D(
+            playerCoords.x, playerCoords.y, playerCoords.z,
+            iplDef.x, iplDef.y, iplDef.z)
+        local zDifference = math.abs(playerCoords.z - iplDef.z)
+
+        if distance <= Config.ProximityDistance and zDifference <= Config.ProximityZThreshold then
+            nearby[#nearby + 1] = { ipl = iplDef, distance = distance }
+        else
+            ensureIplUnloaded(iplDef)
         end
-        L13_2(L14_2)
-        break
-      end
     end
-  end
-  L1_2 = ipairs
-  L2_2 = Config
-  L2_2 = L2_2.StaticInteriors
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = CreateThread
-    function L8_2()
-      local L0_3, L1_3
-      L0_3 = L15_1
-      L1_3 = L6_2
-      L0_3(L1_3)
+
+    -- Najbliższe najpierw
+    table.sort(nearby, function(a, b)
+        return a.distance < b.distance
+    end)
+
+    for i, entry in ipairs(nearby) do
+        if i <= maxConcurrentInteriors then
+            ensureIplLoaded(entry.ipl)
+        else
+            ensureIplUnloaded(entry.ipl)
+        end
     end
-    L7_2(L8_2)
-  end
-  L1_2 = true
-  return L1_2
+
+    handleAdditionalIPLs(playerCoords, false)
 end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "GetLoadedIPLsCount"
-function L26_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = 0
-  L1_2 = pairs
-  L2_2 = L0_1
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2 in L1_2, L2_2, L3_2, L4_2 do
-    L0_2 = L0_2 + 1
-  end
-  return L0_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "IsIPLLoaded"
-function L26_1(A0_2)
-  local L1_2
-  L1_2 = L0_1
-  L1_2 = L1_2[A0_2]
-  L1_2 = true == L1_2
-  return L1_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "GetStrategy"
-function L26_1()
-  local L0_2, L1_2
-  L0_2 = L5_1
-  return L0_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2
-  L0_2 = Wait
-  L1_2 = 3000
-  L0_2(L1_2)
-  L0_2 = L6_1
-  L1_2 = "^5[SANDY APTS]^7 Strategy: ^2%s^7"
-  L2_2 = L1_2
-  L1_2 = L1_2.format
-  L3_2 = L5_1
-  L1_2, L2_2, L3_2, L4_2, L5_2, L6_2 = L1_2(L2_2, L3_2)
-  L0_2(L1_2, L2_2, L3_2, L4_2, L5_2, L6_2)
-  L0_2 = L5_1
-  if "proximity_ipl" == L0_2 then
-    L0_2 = Config
-    L0_2 = L0_2.ProximityEnabled
-    if L0_2 then
-      L0_2 = L6_1
-      L1_2 = "^5  proximity:^7 ^2ENABLED^7 | dist="
-      L2_2 = Config
-      L2_2 = L2_2.ProximityDistance
-      L3_2 = " | interval="
-      L4_2 = Config
-      L4_2 = L4_2.CheckInterval
-      L4_2 = L4_2 / 1000
-      L5_2 = "s | maxConcurrent="
-      L6_2 = L4_1
-      L1_2 = L1_2 .. L2_2 .. L3_2 .. L4_2 .. L5_2 .. L6_2
-      L0_2(L1_2)
-    else
-      L0_2 = L6_1
-      L1_2 = "^5  proximity:^7 ^1DISABLED (ProximityEnabled=false)"
-      L0_2(L1_2)
+
+-- ── Wątki ─────────────────────────────────────────────────────────
+
+-- Przy starcie (tylko proximity_ipl): zrzucenie ewentualnych
+-- auto-streamowanych IPL, żeby loader miał czyste pole
+CreateThread(function()
+    if strategy ~= "proximity_ipl" then
+        return
     end
-  end
-  L0_2 = L6_1
-  L1_2 = "^5  interior mode:^7 "
-  L2_2 = L3_1
-  L1_2 = L1_2 .. L2_2
-  L0_2(L1_2)
-  L0_2 = L6_1
-  L1_2 = "^5  static interiors:^7 "
-  L2_2 = Config
-  L2_2 = L2_2.StaticInteriors
-  L2_2 = #L2_2
-  L1_2 = L1_2 .. L2_2
-  L0_2(L1_2)
+
+    for _, iplDef in ipairs(Config.IplLocations) do
+        RemoveIpl(iplDef.name)
+    end
+
+    if Config.AdditionalProximityIPLs then
+        for _, entry in ipairs(Config.AdditionalProximityIPLs) do
+            if entry.name then
+                RemoveIpl(entry.name)
+            end
+        end
+    end
+
+    logDebug(("^5[ANTI-AUTOSTREAM]^7 Removed all %d apartment IPLs at startup"):format(#Config.IplLocations))
+end)
+
+-- Główna pętla bliskości (interwał rośnie z odległością)
+CreateThread(function()
+    if strategy ~= "proximity_ipl" then
+        return
+    end
+
+    if not Config.ProximityEnabled then
+        logDebug("^3[PROXIMITY]^7 Proximity loading is DISABLED (ProximityEnabled=false)")
+        return
+    end
+
+    while true do
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        local interval = getCheckInterval(playerCoords.x, playerCoords.y, playerCoords.z)
+        updateProximity(playerCoords)
+        Wait(interval)
+    end
+end)
+
+-- Sprzątacz auto-streamu: co 10 s zrzucamy IPL, które nie są
+-- załadowane przez nas, a engine i tak podstreamował
+CreateThread(function()
+    if strategy ~= "proximity_ipl" then
+        return
+    end
+
+    Wait(5000)
+    while true do
+        for _, iplDef in ipairs(Config.IplLocations) do
+            if not loadedIPLs[iplDef.name] and IsIplActive(iplDef.name) then
+                RemoveIpl(iplDef.name)
+                logDebug("^5[SWEEP]^7 Removed auto-streamed: " .. iplDef.name)
+            end
+        end
+        Wait(10000)
+    end
+end)
+
+-- Inicjalizacja wnętrz statycznych (5 prób, interwał 1 s)
+CreateThread(function()
+    Wait(3000)
+    logDebug("^5[ENTITYSET]^7 Initializing static interiors...")
+
+    for _, staticDef in ipairs(Config.StaticInteriors) do
+        local attempts = 0
+        local ok = false
+        while attempts < 5 and not ok do
+            ok = setupEntitySetsForStatic(staticDef)
+            if not ok then
+                attempts = attempts + 1
+                Wait(1000)
+            end
+        end
+        if not ok then
+            logDebug("^1[ENTITYSET]^7 Failed to initialize: " .. staticDef.name)
+        end
+    end
+
+    logDebug("^5[ENTITYSET]^7 Static interior initialization complete!")
+end)
+
+-- ── Eksporty ──────────────────────────────────────────────────────
+
+exports.GetInteriorMode = function()
+    return interiorMode
 end
-L24_1(L25_1)
+
+exports.SetInteriorMode = function(mode)
+    if mode ~= "shell_only" and mode ~= "furnished" then
+        return false
+    end
+
+    interiorMode = mode
+    logDebug("^5[PROXIMITY]^7 Interior mode changed to: " .. interiorMode)
+
+    -- Przebuduj entity sety załadowanych IPL
+    for iplName in pairs(loadedIPLs) do
+        for _, iplDef in ipairs(Config.IplLocations) do
+            if iplDef.name == iplName then
+                CreateThread(function()
+                    setupEntitySetsForIpl(iplDef.name, iplDef.x, iplDef.y, iplDef.z)
+                end)
+                break
+            end
+        end
+    end
+
+    -- Przebuduj entity sety wnętrz statycznych
+    for _, staticDef in ipairs(Config.StaticInteriors) do
+        CreateThread(function()
+            setupEntitySetsForStatic(staticDef)
+        end)
+    end
+
+    return true
+end
+
+exports.GetLoadedIPLsCount = function()
+    local count = 0
+    for _ in pairs(loadedIPLs) do
+        count = count + 1
+    end
+    return count
+end
+
+exports.IsIPLLoaded = function(iplName)
+    return loadedIPLs[iplName] == true
+end
+
+exports.GetStrategy = function()
+    return strategy
+end
+
+-- Baner startowy
+CreateThread(function()
+    Wait(3000)
+    logDebug(("^5[SANDY APTS]^7 Strategy: ^2%s^7"):format(strategy))
+
+    if strategy == "proximity_ipl" then
+        if Config.ProximityEnabled then
+            logDebug(("^5  proximity:^7 ^2ENABLED^7 | dist=%s | interval=%ss | maxConcurrent=%s"):format(
+                Config.ProximityDistance, Config.CheckInterval / 1000, maxConcurrentInteriors))
+        else
+            logDebug("^5  proximity:^7 ^1DISABLED (ProximityEnabled=false)")
+        end
+    end
+
+    logDebug("^5  interior mode:^7 " .. interiorMode)
+    logDebug("^5  static interiors:^7 " .. #Config.StaticInteriors)
+end)
