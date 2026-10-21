@@ -1,0 +1,1 @@
+Install Sandy Map Data (check the server console)
