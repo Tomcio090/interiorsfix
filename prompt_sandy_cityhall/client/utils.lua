@@ -3,7 +3,7 @@
 -- Krzywe easingowe cubic-bezier (port biblioteki "bezier-easing")
 -- + animowanie pozycji obiektu w czasie (winda).
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- Plik przepisany z zapisu dekompilatora
 -- na czytelny kod — zachowane wszystkie nazwy globalne, wartości
 -- i kolejność; patrz ANALIZA.md, rozdz. 13.
 --

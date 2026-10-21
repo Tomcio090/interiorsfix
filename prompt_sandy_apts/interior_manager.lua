@@ -4,7 +4,7 @@
 -- w zależności od bliskości (strefa target) i obecności we wnętrzu
 -- (MLO) — patrz Config (config.lua).
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- Plik przepisany z zapisu dekompilatora
 -- na czytelny kod — zachowane wszystkie współrzędne, promienie,
 -- progi i kolejność wątków; patrz ANALIZA.md, rozdz. 13.
 --

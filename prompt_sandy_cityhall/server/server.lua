@@ -5,7 +5,7 @@
 -- potwierdzenie ruchu oraz synchronizacja animacji gracza przy
 -- drzwiach między klientami.
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2) na czytelny
+-- Plik przepisany z zapisu dekompilatora na czytelny
 -- kod — zachowane wszystkie nazwy eventów, walidacje, czasy i
 -- kolejność rejestracji; patrz ANALIZA.md, rozdz. 13.
 ---------------------------------------------------------------------
