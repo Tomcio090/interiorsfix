@@ -5,7 +5,7 @@
 -- (strategia "auto_stream_only") + zarządzanie entity setami
 -- wnętrz (furnished / shell_only).
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- Plik przepisany z zapisu dekompilatora
 -- na czytelny kod — zachowane wszystkie nazwy eventów, eksporty,
 -- progi i kolejność wątków; patrz ANALIZA.md, rozdz. 13.
 --

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------
 -- PROMPT SANDY CITYHALL — Internal config (Config.Elevator)
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2) na czytelny
+-- Plik przepisany z zapisu dekompilatora na czytelny
 -- zapis tabeli — wszystkie wartości 1:1 z oryginałem; patrz
 -- ANALIZA.md, rozdz. 13.
 --

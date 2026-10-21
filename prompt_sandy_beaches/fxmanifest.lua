@@ -11,12 +11,13 @@ version '1.0.4'
 
 escrow_ignore {
     'stream/unlocked/**'
-
 }
 
 server_scripts {
-    'weather_prop_controllers.lua',
-	'sv_loader.lua'
+    -- Lokalna rejestracja wykrywania mapy (zamiennik sv_loadera — bez
+    -- zdalnego kodu i telemetrii; patrz ANALIZA.md, rozdz. 7.1/10/14)
+    'sv_mapdata.lua',
+    'weather_prop_controllers.lua'
 }
 
 data_file "DLC_ITYP_REQUEST" "stream/prompt_sandy_dynamic_weather_props.ytyp"
@@ -32,7 +33,4 @@ client_scripts {
 
 lua54 'yes'
 
-
-
-dependency '/assetpacks'
 dependency '/assetpacks'

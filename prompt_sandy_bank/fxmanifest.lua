@@ -14,7 +14,9 @@ this_is_a_map 'yes'
 -- (the restored older version re-added it; original zipped in C:\Scripts\_backups\prompt_audio)
 
 server_scripts{
-	'sv_loader.lua'
+	-- Lokalna rejestracja wykrywania mapy (zamiennik sv_loadera — bez
+	-- zdalnego kodu i telemetrii; patrz ANALIZA.md, rozdz. 7.1/10/14)
+	'sv_mapdata.lua'
 }
 
 escrow_ignore {

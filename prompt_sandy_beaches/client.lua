@@ -1,1443 +1,381 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1
-L0_1 = {}
-L1_1 = {}
-L2_1 = {}
-L3_1 = 508
-L4_1 = {}
-L4_1.minX = 1304
-L4_1.maxX = 1500
-L4_1.minY = 3796
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 1402.0
-L5_1.y = 3898.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 382
-L4_1 = {}
-L4_1.minX = -84
-L4_1.maxX = -16
-L4_1.minY = 4256
-L4_1.maxY = 4416
-L5_1 = {}
-L5_1.x = -50.0
-L5_1.y = 4336.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 510
-L4_1 = {}
-L4_1.minX = 1000
-L4_1.maxX = 1500
-L4_1.minY = 4000
-L4_1.maxY = 4380
-L5_1 = {}
-L5_1.x = 1250.0
-L5_1.y = 4190.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 538
-L4_1 = {}
-L4_1.minX = 1948
-L4_1.maxX = 2000
-L4_1.minY = 3932
-L4_1.maxY = 3960
-L5_1 = {}
-L5_1.x = 1974.0
-L5_1.y = 3946.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 539
-L4_1 = {}
-L4_1.minX = 1500
-L4_1.maxX = 1540
-L4_1.minY = 3776
-L4_1.maxY = 3796
-L5_1 = {}
-L5_1.x = 1520.0
-L5_1.y = 3786.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 540
-L4_1 = {}
-L4_1.minX = 1540
-L4_1.maxX = 1612
-L4_1.minY = 3828
-L4_1.maxY = 3860
-L5_1 = {}
-L5_1.x = 1576.0
-L5_1.y = 3844.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 541
-L4_1 = {}
-L4_1.minX = 1500
-L4_1.maxX = 1540
-L4_1.minY = 3796
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 1520.0
-L5_1.y = 3898.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 542
-L4_1 = {}
-L4_1.minX = 1540
-L4_1.maxX = 1728
-L4_1.minY = 3964
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 1634.0
-L5_1.y = 3982.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 543
-L4_1 = {}
-L4_1.minX = 1728
-L4_1.maxX = 1816
-L4_1.minY = 3964
-L4_1.maxY = 3992
-L5_1 = {}
-L5_1.x = 1772.0
-L5_1.y = 3978.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 544
-L4_1 = {}
-L4_1.minX = 1816
-L4_1.maxX = 1932
-L4_1.minY = 3976
-L4_1.maxY = 3992
-L5_1 = {}
-L5_1.x = 1874.0
-L5_1.y = 3984.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 545
-L4_1 = {}
-L4_1.minX = 1932
-L4_1.maxX = 2000
-L4_1.minY = 3960
-L4_1.maxY = 3992
-L5_1 = {}
-L5_1.x = 1966.0
-L5_1.y = 3976.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 546
-L4_1 = {}
-L4_1.minX = 1728
-L4_1.maxX = 2000
-L4_1.minY = 3992
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 1864.0
-L5_1.y = 3996.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 547
-L4_1 = {}
-L4_1.minX = 1684
-L4_1.maxX = 1728
-L4_1.minY = 3908
-L4_1.maxY = 3964
-L5_1 = {}
-L5_1.x = 1706.0
-L5_1.y = 3936.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 548
-L4_1 = {}
-L4_1.minX = 1540
-L4_1.maxX = 1684
-L4_1.minY = 3860
-L4_1.maxY = 3964
-L5_1 = {}
-L5_1.x = 1612.0
-L5_1.y = 3912.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 549
-L4_1 = {}
-L4_1.minX = 1656
-L4_1.maxX = 2000
-L4_1.minY = 4380
-L4_1.maxY = 4500
-L5_1 = {}
-L5_1.x = 1828.0
-L5_1.y = 4440.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 550
-L4_1 = {}
-L4_1.minX = 1500
-L4_1.maxX = 1656
-L4_1.minY = 4380
-L4_1.maxY = 4500
-L5_1 = {}
-L5_1.x = 1578.0
-L5_1.y = 4440.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 551
-L4_1 = {}
-L4_1.minX = 1500
-L4_1.maxX = 2000
-L4_1.minY = 4000
-L4_1.maxY = 4380
-L5_1 = {}
-L5_1.x = 1750.0
-L5_1.y = 4190.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 552
-L4_1 = {}
-L4_1.minX = 1656
-L4_1.maxX = 2000
-L4_1.minY = 4500
-L4_1.maxY = 4580
-L5_1 = {}
-L5_1.x = 1828.0
-L5_1.y = 4540.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 439
-L4_1 = {}
-L4_1.minX = 152
-L4_1.maxX = 332
-L4_1.minY = 3428
-L4_1.maxY = 3500
-L5_1 = {}
-L5_1.x = 242.0
-L5_1.y = 3464.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 440
-L4_1 = {}
-L4_1.minX = 124
-L4_1.maxX = 152
-L4_1.minY = 3428
-L4_1.maxY = 3500
-L5_1 = {}
-L5_1.x = 138.0
-L5_1.y = 3464.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 441
-L4_1 = {}
-L4_1.minX = 332
-L4_1.maxX = 500
-L4_1.minY = 3596
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 416.0
-L5_1.y = 3798.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 442
-L4_1 = {}
-L4_1.minX = 104
-L4_1.maxX = 332
-L4_1.minY = 3788
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 218.0
-L5_1.y = 3894.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 443
-L4_1 = {}
-L4_1.minX = 160
-L4_1.maxX = 172
-L4_1.minY = 3664
-L4_1.maxY = 3684
-L5_1 = {}
-L5_1.x = 166.0
-L5_1.y = 3674.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 444
-L4_1 = {}
-L4_1.minX = 132
-L4_1.maxX = 172
-L4_1.minY = 3684
-L4_1.maxY = 3788
-L5_1 = {}
-L5_1.x = 152.0
-L5_1.y = 3736.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 445
-L4_1 = {}
-L4_1.minX = 0
-L4_1.maxX = 104
-L4_1.minY = 3808
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 52.0
-L5_1.y = 3904.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 446
-L4_1 = {}
-L4_1.minX = 76
-L4_1.maxX = 104
-L4_1.minY = 3796
-L4_1.maxY = 3808
-L5_1 = {}
-L5_1.x = 90.0
-L5_1.y = 3802.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 447
-L4_1 = {}
-L4_1.minX = 0
-L4_1.maxX = 36
-L4_1.minY = 3780
-L4_1.maxY = 3808
-L5_1 = {}
-L5_1.x = 18.0
-L5_1.y = 3794.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 448
-L4_1 = {}
-L4_1.minX = 152
-L4_1.maxX = 332
-L4_1.minY = 3500
-L4_1.maxY = 3596
-L5_1 = {}
-L5_1.x = 242.0
-L5_1.y = 3548.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 449
-L4_1 = {}
-L4_1.minX = 150
-L4_1.maxX = 152
-L4_1.minY = 3500
-L4_1.maxY = 3508
-L5_1 = {}
-L5_1.x = 151.0
-L5_1.y = 3504.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 450
-L4_1 = {}
-L4_1.minX = 172
-L4_1.maxX = 332
-L4_1.minY = 3596
-L4_1.maxY = 3788
-L5_1 = {}
-L5_1.x = 252.0
-L5_1.y = 3692.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 451
-L4_1 = {}
-L4_1.minX = 496
-L4_1.maxX = 500
-L4_1.minY = 4000
-L4_1.maxY = 4224
-L5_1 = {}
-L5_1.x = 498.0
-L5_1.y = 4112.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 452
-L4_1 = {}
-L4_1.minX = 332
-L4_1.maxX = 496
-L4_1.minY = 4000
-L4_1.maxY = 4340
-L5_1 = {}
-L5_1.x = 414.0
-L5_1.y = 4170.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 453
-L4_1 = {}
-L4_1.minX = 104
-L4_1.maxX = 332
-L4_1.minY = 4000
-L4_1.maxY = 4376
-L5_1 = {}
-L5_1.x = 218.0
-L5_1.y = 4188.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 581
-L4_1 = {}
-L4_1.minX = 2044
-L4_1.maxX = 2068
-L4_1.minY = 3876
-L4_1.maxY = 3900
-L5_1 = {}
-L5_1.x = 2056.0
-L5_1.y = 3888.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 582
-L4_1 = {}
-L4_1.minX = 2068
-L4_1.maxX = 2092
-L4_1.minY = 3880
-L4_1.maxY = 3900
-L5_1 = {}
-L5_1.x = 2080.0
-L5_1.y = 3890.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 583
-L4_1 = {}
-L4_1.minX = 2092
-L4_1.maxX = 2212
-L4_1.minY = 3928
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 2152.0
-L5_1.y = 3964.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 584
-L4_1 = {}
-L4_1.minX = 2092
-L4_1.maxX = 2132
-L4_1.minY = 3880
-L4_1.maxY = 3900
-L5_1 = {}
-L5_1.x = 2112.0
-L5_1.y = 3890.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 585
-L4_1 = {}
-L4_1.minX = 2132
-L4_1.maxX = 2212
-L4_1.minY = 3880
-L4_1.maxY = 3900
-L5_1 = {}
-L5_1.x = 2172.0
-L5_1.y = 3890.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 586
-L4_1 = {}
-L4_1.minX = 2212
-L4_1.maxX = 2252
-L4_1.minY = 3892
-L4_1.maxY = 3924
-L5_1 = {}
-L5_1.x = 2232.0
-L5_1.y = 3908.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 587
-L4_1 = {}
-L4_1.minX = 2108
-L4_1.maxX = 2192
-L4_1.minY = 3832
-L4_1.maxY = 3844
-L5_1 = {}
-L5_1.x = 2150.0
-L5_1.y = 3838.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 588
-L4_1 = {}
-L4_1.minX = 2116
-L4_1.maxX = 2148
-L4_1.minY = 3844
-L4_1.maxY = 3872
-L5_1 = {}
-L5_1.x = 2132.0
-L5_1.y = 3858.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 589
-L4_1 = {}
-L4_1.minX = 2140
-L4_1.maxX = 2184
-L4_1.minY = 3808
-L4_1.maxY = 3832
-L5_1 = {}
-L5_1.x = 2162.0
-L5_1.y = 3820.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 590
-L4_1 = {}
-L4_1.minX = 2104
-L4_1.maxX = 2140
-L4_1.minY = 3800
-L4_1.maxY = 3832
-L5_1 = {}
-L5_1.x = 2122.0
-L5_1.y = 3816.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 591
-L4_1 = {}
-L4_1.minX = 2212
-L4_1.maxX = 2308
-L4_1.minY = 3924
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 2260.0
-L5_1.y = 3962.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 593
-L4_1 = {}
-L4_1.minX = 2000
-L4_1.maxX = 2012
-L4_1.minY = 3932
-L4_1.maxY = 3960
-L5_1 = {}
-L5_1.x = 2006.0
-L5_1.y = 3946.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 594
-L4_1 = {}
-L4_1.minX = 2012
-L4_1.maxX = 2092
-L4_1.minY = 3928
-L4_1.maxY = 3960
-L5_1 = {}
-L5_1.x = 2052.0
-L5_1.y = 3944.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 595
-L4_1 = {}
-L4_1.minX = 2044
-L4_1.maxX = 2212
-L4_1.minY = 3900
-L4_1.maxY = 3928
-L5_1 = {}
-L5_1.x = 2128.0
-L5_1.y = 3914.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 596
-L4_1 = {}
-L4_1.minX = 2148
-L4_1.maxX = 2212
-L4_1.minY = 3844
-L4_1.maxY = 3880
-L5_1 = {}
-L5_1.x = 2180.0
-L5_1.y = 3862.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 597
-L4_1 = {}
-L4_1.minX = 2000
-L4_1.maxX = 2092
-L4_1.minY = 3960
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 2046.0
-L5_1.y = 3980.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 598
-L4_1 = {}
-L4_1.minX = 2308
-L4_1.maxX = 2396
-L4_1.minY = 4000
-L4_1.maxY = 4056
-L5_1 = {}
-L5_1.x = 2352.0
-L5_1.y = 4028.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 599
-L4_1 = {}
-L4_1.minX = 2308
-L4_1.maxX = 2384
-L4_1.minY = 4056
-L4_1.maxY = 4100
-L5_1 = {}
-L5_1.x = 2346.0
-L5_1.y = 4078.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 600
-L4_1 = {}
-L4_1.minX = 2308
-L4_1.maxX = 2432
-L4_1.minY = 4100
-L4_1.maxY = 4500
-L5_1 = {}
-L5_1.x = 2370.0
-L5_1.y = 4300.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 601
-L4_1 = {}
-L4_1.minX = 2000
-L4_1.maxX = 2308
-L4_1.minY = 4000
-L4_1.maxY = 4500
-L5_1 = {}
-L5_1.x = 2154.0
-L5_1.y = 4250.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 602
-L4_1 = {}
-L4_1.minX = 2092
-L4_1.maxX = 2308
-L4_1.minY = 4500
-L4_1.maxY = 4676
-L5_1 = {}
-L5_1.x = 2200.0
-L5_1.y = 4588.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 603
-L4_1 = {}
-L4_1.minX = 2308
-L4_1.maxX = 2432
-L4_1.minY = 4500
-L4_1.maxY = 4598
-L5_1 = {}
-L5_1.x = 2370.0
-L5_1.y = 4549.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 605
-L4_1 = {}
-L4_1.minX = 2000
-L4_1.maxX = 2092
-L4_1.minY = 4500
-L4_1.maxY = 4580
-L5_1 = {}
-L5_1.x = 2046.0
-L5_1.y = 4540.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 486
-L4_1 = {}
-L4_1.minX = 740
-L4_1.maxX = 848
-L4_1.minY = 3624
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 794.0
-L5_1.y = 3812.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 487
-L4_1 = {}
-L4_1.minX = 500
-L4_1.maxX = 740
-L4_1.minY = 3596
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 620.0
-L5_1.y = 3798.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 488
-L4_1 = {}
-L4_1.minX = 848
-L4_1.maxX = 1000
-L4_1.minY = 3636
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 924.0
-L5_1.y = 3818.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 489
-L4_1 = {}
-L4_1.minX = 500
-L4_1.maxX = 1000
-L4_1.minY = 4000
-L4_1.maxY = 4224
-L5_1 = {}
-L5_1.x = 750.0
-L5_1.y = 4112.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 490
-L4_1 = {}
-L4_1.minX = 840
-L4_1.maxX = 1000
-L4_1.minY = 4224
-L4_1.maxY = 4380
-L5_1 = {}
-L5_1.x = 920.0
-L5_1.y = 4302.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 364
-L4_1 = {}
-L4_1.minX = -172
-L4_1.maxX = -148
-L4_1.minY = 3908
-L4_1.maxY = 3932
-L5_1 = {}
-L5_1.x = -160.0
-L5_1.y = 3920.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 365
-L4_1 = {}
-L4_1.minX = -212
-L4_1.maxX = -148
-L4_1.minY = 3840
-L4_1.maxY = 3864
-L5_1 = {}
-L5_1.x = -180.0
-L5_1.y = 3852.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 366
-L4_1 = {}
-L4_1.minX = -208
-L4_1.maxX = -148
-L4_1.minY = 3864
-L4_1.maxY = 3900
-L5_1 = {}
-L5_1.x = -178.0
-L5_1.y = 3882.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 368
-L4_1 = {}
-L4_1.minX = -100
-L4_1.maxX = -20
-L4_1.minY = 3728
-L4_1.maxY = 3764
-L5_1 = {}
-L5_1.x = -60.0
-L5_1.y = 3746.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 360
-L4_1 = {}
-L4_1.minX = -16
-L4_1.maxX = 0
-L4_1.minY = 3808
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = -8.0
-L5_1.y = 3904.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 362
-L4_1 = {}
-L4_1.minX = -176
-L4_1.maxX = -16
-L4_1.minY = 3932
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = -96.0
-L5_1.y = 3966.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 371
-L4_1 = {}
-L4_1.minX = -108
-L4_1.maxX = -16
-L4_1.minY = 3764
-L4_1.maxY = 3932
-L5_1 = {}
-L5_1.x = -62.0
-L5_1.y = 3848.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 372
-L4_1 = {}
-L4_1.minX = -16
-L4_1.maxX = 0
-L4_1.minY = 4000
-L4_1.maxY = 4416
-L5_1 = {}
-L5_1.x = -8.0
-L5_1.y = 4208.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 373
-L4_1 = {}
-L4_1.minX = -176
-L4_1.maxX = -16
-L4_1.minY = 4000
-L4_1.maxY = 4064
-L5_1 = {}
-L5_1.x = -96.0
-L5_1.y = 4032.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 374
-L4_1 = {}
-L4_1.minX = -216
-L4_1.maxX = -176
-L4_1.minY = 4012
-L4_1.maxY = 4064
-L5_1 = {}
-L5_1.x = -196.0
-L5_1.y = 4038.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 375
-L4_1 = {}
-L4_1.minX = -228
-L4_1.maxX = -212
-L4_1.minY = 4064
-L4_1.maxY = 4088
-L5_1 = {}
-L5_1.x = -220.0
-L5_1.y = 4076.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 376
-L4_1 = {}
-L4_1.minX = -212
-L4_1.maxX = -16
-L4_1.minY = 4064
-L4_1.maxY = 4256
-L5_1 = {}
-L5_1.x = -114.0
-L5_1.y = 4160.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 454
-L4_1 = {}
-L4_1.minX = 0
-L4_1.maxX = 104
-L4_1.minY = 4000
-L4_1.maxY = 4416
-L5_1 = {}
-L5_1.x = 52.0
-L5_1.y = 4208.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 363
-L4_1 = {}
-L4_1.minX = -148
-L4_1.maxX = -108
-L4_1.minY = 3796
-L4_1.maxY = 3932
-L5_1 = {}
-L5_1.x = -128.0
-L5_1.y = 3864.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 506
-L4_1 = {}
-L4_1.minX = 1000
-L4_1.maxX = 1304
-L4_1.minY = 3636
-L4_1.maxY = 4000
-L5_1 = {}
-L5_1.x = 1152.0
-L5_1.y = 3818.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 507
-L4_1 = {}
-L4_1.minX = 1304
-L4_1.maxX = 1500
-L4_1.minY = 3676
-L4_1.maxY = 3796
-L5_1 = {}
-L5_1.x = 1402.0
-L5_1.y = 3736.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 361
-L4_1 = {}
-L4_1.minX = -16
-L4_1.maxX = 0
-L4_1.minY = 3768
-L4_1.maxY = 3808
-L5_1 = {}
-L5_1.x = -8.0
-L5_1.y = 3788.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L1_1.Water_Quads = L2_1
-L2_1 = {}
-L3_1 = 346
-L4_1 = {}
-L4_1.minX = 1384
-L4_1.maxX = 1500
-L4_1.minY = 3724
-L4_1.maxY = 3848
-L5_1 = {}
-L5_1.x = 1442.0
-L5_1.y = 3786.0
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 347
-L4_1 = {}
-L4_1.minX = 1500
-L5_1 = 2016
-L4_1.maxX = L5_1
-L4_1.minY = 3796
-L5_1 = 3944
-L4_1.maxY = L5_1
-L5_1 = {}
-L6_1 = 1758.0
-L5_1.x = L6_1
-L6_1 = 3870.0
-L5_1.y = L6_1
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L3_1 = 344
-L4_1 = {}
-L5_1 = 948
-L4_1.minX = L5_1
-L5_1 = 1260
-L4_1.maxX = L5_1
-L5_1 = 3564
-L4_1.minY = L5_1
-L4_1.maxY = 3684
-L5_1 = {}
-L6_1 = 1104.0
-L5_1.x = L6_1
-L6_1 = 3624.0
-L5_1.y = L6_1
-L4_1.center = L5_1
-L2_1[L3_1] = L4_1
-L1_1.Calm_Quads = L2_1
-L0_1.alamo_sea = L1_1
-L1_1 = {}
-L2_1 = {}
-L3_1 = {}
-L4_1 = 544
-L5_1 = {}
-L5_1.minX = 1816
-L5_1.maxX = 1932
-L6_1 = 3986
-L5_1.minY = L6_1
-L5_1.maxY = 3992
-L3_1[L4_1] = L5_1
-L4_1 = 508
-L5_1 = {}
-L5_1.minX = 1304
-L5_1.maxX = 1500
-L5_1.minY = 3796
-L5_1.maxY = 4000
-L3_1[L4_1] = L5_1
-L4_1 = 488
-L5_1 = {}
-L5_1.minX = 848
-L5_1.maxX = 1000
-L6_1 = 3653
-L5_1.minY = L6_1
-L5_1.maxY = 4000
-L3_1[L4_1] = L5_1
-L4_1 = 506
-L5_1 = {}
-L5_1.minX = 1000
-L5_1.maxX = 1304
-L6_1 = 3653
-L5_1.minY = L6_1
-L5_1.maxY = 4000
-L3_1[L4_1] = L5_1
-L2_1.Water_Quads = L3_1
-L3_1 = {}
-L4_1 = 346
-L5_1 = {}
-L5_1.minX = 1384
-L5_1.maxX = 1500
-L5_1.minY = 3724
-L6_1 = 3898
-L5_1.maxY = L6_1
-L6_1 = "dampening"
-L7_1 = 0.0
-L5_1[L6_1] = L7_1
-L3_1[L4_1] = L5_1
-L4_1 = 347
-L5_1 = {}
-L6_1 = "dampening"
-L7_1 = 0.0
-L5_1[L6_1] = L7_1
-L3_1[L4_1] = L5_1
-L4_1 = 344
-L5_1 = {}
-L6_1 = 948
-L5_1.minX = L6_1
-L6_1 = 1260
-L5_1.maxX = L6_1
-L6_1 = 3663
-L5_1.minY = L6_1
-L5_1.maxY = 3684
-L6_1 = "dampening"
-L7_1 = 0.0
-L5_1[L6_1] = L7_1
-L3_1[L4_1] = L5_1
-L2_1.Calm_Quads = L3_1
-L1_1.alamo_sea = L2_1
-L2_1 = {}
-L3_1 = {}
-function L4_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L1_2 = Config
-  L1_2 = L1_2.Debug
-  if L1_2 then
-    L1_2 = print
-    L2_2 = "[water_edit] "
-    L3_2 = A0_2
-    L2_2 = L2_2 .. L3_2
-    L1_2(L2_2)
-  end
-end
-function L5_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2
-  L1_2 = GetWaterQuadBounds
-  L2_2 = A0_2
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  if L1_2 and L2_2 and L3_2 and L4_2 then
-    L5_2 = {}
-    L5_2.minX = L1_2
-    L5_2.minY = L2_2
-    L5_2.maxX = L3_2
-    L5_2.maxY = L4_2
-    return L5_2
-  end
-  L5_2 = nil
-  return L5_2
-end
-function L6_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2, A7_2)
-  local L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-  if not (A0_2 and A1_2 and A2_2 and A3_2 and A4_2 and A5_2 and A6_2) or not A7_2 then
-    L8_2 = L4_1
-    L9_2 = "Error: Valores nil en CalculateOverlap"
-    L8_2(L9_2)
-    L8_2 = 0.0
-    return L8_2
-  end
-  L8_2 = tonumber
-  L9_2 = A0_2
-  L8_2 = L8_2(L9_2)
-  L9_2 = tonumber
-  L10_2 = A1_2
-  L9_2 = L9_2(L10_2)
-  L10_2 = tonumber
-  L11_2 = A2_2
-  L10_2 = L10_2(L11_2)
-  L11_2 = tonumber
-  L12_2 = A3_2
-  L11_2 = L11_2(L12_2)
-  A3_2 = L11_2
-  A2_2 = L10_2
-  A1_2 = L9_2
-  A0_2 = L8_2
-  L8_2 = tonumber
-  L9_2 = A4_2
-  L8_2 = L8_2(L9_2)
-  L9_2 = tonumber
-  L10_2 = A5_2
-  L9_2 = L9_2(L10_2)
-  L10_2 = tonumber
-  L11_2 = A6_2
-  L10_2 = L10_2(L11_2)
-  L11_2 = tonumber
-  L12_2 = A7_2
-  L11_2 = L11_2(L12_2)
-  A7_2 = L11_2
-  A6_2 = L10_2
-  A5_2 = L9_2
-  A4_2 = L8_2
-  if not (A0_2 and A1_2 and A2_2 and A3_2 and A4_2 and A5_2 and A6_2) or not A7_2 then
-    L8_2 = L4_1
-    L9_2 = "Error: No se pudieron convertir valores a n\195\186meros en CalculateOverlap"
-    L8_2(L9_2)
-    L8_2 = 0.0
-    return L8_2
-  end
-  L8_2 = math
-  L8_2 = L8_2.max
-  L9_2 = A0_2
-  L10_2 = A4_2
-  L8_2 = L8_2(L9_2, L10_2)
-  L9_2 = math
-  L9_2 = L9_2.max
-  L10_2 = A1_2
-  L11_2 = A5_2
-  L9_2 = L9_2(L10_2, L11_2)
-  L10_2 = math
-  L10_2 = L10_2.min
-  L11_2 = A2_2
-  L12_2 = A6_2
-  L10_2 = L10_2(L11_2, L12_2)
-  L11_2 = math
-  L11_2 = L11_2.min
-  L12_2 = A3_2
-  L13_2 = A7_2
-  L11_2 = L11_2(L12_2, L13_2)
-  if L8_2 > L10_2 or L9_2 > L11_2 then
-    L12_2 = 0.0
-    return L12_2
-  end
-  L12_2 = A2_2 - A0_2
-  L13_2 = A3_2 - A1_2
-  L12_2 = L12_2 * L13_2
-  L13_2 = A6_2 - A4_2
-  L14_2 = A7_2 - A5_2
-  L13_2 = L13_2 * L14_2
-  L14_2 = L10_2 - L8_2
-  L15_2 = L11_2 - L9_2
-  L14_2 = L14_2 * L15_2
-  if L12_2 <= 0 or L13_2 <= 0 then
-    L15_2 = 0.0
-    return L15_2
-  end
-  L15_2 = math
-  L15_2 = L15_2.min
-  L16_2 = L12_2
-  L17_2 = L13_2
-  L15_2 = L15_2(L16_2, L17_2)
-  L15_2 = L14_2 / L15_2
-  return L15_2
-end
-function L7_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2
-  if not A0_2 then
-    L3_2 = L4_1
-    L4_2 = "Error: originalQuadData es nil"
-    L3_2(L4_2)
-    L3_2 = nil
-    return L3_2
-  end
-  L3_2 = tonumber
-  L4_2 = A0_2.center
-  L4_2 = L4_2.x
-  L3_2 = L3_2(L4_2)
-  L4_2 = tonumber
-  L5_2 = A0_2.center
-  L5_2 = L5_2.y
-  L4_2 = L4_2(L5_2)
-  if A1_2 then
-    L5_2 = GetCalmingQuadAtCoords
-    L6_2 = L3_2
-    L7_2 = L4_2
-    L5_2 = L5_2(L6_2, L7_2)
-    if L5_2 then
-      goto lbl_28
+---------------------------------------------------------------------
+-- PROMPT SANDY BEACHES (Marina) — Konfiguracja wody Alamo Sea (client)
+-- Wyszukuje w pamięci gry prostokąty tafli wody (WaterQuads) oraz
+-- wygładzania fal (CalmingQuads) po środkach i granicach oryginalnych
+-- quadów GTA V, a następnie ustawia poziom wody, przezroczystość
+-- (alpha), tłumienie fal i skorygowane granice brzegu mariny.
+--
+-- Plik przepisany z zapisu dekompilatora na czytelny kod Lua —
+-- wszystkie 78 Water_Quads, 3 Calm_Quads oraz parametry docelowe
+-- zachowane 1:1. Patrz ANALIZA.md, rozdz. 14.
+--
+-- Naprawione błędy oryginału i artefakty dekompilacji:
+--   1. KRYTYCZNY CRASH PRZY STARCIE: natywka FiveM GetWaterQuadBounds
+--      zwraca PIĘĆ wartości (found, minX, minY, maxX, maxY), tak samo
+--      jak GetCalmingQuadBounds (WaterExtraNatives.cpp w citizenfx/fivem).
+--      W wątku startowym (oraz w helperze getWaterQuadBounds) oryginał
+--      rozpakowywał tylko 4 zmienne, przez co boolean `found = true`
+--      trafiał do `string.format("... minX=%.0f ...", ...)` ZANIM
+--      debugLog sprawdził `Config.Debug` — wywalało to wątek błędem
+--      `bad argument #3 to format (number expected, got boolean)`
+--      zanim Config.Zones w ogóle zdążyło się wykonać!
+--   2. REKONSTRUKCJA PO DEKOMPILACJI w findMatchingQuad: dekompilator
+--      uszkodził 4-członową koniunkcję `matches` (zostawił wyłącznie
+--      porównanie `minX`, martwe odczyty `minY/maxX/maxY` oraz
+--      niezadeklarowany global `matches` poniżej). Odtworzono pełne
+--      porównanie wszystkich 4 granic z tolerancją 10.0 + bezpieczny
+--      fallback do granic docelowych (MODIFIED_QUADS), aby żywy restart
+--      zasobu (`/restart prompt_sandy_beaches`) w trakcie sesji nadal
+--      rozpoznawał quady ze zmienionymi już granicami brzegu.
+---------------------------------------------------------------------
+
+local ORIGINAL_QUADS = {
+    alamo_sea = {
+        Water_Quads = {
+            [508] = { minX = 1304, maxX = 1500, minY = 3796, maxY = 4000, center = { x = 1402.0, y = 3898.0 } },
+            [382] = { minX = -84, maxX = -16, minY = 4256, maxY = 4416, center = { x = -50.0, y = 4336.0 } },
+            [510] = { minX = 1000, maxX = 1500, minY = 4000, maxY = 4380, center = { x = 1250.0, y = 4190.0 } },
+            [538] = { minX = 1948, maxX = 2000, minY = 3932, maxY = 3960, center = { x = 1974.0, y = 3946.0 } },
+            [539] = { minX = 1500, maxX = 1540, minY = 3776, maxY = 3796, center = { x = 1520.0, y = 3786.0 } },
+            [540] = { minX = 1540, maxX = 1612, minY = 3828, maxY = 3860, center = { x = 1576.0, y = 3844.0 } },
+            [541] = { minX = 1500, maxX = 1540, minY = 3796, maxY = 4000, center = { x = 1520.0, y = 3898.0 } },
+            [542] = { minX = 1540, maxX = 1728, minY = 3964, maxY = 4000, center = { x = 1634.0, y = 3982.0 } },
+            [543] = { minX = 1728, maxX = 1816, minY = 3964, maxY = 3992, center = { x = 1772.0, y = 3978.0 } },
+            [544] = { minX = 1816, maxX = 1932, minY = 3976, maxY = 3992, center = { x = 1874.0, y = 3984.0 } },
+            [545] = { minX = 1932, maxX = 2000, minY = 3960, maxY = 3992, center = { x = 1966.0, y = 3976.0 } },
+            [546] = { minX = 1728, maxX = 2000, minY = 3992, maxY = 4000, center = { x = 1864.0, y = 3996.0 } },
+            [547] = { minX = 1684, maxX = 1728, minY = 3908, maxY = 3964, center = { x = 1706.0, y = 3936.0 } },
+            [548] = { minX = 1540, maxX = 1684, minY = 3860, maxY = 3964, center = { x = 1612.0, y = 3912.0 } },
+            [549] = { minX = 1656, maxX = 2000, minY = 4380, maxY = 4500, center = { x = 1828.0, y = 4440.0 } },
+            [550] = { minX = 1500, maxX = 1656, minY = 4380, maxY = 4500, center = { x = 1578.0, y = 4440.0 } },
+            [551] = { minX = 1500, maxX = 2000, minY = 4000, maxY = 4380, center = { x = 1750.0, y = 4190.0 } },
+            [552] = { minX = 1656, maxX = 2000, minY = 4500, maxY = 4580, center = { x = 1828.0, y = 4540.0 } },
+            [439] = { minX = 152, maxX = 332, minY = 3428, maxY = 3500, center = { x = 242.0, y = 3464.0 } },
+            [440] = { minX = 124, maxX = 152, minY = 3428, maxY = 3500, center = { x = 138.0, y = 3464.0 } },
+            [441] = { minX = 332, maxX = 500, minY = 3596, maxY = 4000, center = { x = 416.0, y = 3798.0 } },
+            [442] = { minX = 104, maxX = 332, minY = 3788, maxY = 4000, center = { x = 218.0, y = 3894.0 } },
+            [443] = { minX = 160, maxX = 172, minY = 3664, maxY = 3684, center = { x = 166.0, y = 3674.0 } },
+            [444] = { minX = 132, maxX = 172, minY = 3684, maxY = 3788, center = { x = 152.0, y = 3736.0 } },
+            [445] = { minX = 0, maxX = 104, minY = 3808, maxY = 4000, center = { x = 52.0, y = 3904.0 } },
+            [446] = { minX = 76, maxX = 104, minY = 3796, maxY = 3808, center = { x = 90.0, y = 3802.0 } },
+            [447] = { minX = 0, maxX = 36, minY = 3780, maxY = 3808, center = { x = 18.0, y = 3794.0 } },
+            [448] = { minX = 152, maxX = 332, minY = 3500, maxY = 3596, center = { x = 242.0, y = 3548.0 } },
+            [449] = { minX = 150, maxX = 152, minY = 3500, maxY = 3508, center = { x = 151.0, y = 3504.0 } },
+            [450] = { minX = 172, maxX = 332, minY = 3596, maxY = 3788, center = { x = 252.0, y = 3692.0 } },
+            [451] = { minX = 496, maxX = 500, minY = 4000, maxY = 4224, center = { x = 498.0, y = 4112.0 } },
+            [452] = { minX = 332, maxX = 496, minY = 4000, maxY = 4340, center = { x = 414.0, y = 4170.0 } },
+            [453] = { minX = 104, maxX = 332, minY = 4000, maxY = 4376, center = { x = 218.0, y = 4188.0 } },
+            [581] = { minX = 2044, maxX = 2068, minY = 3876, maxY = 3900, center = { x = 2056.0, y = 3888.0 } },
+            [582] = { minX = 2068, maxX = 2092, minY = 3880, maxY = 3900, center = { x = 2080.0, y = 3890.0 } },
+            [583] = { minX = 2092, maxX = 2212, minY = 3928, maxY = 4000, center = { x = 2152.0, y = 3964.0 } },
+            [584] = { minX = 2092, maxX = 2132, minY = 3880, maxY = 3900, center = { x = 2112.0, y = 3890.0 } },
+            [585] = { minX = 2132, maxX = 2212, minY = 3880, maxY = 3900, center = { x = 2172.0, y = 3890.0 } },
+            [586] = { minX = 2212, maxX = 2252, minY = 3892, maxY = 3924, center = { x = 2232.0, y = 3908.0 } },
+            [587] = { minX = 2108, maxX = 2192, minY = 3832, maxY = 3844, center = { x = 2150.0, y = 3838.0 } },
+            [588] = { minX = 2116, maxX = 2148, minY = 3844, maxY = 3872, center = { x = 2132.0, y = 3858.0 } },
+            [589] = { minX = 2140, maxX = 2184, minY = 3808, maxY = 3832, center = { x = 2162.0, y = 3820.0 } },
+            [590] = { minX = 2104, maxX = 2140, minY = 3800, maxY = 3832, center = { x = 2122.0, y = 3816.0 } },
+            [591] = { minX = 2212, maxX = 2308, minY = 3924, maxY = 4000, center = { x = 2260.0, y = 3962.0 } },
+            [593] = { minX = 2000, maxX = 2012, minY = 3932, maxY = 3960, center = { x = 2006.0, y = 3946.0 } },
+            [594] = { minX = 2012, maxX = 2092, minY = 3928, maxY = 3960, center = { x = 2052.0, y = 3944.0 } },
+            [595] = { minX = 2044, maxX = 2212, minY = 3900, maxY = 3928, center = { x = 2128.0, y = 3914.0 } },
+            [596] = { minX = 2148, maxX = 2212, minY = 3844, maxY = 3880, center = { x = 2180.0, y = 3862.0 } },
+            [597] = { minX = 2000, maxX = 2092, minY = 3960, maxY = 4000, center = { x = 2046.0, y = 3980.0 } },
+            [598] = { minX = 2308, maxX = 2396, minY = 4000, maxY = 4056, center = { x = 2352.0, y = 4028.0 } },
+            [599] = { minX = 2308, maxX = 2384, minY = 4056, maxY = 4100, center = { x = 2346.0, y = 4078.0 } },
+            [600] = { minX = 2308, maxX = 2432, minY = 4100, maxY = 4500, center = { x = 2370.0, y = 4300.0 } },
+            [601] = { minX = 2000, maxX = 2308, minY = 4000, maxY = 4500, center = { x = 2154.0, y = 4250.0 } },
+            [602] = { minX = 2092, maxX = 2308, minY = 4500, maxY = 4676, center = { x = 2200.0, y = 4588.0 } },
+            [603] = { minX = 2308, maxX = 2432, minY = 4500, maxY = 4598, center = { x = 2370.0, y = 4549.0 } },
+            [605] = { minX = 2000, maxX = 2092, minY = 4500, maxY = 4580, center = { x = 2046.0, y = 4540.0 } },
+            [486] = { minX = 740, maxX = 848, minY = 3624, maxY = 4000, center = { x = 794.0, y = 3812.0 } },
+            [487] = { minX = 500, maxX = 740, minY = 3596, maxY = 4000, center = { x = 620.0, y = 3798.0 } },
+            [488] = { minX = 848, maxX = 1000, minY = 3636, maxY = 4000, center = { x = 924.0, y = 3818.0 } },
+            [489] = { minX = 500, maxX = 1000, minY = 4000, maxY = 4224, center = { x = 750.0, y = 4112.0 } },
+            [490] = { minX = 840, maxX = 1000, minY = 4224, maxY = 4380, center = { x = 920.0, y = 4302.0 } },
+            [364] = { minX = -172, maxX = -148, minY = 3908, maxY = 3932, center = { x = -160.0, y = 3920.0 } },
+            [365] = { minX = -212, maxX = -148, minY = 3840, maxY = 3864, center = { x = -180.0, y = 3852.0 } },
+            [366] = { minX = -208, maxX = -148, minY = 3864, maxY = 3900, center = { x = -178.0, y = 3882.0 } },
+            [368] = { minX = -100, maxX = -20, minY = 3728, maxY = 3764, center = { x = -60.0, y = 3746.0 } },
+            [360] = { minX = -16, maxX = 0, minY = 3808, maxY = 4000, center = { x = -8.0, y = 3904.0 } },
+            [362] = { minX = -176, maxX = -16, minY = 3932, maxY = 4000, center = { x = -96.0, y = 3966.0 } },
+            [371] = { minX = -108, maxX = -16, minY = 3764, maxY = 3932, center = { x = -62.0, y = 3848.0 } },
+            [372] = { minX = -16, maxX = 0, minY = 4000, maxY = 4416, center = { x = -8.0, y = 4208.0 } },
+            [373] = { minX = -176, maxX = -16, minY = 4000, maxY = 4064, center = { x = -96.0, y = 4032.0 } },
+            [374] = { minX = -216, maxX = -176, minY = 4012, maxY = 4064, center = { x = -196.0, y = 4038.0 } },
+            [375] = { minX = -228, maxX = -212, minY = 4064, maxY = 4088, center = { x = -220.0, y = 4076.0 } },
+            [376] = { minX = -212, maxX = -16, minY = 4064, maxY = 4256, center = { x = -114.0, y = 4160.0 } },
+            [454] = { minX = 0, maxX = 104, minY = 4000, maxY = 4416, center = { x = 52.0, y = 4208.0 } },
+            [363] = { minX = -148, maxX = -108, minY = 3796, maxY = 3932, center = { x = -128.0, y = 3864.0 } },
+            [506] = { minX = 1000, maxX = 1304, minY = 3636, maxY = 4000, center = { x = 1152.0, y = 3818.0 } },
+            [507] = { minX = 1304, maxX = 1500, minY = 3676, maxY = 3796, center = { x = 1402.0, y = 3736.0 } },
+            [361] = { minX = -16, maxX = 0, minY = 3768, maxY = 3808, center = { x = -8.0, y = 3788.0 } }
+        },
+        Calm_Quads = {
+            [346] = { minX = 1384, maxX = 1500, minY = 3724, maxY = 3848, center = { x = 1442.0, y = 3786.0 } },
+            [347] = { minX = 1500, maxX = 2016, minY = 3796, maxY = 3944, center = { x = 1758.0, y = 3870.0 } },
+            [344] = { minX = 948, maxX = 1260, minY = 3564, maxY = 3684, center = { x = 1104.0, y = 3624.0 } }
+        }
+    }
+}
+
+local MODIFIED_QUADS = {
+    alamo_sea = {
+        Water_Quads = {
+            [544] = { minX = 1816, maxX = 1932, minY = 3986, maxY = 3992 },
+            [508] = { minX = 1304, maxX = 1500, minY = 3796, maxY = 4000 },
+            [488] = { minX = 848, maxX = 1000, minY = 3653, maxY = 4000 },
+            [506] = { minX = 1000, maxX = 1304, minY = 3653, maxY = 4000 }
+        },
+        Calm_Quads = {
+            [346] = { minX = 1384, maxX = 1500, minY = 3724, maxY = 3898, dampening = 0.0 },
+            [347] = { dampening = 0.0 },
+            [344] = { minX = 948, maxX = 1260, minY = 3663, maxY = 3684, dampening = 0.0 }
+        }
+    }
+}
+
+local missingWaterQuads = {}
+local missingCalmQuads = {}
+
+local QUAD_MATCH_TOLERANCE = 10.0
+
+local function debugLog(message)
+    if Config.Debug then
+        print("[water_edit] " .. message)
     end
-  end
-  L5_2 = GetWaterQuadAtCoords
-  L6_2 = L3_2
-  L7_2 = L4_2
-  L5_2 = L5_2(L6_2, L7_2)
-  ::lbl_28::
-  if -1 ~= L5_2 then
-    L6_2 = nil
-    L7_2 = nil
-    L8_2 = nil
-    L9_2 = nil
-    L10_2 = nil
-    if A1_2 then
-      L11_2 = GetCalmingQuadBounds
-      L12_2 = L5_2
-      L11_2, L12_2, L13_2, L14_2, L15_2 = L11_2(L12_2)
-      L10_2 = L15_2
-      L9_2 = L14_2
-      L8_2 = L13_2
-      L7_2 = L12_2
-      L6_2 = L11_2
+end
+
+local function getWaterQuadBounds(quadId)
+    local found, minX, minY, maxX, maxY = GetWaterQuadBounds(quadId)
+    if found and minX and minY and maxX and maxY then
+        return {
+            minX = minX,
+            minY = minY,
+            maxX = maxX,
+            maxY = maxY
+        }
+    end
+    return nil
+end
+
+local function calculateOverlap(minX1, minY1, maxX1, maxY1, minX2, minY2, maxX2, maxY2)
+    if not (minX1 and minY1 and maxX1 and maxY1 and minX2 and minY2 and maxX2 and maxY2) then
+        debugLog("Error: Valores nil en CalculateOverlap")
+        return 0.0
+    end
+
+    minX1 = tonumber(minX1)
+    minY1 = tonumber(minY1)
+    maxX1 = tonumber(maxX1)
+    maxY1 = tonumber(maxY1)
+    minX2 = tonumber(minX2)
+    minY2 = tonumber(minY2)
+    maxX2 = tonumber(maxX2)
+    maxY2 = tonumber(maxY2)
+
+    if not (minX1 and minY1 and maxX1 and maxY1 and minX2 and minY2 and maxX2 and maxY2) then
+        debugLog("Error: No se pudieron convertir valores a números en CalculateOverlap")
+        return 0.0
+    end
+
+    local interMinX = math.max(minX1, minX2)
+    local interMinY = math.max(minY1, minY2)
+    local interMaxX = math.min(maxX1, maxX2)
+    local interMaxY = math.min(maxY1, maxY2)
+
+    if interMinX > interMaxX or interMinY > interMaxY then
+        return 0.0
+    end
+
+    local area1 = (maxX1 - minX1) * (maxY1 - minY1)
+    local area2 = (maxX2 - minX2) * (maxY2 - minY2)
+    local interArea = (interMaxX - interMinX) * (interMaxY - interMinY)
+
+    if area1 <= 0 or area2 <= 0 then
+        return 0.0
+    end
+
+    return interArea / math.min(area1, area2)
+end
+
+local function boundsMatch(minX, minY, maxX, maxY, referenceBounds, tolerance)
+    local refMinX = tonumber(referenceBounds.minX)
+    local refMinY = tonumber(referenceBounds.minY)
+    local refMaxX = tonumber(referenceBounds.maxX)
+    local refMaxY = tonumber(referenceBounds.maxY)
+    if not (refMinX and refMinY and refMaxX and refMaxY) then
+        return false
+    end
+
+    return math.abs(minX - refMinX) <= tolerance
+        and math.abs(minY - refMinY) <= tolerance
+        and math.abs(maxX - refMaxX) <= tolerance
+        and math.abs(maxY - refMaxY) <= tolerance
+end
+
+local function queryQuadAtPoint(x, y, isCalmQuad)
+    local quadId
+    if isCalmQuad then
+        quadId = GetCalmingQuadAtCoords(x, y)
     else
-      L11_2 = GetWaterQuadBounds
-      L12_2 = L5_2
-      L11_2, L12_2, L13_2, L14_2, L15_2 = L11_2(L12_2)
-      L10_2 = L15_2
-      L9_2 = L14_2
-      L8_2 = L13_2
-      L7_2 = L12_2
-      L6_2 = L11_2
+        quadId = GetWaterQuadAtCoords(x, y)
     end
-    if L6_2 and L7_2 and L8_2 and L9_2 and L10_2 then
-      L11_2 = 10.0
-      L12_2 = tonumber
-      L13_2 = A0_2.minX
-      L12_2 = L12_2(L13_2)
-      L13_2 = tonumber
-      L14_2 = A0_2.minY
-      L13_2 = L13_2(L14_2)
-      L14_2 = tonumber
-      L15_2 = A0_2.maxX
-      L14_2 = L14_2(L15_2)
-      L15_2 = tonumber
-      L16_2 = A0_2.maxY
-      L15_2 = L15_2(L16_2)
-      L16_2 = math
-      L16_2 = L16_2.abs
-      L17_2 = L7_2 - L12_2
-      L16_2 = L16_2(L17_2)
-      L16_2 = L11_2 >= L16_2
-      if L16_2 then
-        L17_2 = L4_1
-        L18_2 = string
-        L18_2 = L18_2.format
-        L19_2 = "Quad %d encontrado y coincide"
-        L20_2 = L5_2
-        L18_2, L19_2, L20_2 = L18_2(L19_2, L20_2)
-        L17_2(L18_2, L19_2, L20_2)
-        return L5_2
-      end
+
+    if quadId == nil or quadId == -1 then
+        return -1, false, nil, nil, nil, nil
     end
-  end
-  if -1 ~= L5_2 then
-    L6_2 = matches
-    if L6_2 then
-      goto lbl_133
+
+    local found, minX, minY, maxX, maxY
+    if isCalmQuad then
+        found, minX, minY, maxX, maxY = GetCalmingQuadBounds(quadId)
+    else
+        found, minX, minY, maxX, maxY = GetWaterQuadBounds(quadId)
     end
-  end
-  if A1_2 then
-    L6_2 = table
-    L6_2 = L6_2.insert
-    L7_2 = L3_1
-    L8_2 = A2_2
-    L6_2(L7_2, L8_2)
-  else
-    L6_2 = table
-    L6_2 = L6_2.insert
-    L7_2 = L2_1
-    L8_2 = A2_2
-    L6_2(L7_2, L8_2)
-  end
-  L6_2 = nil
-  do return L6_2 end
-  ::lbl_133::
-  return L5_2
+
+    return quadId, found, minX, minY, maxX, maxY
 end
-function L8_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-  L2_2 = L0_1
-  L2_2 = L2_2[A0_2]
-  if not L2_2 then
-    return
-  end
-  L2_2 = A1_2.waterLevel
-  L3_2 = A1_2.waterAlpha
-  L4_2 = L4_1
-  L5_2 = "Iniciando actualizaci\195\179n de zona: "
-  L6_2 = A0_2
-  L5_2 = L5_2 .. L6_2
-  L4_2(L5_2)
-  L4_2 = pairs
-  L5_2 = L0_1
-  L5_2 = L5_2[A0_2]
-  L5_2 = L5_2.Water_Quads
-  L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-  for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-    L10_2 = L7_1
-    L11_2 = L9_2
-    L12_2 = false
-    L13_2 = L8_2
-    L10_2 = L10_2(L11_2, L12_2, L13_2)
-    if L10_2 then
-      if L2_2 then
-        L11_2 = SetWaterQuadLevel
-        L12_2 = L10_2
-        L13_2 = L2_2
-        L11_2(L12_2, L13_2)
-      end
-      if L3_2 then
-        L11_2 = SetWaterQuadAlpha
-        L12_2 = L10_2
-        L13_2 = L3_2
-        L14_2 = L3_2
-        L15_2 = L3_2
-        L16_2 = L3_2
-        L11_2(L12_2, L13_2, L14_2, L15_2, L16_2)
-      end
-      L11_2 = L1_1
-      L11_2 = L11_2[A0_2]
-      if L11_2 then
-        L11_2 = L1_1
-        L11_2 = L11_2[A0_2]
-        L11_2 = L11_2.Water_Quads
-        if L11_2 then
-          L11_2 = L1_1
-          L11_2 = L11_2[A0_2]
-          L11_2 = L11_2.Water_Quads
-          L11_2 = L11_2[L8_2]
-          if L11_2 then
-            L11_2 = L1_1
-            L11_2 = L11_2[A0_2]
-            L11_2 = L11_2.Water_Quads
-            L11_2 = L11_2[L8_2]
-            L12_2 = SetWaterQuadBounds
-            L13_2 = L10_2
-            L14_2 = L11_2.minX
-            L15_2 = L11_2.minY
-            L16_2 = L11_2.maxX
-            L17_2 = L11_2.maxY
-            L12_2(L13_2, L14_2, L15_2, L16_2, L17_2)
-          end
+
+local function findMatchingQuad(originalQuadData, isCalmQuad, quadKey, modifiedQuadData)
+    if not originalQuadData then
+        debugLog("Error: originalQuadData es nil")
+        return nil
+    end
+
+    local centerX = tonumber(originalQuadData.center.x)
+    local centerY = tonumber(originalQuadData.center.y)
+    local quadId, found, minX, minY, maxX, maxY = queryQuadAtPoint(centerX, centerY, isCalmQuad)
+
+    if quadId ~= -1 and found and minX and minY and maxX and maxY then
+        if boundsMatch(minX, minY, maxX, maxY, originalQuadData, QUAD_MATCH_TOLERANCE) then
+            debugLog(string.format("Quad %d encontrado y coincide", quadId))
+            return quadId
         end
-      end
     end
-  end
-  L4_2 = pairs
-  L5_2 = L0_1
-  L5_2 = L5_2[A0_2]
-  L5_2 = L5_2.Calm_Quads
-  if not L5_2 then
-    L5_2 = {}
-  end
-  L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-  for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-    L10_2 = L7_1
-    L11_2 = L9_2
-    L12_2 = true
-    L13_2 = L8_2
-    L10_2 = L10_2(L11_2, L12_2, L13_2)
-    if L10_2 then
-      L11_2 = L1_1
-      L11_2 = L11_2[A0_2]
-      if L11_2 then
-        L11_2 = L1_1
-        L11_2 = L11_2[A0_2]
-        L11_2 = L11_2.Calm_Quads
-        if L11_2 then
-          L11_2 = L1_1
-          L11_2 = L11_2[A0_2]
-          L11_2 = L11_2.Calm_Quads
-          L11_2 = L11_2[L8_2]
-          if L11_2 then
-            L11_2 = L1_1
-            L11_2 = L11_2[A0_2]
-            L11_2 = L11_2.Calm_Quads
-            L11_2 = L11_2[L8_2]
-            L12_2 = L11_2.dampening
-            if L12_2 then
-              L12_2 = SetCalmingQuadDampening
-              L13_2 = L10_2
-              L14_2 = L11_2.dampening
-              L12_2(L13_2, L14_2)
+
+    -- Fallback dla restartu zasobu w trakcie trwającej sesji (gdy granice
+    -- quada zostały już wcześniej przesunięte do wartości z MODIFIED_QUADS)
+    if modifiedQuadData and modifiedQuadData.minX and modifiedQuadData.minY and modifiedQuadData.maxX and modifiedQuadData.maxY then
+        local modCenterX = (tonumber(modifiedQuadData.minX) + tonumber(modifiedQuadData.maxX)) * 0.5
+        local modCenterY = (tonumber(modifiedQuadData.minY) + tonumber(modifiedQuadData.maxY)) * 0.5
+        local modQuadId, modFound, modMinX, modMinY, modMaxX, modMaxY = queryQuadAtPoint(modCenterX, modCenterY, isCalmQuad)
+
+        if modQuadId ~= -1 and modFound and modMinX and modMinY and modMaxX and modMaxY then
+            if boundsMatch(modMinX, modMinY, modMaxX, modMaxY, modifiedQuadData, QUAD_MATCH_TOLERANCE) then
+                debugLog(string.format("Quad %d encontrado y coincide", modQuadId))
+                return modQuadId
             end
-            L12_2 = L11_2.minX
-            if L12_2 then
-              L12_2 = L11_2.minY
-              if L12_2 then
-                L12_2 = L11_2.maxX
-                if L12_2 then
-                  L12_2 = L11_2.maxY
-                  if L12_2 then
-                    L12_2 = SetCalmingQuadBounds
-                    L13_2 = L10_2
-                    L14_2 = L11_2.minX
-                    L15_2 = L11_2.minY
-                    L16_2 = L11_2.maxX
-                    L17_2 = L11_2.maxY
-                    L12_2(L13_2, L14_2, L15_2, L16_2, L17_2)
-                  end
-                end
-              end
-            end
-          end
         end
-      end
     end
-  end
-  L4_2 = {}
-  L2_1 = L4_2
-  L4_2 = {}
-  L3_1 = L4_2
-  L4_2 = L4_1
-  L5_2 = "Finalizada actualizaci\195\179n de zona: "
-  L6_2 = A0_2
-  L5_2 = L5_2 .. L6_2
-  L4_2(L5_2)
+
+    if isCalmQuad then
+        table.insert(missingCalmQuads, quadKey)
+    else
+        table.insert(missingWaterQuads, quadKey)
+    end
+    return nil
 end
-L9_1 = _ENV
-L10_1 = "CreateThread"
-L9_1 = L9_1[L10_1]
-function L10_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2
-  L0_2 = L4_1
-  L1_2 = "Starting water zones configuration"
-  L0_2(L1_2)
-  L0_2 = {}
-  L1_2 = {}
-  L1_2.name = "Quad [52]"
-  L1_2.x = 1076.0
-  L1_2.y = 3930.0
-  L2_2 = {}
-  L2_2.name = "Calm [344]"
-  L2_2.x = 1104.0
-  L2_2.y = 3624.0
-  L0_2[1] = L1_2
-  L0_2[2] = L2_2
-  L1_2 = ipairs
-  L2_2 = L0_2
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = GetWaterQuadAtCoords
-    L8_2 = L6_2.x
-    L9_2 = L6_2.y
-    L7_2 = L7_2(L8_2, L9_2)
-    L8_2 = GetCalmingQuadAtCoords
-    L9_2 = L6_2.x
-    L10_2 = L6_2.y
-    L8_2 = L8_2(L9_2, L10_2)
-    L9_2 = L4_1
-    L10_2 = string
-    L10_2 = L10_2.format
-    L11_2 = "%s at (%.1f, %.1f): WaterQuad=%d, CalmQuad=%d"
-    L12_2 = L6_2.name
-    L13_2 = L6_2.x
-    L14_2 = L6_2.y
-    L15_2 = L7_2
-    L16_2 = L8_2
-    L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2 = L10_2(L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-    L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
-    if -1 ~= L7_2 then
-      L9_2 = GetWaterQuadBounds
-      L10_2 = L7_2
-      L9_2, L10_2, L11_2, L12_2 = L9_2(L10_2)
-      L13_2 = L4_1
-      L14_2 = string
-      L14_2 = L14_2.format
-      L15_2 = "  WaterQuad %d bounds: minX=%.0f, minY=%.0f, maxX=%.0f, maxY=%.0f"
-      L16_2 = L7_2
-      L17_2 = L9_2
-      L18_2 = L10_2
-      L19_2 = L11_2
-      L20_2 = L12_2
-      L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2 = L14_2(L15_2, L16_2, L17_2, L18_2, L19_2, L20_2)
-      L13_2(L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
+
+local function updateWaterZone(zoneName, zoneConfig)
+    local originalZone = ORIGINAL_QUADS[zoneName]
+    if not originalZone then
+        return
     end
-    if -1 ~= L8_2 then
-      L9_2 = GetCalmingQuadBounds
-      L10_2 = L8_2
-      L9_2, L10_2, L11_2, L12_2, L13_2 = L9_2(L10_2)
-      if L9_2 then
-        L14_2 = L4_1
-        L15_2 = string
-        L15_2 = L15_2.format
-        L16_2 = "  CalmQuad %d bounds: minX=%.0f, minY=%.0f, maxX=%.0f, maxY=%.0f"
-        L17_2 = L8_2
-        L18_2 = L10_2
-        L19_2 = L11_2
-        L20_2 = L12_2
-        L21_2 = L13_2
-        L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2 = L15_2(L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
-        L14_2(L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2)
-      end
+
+    local waterLevel = zoneConfig.waterLevel
+    local waterAlpha = zoneConfig.waterAlpha
+    local modifiedZone = MODIFIED_QUADS[zoneName]
+
+    debugLog("Iniciando actualización de zona: " .. zoneName)
+
+    for quadKey, originalQuad in pairs(originalZone.Water_Quads) do
+        local modifiedQuad = modifiedZone and modifiedZone.Water_Quads and modifiedZone.Water_Quads[quadKey] or nil
+        local quadId = findMatchingQuad(originalQuad, false, quadKey, modifiedQuad)
+
+        if quadId then
+            if waterLevel then
+                SetWaterQuadLevel(quadId, waterLevel)
+            end
+            if waterAlpha then
+                SetWaterQuadAlpha(quadId, waterAlpha, waterAlpha, waterAlpha, waterAlpha)
+            end
+            if modifiedQuad then
+                SetWaterQuadBounds(
+                    quadId,
+                    modifiedQuad.minX,
+                    modifiedQuad.minY,
+                    modifiedQuad.maxX,
+                    modifiedQuad.maxY
+                )
+            end
+        end
     end
-  end
-  L1_2 = pairs
-  L2_2 = Config
-  L2_2 = L2_2.Zones
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = L6_2.enable
-    if L7_2 then
-      L7_2 = L8_1
-      L8_2 = L5_2
-      L9_2 = L6_2
-      L7_2(L8_2, L9_2)
+
+    for quadKey, originalQuad in pairs(originalZone.Calm_Quads or {}) do
+        local modifiedQuad = modifiedZone and modifiedZone.Calm_Quads and modifiedZone.Calm_Quads[quadKey] or nil
+        local quadId = findMatchingQuad(originalQuad, true, quadKey, modifiedQuad)
+
+        if quadId and modifiedQuad then
+            if modifiedQuad.dampening then
+                SetCalmingQuadDampening(quadId, modifiedQuad.dampening)
+            end
+            if modifiedQuad.minX and modifiedQuad.minY and modifiedQuad.maxX and modifiedQuad.maxY then
+                SetCalmingQuadBounds(
+                    quadId,
+                    modifiedQuad.minX,
+                    modifiedQuad.minY,
+                    modifiedQuad.maxX,
+                    modifiedQuad.maxY
+                )
+            end
+        end
     end
-  end
+
+    missingWaterQuads = {}
+    missingCalmQuads = {}
+    debugLog("Finalizada actualización de zona: " .. zoneName)
 end
-L9_1(L10_1)
+
+CreateThread(function()
+    debugLog("Starting water zones configuration")
+
+    local diagnosticPoints = {
+        { name = "Quad [52]", x = 1076.0, y = 3930.0 },
+        { name = "Calm [344]", x = 1104.0, y = 3624.0 }
+    }
+
+    for _, point in ipairs(diagnosticPoints) do
+        local waterQuad = GetWaterQuadAtCoords(point.x, point.y)
+        local calmQuad = GetCalmingQuadAtCoords(point.x, point.y)
+        debugLog(string.format(
+            "%s at (%.1f, %.1f): WaterQuad=%d, CalmQuad=%d",
+            point.name, point.x, point.y, waterQuad, calmQuad
+        ))
+
+        if waterQuad ~= -1 then
+            local found, minX, minY, maxX, maxY = GetWaterQuadBounds(waterQuad)
+            if found then
+                debugLog(string.format(
+                    "  WaterQuad %d bounds: minX=%.0f, minY=%.0f, maxX=%.0f, maxY=%.0f",
+                    waterQuad, minX, minY, maxX, maxY
+                ))
+            end
+        end
+
+        if calmQuad ~= -1 then
+            local found, minX, minY, maxX, maxY = GetCalmingQuadBounds(calmQuad)
+            if found then
+                debugLog(string.format(
+                    "  CalmQuad %d bounds: minX=%.0f, minY=%.0f, maxX=%.0f, maxY=%.0f",
+                    calmQuad, minX, minY, maxX, maxY
+                ))
+            end
+        end
+    end
+
+    for zoneName, zoneConfig in pairs(Config.Zones) do
+        if zoneConfig.enable then
+            updateWaterZone(zoneName, zoneConfig)
+        end
+    end
+end)

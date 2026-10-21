@@ -4,7 +4,7 @@
 -- strzałki pięter, sterowanie przez strefy (open.lua) i state-bag
 -- "elevator" (stan pilnuje serwer, patrz server/server.lua).
 --
--- Plik przepisany z zapisu dekompilatora (L0_1/A0_2/goto lbl_N)
+-- Plik przepisany z zapisu dekompilatora
 -- na czytelny kod. Zachowano: wszystkie nazwy globalne (open.lua
 -- używa getNearestFloor/SelectFloor/CallElevator), eventy, czasy,
 -- współrzędne, kolejność wywołań native. Patrz ANALIZA.md, rozdz. 13.

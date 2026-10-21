@@ -823,3 +823,113 @@ dokumentacyjne).
   checkera.
 
 Uwaga: `stream/` jak zawsze nietknięte (trwała decyzja właściciela).
+
+## 14. Runda: `prompt_sandy_bank`, `cfx_chuz_sandy_shores_boat_house`, `prompt_sandy_beaches`
+
+Data: 2026-10-21. Zakres: trzy nowe interiory z commitu `add bank, boat house, beaches`:
+- **`prompt_sandy_bank`** (Sandy Shores Bank — `"Bank"` w rejestrze `all_data_full`),
+- **`cfx_chuz_sandy_shores_boat_house`** (Boat House — `"Boathouse"` w rejestrze `all_data_full`),
+- **`prompt_sandy_beaches`** (Sandy Shores Marina — `"Marina"` w rejestrze `all_data_full`),
+
+plus usunięcie ostatnich wzmianek wzorców dekompilatora nawet z komentarzy nagłówkowych starszych
+plików Lua (zero trafień w całym repozytorium — 57/57 plików `.lua` poza `stream/`).
+
+### 14.1. `sv_loader.lua` → lokalny `sv_mapdata.lua` (wszystkie 3 nowe interiory)
+
+- **Usunięte:**
+  - `prompt_sandy_bank/sv_loader.lua` (jawny kod dekompilatora ze zdalnym `load()` i telemetrią z 7.1),
+  - `prompt_sandy_beaches/sv_loader.lua` (jawny kod dekompilatora jw.),
+  - `cfx_chuz_sandy_shores_boat_house/sv_loader.lua` (zaszyfrowany binarnie nagłówkiem `FXAP\x01`, 2150 B).
+- **Dodane:** lokalne `sv_mapdata.lua` (wzór 1:1 z `church`/`cityhall`/`sheriff`/`apts`/`hospital2`/`market`/`fire2`),
+  rejestrujące wyłącznie lokalne handlery wykrywania (`<MAP_ID>:mapExists`, `promptmap:i_exist_<MAP_ID>`,
+  `promptmap:locations_<MAP_ID>`, `<MAP_ID>:mapFullNameSend`, pusty `<MAP_ID>:mapFinal`) z wywołaniem
+  callbacku przez `pcall`:
+  - `prompt_sandy_bank/sv_mapdata.lua` → `MAP_ID = "prompt_sandy_bank"`, `MAP_NAME = "Bank"`, `MAP_LOCATIONS = { "sandy" }`,
+  - `cfx_chuz_sandy_shores_boat_house/sv_mapdata.lua` → `MAP_ID = "cfx_chuz_sandy_shores_boat_house"`, `MAP_NAME = "Boathouse"`, `MAP_LOCATIONS = { "sandy" }`,
+  - `prompt_sandy_beaches/sv_mapdata.lua` → `MAP_ID = "prompt_sandy_beaches"`, `MAP_NAME = "Marina"`, `MAP_LOCATIONS = { "sandy" }`.
+  Nazwy `MAP_ID`/`MAP_NAME`/`MAP_LOCATIONS` zweryfikowano bezpośrednio względem aktualnego `all_data_full`
+  z `Prompt-Coder/mapdatachecker` oraz `PROMPT_MAP_REGISTRY` w `prompt_sandy_illegal_garage/server/server.lua`.
+- **Manifesty (`fxmanifest.lua`):** podmieniono `sv_loader.lua` → `sv_mapdata.lua` we wszystkich trzech zasobach;
+  w `prompt_sandy_beaches/fxmanifest.lua` usunięto zduplikowane `dependency '/assetpacks'`;
+  w `cfx_chuz_sandy_shores_boat_house/fxmanifest.lua` dopisano `'sv_mapdata.lua'` do `escrow_ignore`.
+- **Komendy ACE:** żaden z trzech nowych interiorów nie rejestruje własnych komend (`RegisterCommand`),
+  więc pula komend pakietu objętych `command.sandyshores` pozostaje kompletna.
+
+### 14.2. ⚠️ Ważna uwaga dot. Asset Escrow w `cfx_chuz_sandy_shores_boat_house`
+
+W odróżnieniu od `prompt_sandy_bank` i `prompt_sandy_beaches` (które przeszły wcześniej przez LuaClear),
+zasób `cfx_chuz_sandy_shores_boat_house` został dodany **w postaci zaszyfrowanej CFX Asset Escrow**:
+- w katalogu głównym zasobu znajduje się plik `.fxap` (185 B, nagłówek `FXAP\x01`), którego **celowo nie usuwano**,
+- usunięty `sv_loader.lua` również miał nagłówek `FXAP\x01` (2150 B), co wskazuje, że pliki modeli
+  w `stream/locked/*` są nadal zaszyfrowane escrowem.
+
+Skutek praktyczny:
+- **jeśli klucz licencyjny serwera posiada uprawnienie Keymaster do `cfx_chuz_sandy_shores_boat_house`** —
+  pozostawiony `.fxap` pozwoli FXServerowi odszyfrować `stream/locked/*`, a jawny `sv_mapdata.lua` zadziała
+  normalnie bez zdalnego kodu i bez dublowania raportu mapdata;
+- **jeśli serwer NIE ma licencji Keymaster na ten zasób** — FXServer zgłosi `You lack the required entitlement`
+  dla zaszyfrowanych assetów i zasób trzeba najpierw odszyfrować tak samo jak pozostałe interiory
+  (zachowując po odszyfrowaniu obecny `fxmanifest.lua` i `sv_mapdata.lua`).
+
+### 14.3. Przepisane pliki Lua w `prompt_sandy_beaches` (czysty kod Lua + naprawy błędów)
+
+Wszystkie 4 pliki skryptowe w `prompt_sandy_beaches` były w zapisie dekompilatora (`L0_1`, `A0_2`, `goto lbl_N`)
+i zostały w całości przepisane na czytelny, idiomatyczny kod Lua:
+
+| Plik | Przed | Po | Zakres |
+|---|---|---|---|
+| `prompt_sandy_beaches/config.lua` | 16 linii | 22 | `Config.Debug`, `Config.EnablePromptSupporter`, `Config.Zones.alamo_sea` (1:1) |
+| `prompt_sandy_beaches/weather_prop_controllers.lua` | 44 linie | 19 | ustawianie convaru `"Prompt supporter"` (1:1) |
+| `prompt_sandy_beaches/weather_prop_controller.lua` | 416 linii | 246 | 4 warianty dynamicznych propów przy rampie łodzi (pogoda + pora dnia + dystans) |
+| `prompt_sandy_beaches/client.lua` | 1444 linie | 382 | konfiguracja 78 `Water_Quads` + 3 `Calm_Quads` dla Alamo Sea |
+
+### 14.4. Wykryte i naprawione błędy w `prompt_sandy_beaches`
+
+1. 🔴 **Krytyczny crash wątku startowego w `client.lua` (woda w ogóle się nie konfigurowała!):**
+   - Natywka FiveM `GetWaterQuadBounds(quadId)` zwraca **5 wartości**: `found (bool), minX, minY, maxX, maxY`
+     — identycznie jak `GetCalmingQuadBounds` (potwierdzone bezpośrednio w źródłach C++ `citizenfx/fivem`:
+     `code/components/extra-natives-five/src/WaterExtraNatives.cpp` oraz testem na żywym runtime Lua 5.4).
+   - W wątku `CreateThread` (oraz w helperze `getWaterQuadBounds`) autor rozpakował tylko **4 zmienne**:
+     `minX, minY, maxX, maxY = GetWaterQuadBounds(waterQuad)` i wywołał
+     `string.format("  WaterQuad %d bounds: minX=%.0f, ...", waterQuad, minX, ...)` **przed** wejściem do `debugLog`
+     (czyli nawet przy `Config.Debug = false`!).
+   - Ponieważ dla punktu diagnostycznego `(1076.0, 3930.0)` `waterQuad = 506 ~= -1`, `minX` dostawało wartość
+     `true` (`boolean`), a Lua 5.4 rzucała nieobsłużony wyjątek:
+     `bad argument #3 to 'format' (number expected, got boolean)` — **zabijając cały wątek zanim pętla
+     `for zoneName, zoneConfig in pairs(Config.Zones)` zdążyła wykonać choćby jedną zmianę wody w Alamo Sea!**
+   - **Naprawa:** rozpakowanie pełnych 5 wartości `local found, minX, minY, maxX, maxY = GetWaterQuadBounds(...)`
+     ze sprawdzeniem `if found then ... end` zarówno w `CreateThread`, jak i w `getWaterQuadBounds`.
+
+2. 🟠 **Rekonstrukcja uszkodzonego przez dekompilator warunku `matches` w `findMatchingQuad` (`client.lua`):**
+   - Dekompilator LuaClear uszkodził 4-członową koniunkcję porównującą granice quada (ten sam typ uszkodzenia co w rozdz. 2):
+     zostawił jedynie `math.abs(minX - origMinX) <= 10.0` (mimo zdekodowania `origMinY`, `origMaxX`, `origMaxY` oraz
+     `minY`, `maxX`, `maxY` tuż wyżej), a kilka linii niżej odwołał się do **niezadeklarowanej zmiennej globalnej `matches`**.
+   - Przy niestandardowym `water.xml` (np. połączony `WaterQuad[52]` o `minX = 848, maxX = 1304, maxY = 4224` z pliku
+     referencyjnego `prompt_sandy_beaches/water.xml`) samo sprawdzenie `minX == 848` błędnie dopasowywałoby połączony quad
+     jako quad `488` i przycinało go do `maxX = 1000, maxY = 4000`, osuszając duży fragment jeziora.
+   - **Naprawa:** odtworzono pełne sprawdzenie wszystkich 4 granic (`minX`, `minY`, `maxX`, `maxY` w tolerancji `10.0`)
+     oraz dodano bezpieczny fallback dopasowujący również granice docelowe z `MODIFIED_QUADS`, dzięki czemu
+     żywy restart zasobu (`/restart prompt_sandy_beaches`) w trakcie sesji nadal poprawnie rozpoznaje i aktualizuje
+     wszystkie 78 quadów (także te o przesuniętym już brzegu).
+
+3. 🟡 **Poprawki odporności w `weather_prop_controller.lua`:**
+   - Jawne 6 argumentów `Vdist(playerCoords.x, playerCoords.y, playerCoords.z, coords.x, coords.y, coords.z)`.
+   - Limit czasu `5000 ms` przy `RequestModel`/`HasModelLoaded` + sprawdzenie `IsModelInCdimage` oraz
+     `SetModelAsNoLongerNeeded` po utworzeniu obiektu (brakujący model nie zawiesi wątku w pętli `Wait(1)`).
+   - Dodany handler `onResourceStop` usuwający zespawnowane propy (`SetEntityAsMissionEntity`), aby restart
+     zasobu nie zostawiał osieroconych duplikatów na rampie łodzi.
+
+### 14.5. Weryfikacja
+
+- **Parser AST (`luaparser`):** **57/57** wszystkich plików `.lua` poza `stream/` w całym repozytorium przechodzi parsowanie bez błędów.
+- **Czystość kodu:** **0** plików `sv_loader.lua` i **0** wystąpień wzorców dekompilatora (`L0_1`, `A0_2`, `lbl_`) w całym repozytorium (również w komentarzach).
+- **Harness Lua 5.4 (`lupa.lua54`) — 34/34 sprawdzeń PASS:**
+  - zgodność 1:1 danych i logiki wszystkich przepisanych plików z wersją z `HEAD` (wszystkie 78 `Water_Quads`,
+    3 `Calm_Quads`, 4 zmodyfikowane `Water_Quads`, 3 zmodyfikowane `Calm_Quads`, `config.lua`, oba warianty `weather_prop_controllers.lua`),
+  - pełne wykonanie wątku startowego `client.lua` (zarówno przy `Config.Debug = false`, jak i `Config.Debug = true`),
+    żywy restart zasobu z nowymi parametrami `waterLevel`/`waterAlpha` oraz ochrona przed fałszywym dopasowaniem połączonego `WaterQuad[52]`,
+  - pełny cykl `weather_prop_controller.lua` (`sunny` → `rainy` → `storm` → `moon_clear` → wyjście poza 50 m → sprzątanie `onResourceStop`),
+  - integracja wszystkich **11 zainstalowanych map Sandy** + `cfx_prompt_sandy_mapdata`: pojedynczy wydruk raportu,
+    `Bank`, `Marina` i `Boathouse` znikają z listy `Missing`, a wygenerowany link ma dokładną postać:
+    `https://vertex-hub.com/prompt/map-data/sandy-rework/Firestation2+Hospital2+Apts+Bank+Market+Gas+Church+Cityhall+Marina+Boathouse+Sheriff`.
+- **Stan repozytorium:** zero zmian w jakimkolwiek folderze `stream/`.
