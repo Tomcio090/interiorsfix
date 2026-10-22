@@ -1,0 +1,71 @@
+<!--
+    FiveVault - The #1 FiveM & RedM Resource Hub
+    Website: https://fivevault.net
+    Discord: https://discord.gg/fivevault
+-->
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>LSPD Digital Archive</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="../shell/nui.js"></script>
+</head>
+
+<body>
+    <div id="overlay" class="hidden">
+        <div id="archive-panel">
+            <div id="header">
+                <div id="header-left">
+                    <div id="logo"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" />
+                            <path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                        </svg></div>
+                    <div id="title-block">
+                        <h1 id="doc-title">LSPD — Dijital Arşiv</h1><span id="doc-subtitle">LSPD Personel Kayıt
+                            Arşivi</span>
+                    </div>
+                </div><button id="close-btn" title="Kapat [X / ESC]"><svg viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg></button>
+            </div>
+            <div id="divider"></div>
+            <div id="content-area">
+                <div id="officer-card">
+                    <div id="photo-wrapper"><img id="officer-photo" src="officer.png" alt="Officer Photo">
+                        <div id="photo-stamp">LSPD</div>
+                    </div>
+                    <div id="officer-meta">
+                        <div class="meta-badge" id="ui-badge">DOSYA AKTİF DEĞİL</div>
+                        <div class="meta-row"><span class="meta-label" id="ui-rank-label">RÜTBE</span> <span
+                                class="meta-value" id="val-rank">Sergeant II</span></div>
+                        <div class="meta-row"><span class="meta-label" id="ui-name-label">AD SOYAD</span> <span
+                                class="meta-value" id="val-name">Troy Bolo</span></div>
+                        <div class="meta-row"><span class="meta-label" id="ui-badge-label">ROZET NO</span> <span
+                                class="meta-value" id="val-badge">#4471</span></div>
+                        <div class="meta-row"><span class="meta-label" id="ui-service-label">HİZMET</span> <span
+                                class="meta-value" id="val-service">18 Yıl</span></div>
+                        <div class="meta-row"><span class="meta-label" id="ui-status-label">DURUM</span> <span
+                                class="meta-value eow" id="val-status">End of Watch</span></div>
+                    </div>
+                </div>
+                <div id="card-divider"></div>
+                <pre id="doc-body"></pre>
+            </div>
+            <div id="footer">
+                <span id="ui-footer-copy">© Los Santos Polis Departmanı</span>
+                <span class="fivevault-badge"><span class="fv-brand">FIVEVAULT</span><span class="fv-net">.NET</span></span>
+                <span id="close-hint">[X / ESC] Kapat</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

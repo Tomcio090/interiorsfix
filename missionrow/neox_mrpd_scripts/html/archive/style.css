@@ -1,0 +1,350 @@
+/*
+    FiveVault - The #1 FiveM & RedM Resource Hub
+    Website: https://fivevault.net
+    Discord: https://discord.gg/fivevault
+*/
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+:root {
+    --bg-panel: #0a0d12;
+    --bg-header: #0d1117;
+    --bg-content: #080b10;
+    --bg-card: #0f1520;
+    --border: #1e3a5f;
+    --border-glow: #1a4a8a;
+    --accent: #2563eb;
+    --text-primary: #c9d8ec;
+    --text-dim: #6b82a0;
+    --text-title: #e8f0fe;
+    --text-mono: #a8c0d8;
+    --eow-color: #ef4444;
+    --scrollbar-bg: #0d1117;
+    --scrollbar-thumb: #1e3a5f
+}
+
+body {
+    background: 0 0;
+    font-family: Rajdhani, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none
+}
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto
+}
+
+#overlay.hidden {
+    display: none !important
+}
+
+#archive-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, .12), 0 0 40px rgba(37, 99, 235, .08), 0 20px 60px rgba(0, 0, 0, .85);
+    border-radius: 6px;
+    width: min(820px, 90vw);
+    max-height: 84vh;
+    display: flex;
+    flex-direction: column;
+    animation: panelIn .25s cubic-bezier(.16, 1, .3, 1);
+    overflow: hidden
+}
+
+@keyframes panelIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.97)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1)
+    }
+}
+
+#header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0
+}
+
+#header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px
+}
+
+#logo {
+    width: 34px;
+    height: 34px;
+    background: rgba(37, 99, 235, .15);
+    border: 1px solid var(--border-glow);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0
+}
+
+#logo svg {
+    width: 18px;
+    height: 18px
+}
+
+#title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px
+}
+
+#doc-title {
+    font-family: Rajdhani, sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-title);
+    letter-spacing: .04em;
+    line-height: 1
+}
+
+#doc-subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .08em;
+    text-transform: uppercase
+}
+
+#close-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(220, 38, 38, .12);
+    border: 1px solid rgba(220, 38, 38, .3);
+    border-radius: 4px;
+    color: #ef4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s, transform .1s;
+    flex-shrink: 0
+}
+
+#close-btn:hover {
+    background: rgba(220, 38, 38, .28);
+    border-color: rgba(220, 38, 38, .6);
+    transform: scale(1.05)
+}
+
+#close-btn svg {
+    width: 16px;
+    height: 16px;
+    pointer-events: none
+}
+
+#divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+    flex-shrink: 0;
+    opacity: .5
+}
+
+#content-area {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-content);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg)
+}
+
+#content-area::-webkit-scrollbar {
+    width: 6px
+}
+
+#content-area::-webkit-scrollbar-track {
+    background: var(--scrollbar-bg)
+}
+
+#content-area::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px
+}
+
+#officer-card {
+    display: flex;
+    gap: 24px;
+    padding: 20px 24px 18px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start
+}
+
+#photo-wrapper {
+    position: relative;
+    flex-shrink: 0
+}
+
+#officer-photo {
+    width: 140px;
+    height: 170px;
+    object-fit: cover;
+    object-position: top center;
+    border: 2px solid var(--border-glow);
+    border-radius: 4px;
+    display: block;
+    filter: grayscale(.3) sepia(.15) contrast(1.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .6)
+}
+
+#photo-stamp {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .15em;
+    color: rgba(255, 255, 255, .65);
+    background: rgba(0, 0, 0, .65);
+    padding: 2px 5px;
+    border-radius: 2px
+}
+
+#officer-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 4px
+}
+
+.meta-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    color: var(--eow-color);
+    background: rgba(220, 38, 38, .1);
+    border: 1px solid rgba(220, 38, 38, .35);
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    align-self: flex-start
+}
+
+.meta-row {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(30, 58, 95, .4);
+    padding-bottom: 5px
+}
+
+.meta-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .1em;
+    min-width: 90px;
+    flex-shrink: 0
+}
+
+.meta-value {
+    font-family: Rajdhani, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: .02em
+}
+
+.meta-value.eow {
+    color: var(--eow-color);
+    font-weight: 700
+}
+
+#card-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-glow) 0%, transparent 80%);
+    margin: 0 24px;
+    opacity: .5
+}
+
+#doc-body {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--text-mono);
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 20px 24px 28px;
+    user-select: text;
+    -webkit-user-select: text
+}
+
+#footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--bg-header);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0
+}
+
+#footer span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .06em;
+    text-transform: uppercase
+}
+
+#close-hint {
+    color: var(--accent) !important;
+    font-weight: 600
+}
+
+/* FiveVault Watermark Branding */
+.fivevault-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    background: rgba(88, 101, 242, 0.15);
+    border: 1px solid rgba(88, 101, 242, 0.4);
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.fivevault-badge .fv-brand {
+    color: #5865F2;
+    font-weight: 700;
+}
+.fivevault-badge .fv-net {
+    color: #94a3b8;
+}
