@@ -161,6 +161,13 @@ Config.Shafts = {
         },
 
         panel = {
+            -- Static ox_target box, recreated at this cabin-relative offset
+            -- whenever the cabin is stationary. Set debug = true to see it.
+            target = {
+                offset = vec3(1.08, 0.567, 0.2125),
+                size   = vec3(0.35, 0.30, 0.45),
+                debug  = false,
+            },
             camera = {
                 offset   = vec3(1.08, -0.32, -0.08),
                 rotation = vec3(0.0, 0.0, 0.0),
@@ -210,6 +217,13 @@ Config.Shafts = {
         },
 
         panel = {
+            -- Static ox_target box, recreated at this cabin-relative offset
+            -- whenever the cabin is stationary. Set debug = true to see it.
+            target = {
+                offset = vec3(1.08, 0.567, 0.2125),
+                size   = vec3(0.35, 0.30, 0.45),
+                debug  = false,
+            },
             camera = {
                 offset   = vec3(1.08, -0.32, -0.08),
                 rotation = vec3(0.0, 0.0, 0.0),

@@ -590,53 +590,95 @@ local function PanelTargetName(shaftId)
     return ('neox_mrpd_elevator:%s:panel'):format(shaftId)
 end
 
+local function IsCabinMoving(runtime, phase)
+    return phase == Neox.Phase.TRAVELLING or (runtime.trip and not runtime.trip.finished)
+end
+
 local function CanOpenPanelTarget(shaftId)
     local runtime = shaftRuntime[shaftId]
     if not (runtime and runtime.isInCabin and panelCam == nil) then return false end
     if not (runtime.entity and DoesEntityExist(runtime.entity)) then return false end
+    if IsCabinMoving(runtime, ReadShaftState(shaftId, 'phase', Neox.Phase.IDLE)) then return false end
     if CanInteractWithElevator and not CanInteractWithElevator(shaftId) then return false end
 
     return true
-end
-
-local function RegisterCabinTarget(shaftId)
-    local runtime = shaftRuntime[shaftId]
-    if not (runtime and runtime.entity and DoesEntityExist(runtime.entity)) then return end
-    if runtime.panelTarget or GetResourceState('ox_target') ~= 'started' then return end
-
-    local optionName = PanelTargetName(shaftId)
-
-    exports.ox_target:addLocalEntity(runtime.entity, {
-        {
-            name     = optionName,
-            icon     = Config.Interaction.target.panelIcon,
-            label    = Config.Interaction.text.panel,
-            distance = Config.Interaction.target.panelDistance,
-            canInteract = function()
-                return CanOpenPanelTarget(shaftId)
-            end,
-            onSelect = function()
-                if CanOpenPanelTarget(shaftId) then
-                    -- Keeps the existing animated camera and mouse panel intact.
-                    EnterPanelView(shaftId)
-                end
-            end,
-        },
-    })
-
-    runtime.panelTarget = optionName
 end
 
 local function UnregisterCabinTarget(shaftId)
     local runtime = shaftRuntime[shaftId]
     if not runtime then return end
 
-    local optionName = runtime.panelTarget
+    local zoneId = runtime.panelTarget
     runtime.panelTarget = nil
+    runtime.panelTargetStop = nil
 
-    if optionName and runtime.entity and GetResourceState('ox_target') == 'started' then
-        exports.ox_target:removeLocalEntity(runtime.entity, optionName)
+    if zoneId and GetResourceState('ox_target') == 'started' then
+        exports.ox_target:removeZone(zoneId)
     end
+end
+
+local function RegisterCabinTarget(shaftId, stopId)
+    local runtime = shaftRuntime[shaftId]
+    if not (runtime and runtime.entity and DoesEntityExist(runtime.entity)) then return end
+    if runtime.panelTarget or GetResourceState('ox_target') ~= 'started' then return end
+
+    local shaft = Config.Shafts[shaftId]
+    local panel = shaft and shaft.panel or {}
+    local target = panel.target or {}
+    local offset = target.offset or panel.offset or vec3(1.08, 0.56, 0.21)
+    local size = target.size or vec3(0.35, 0.30, 0.45)
+    local coords = GetOffsetFromEntityInWorldCoords(runtime.entity, offset.x, offset.y, offset.z)
+    local optionName = PanelTargetName(shaftId)
+
+    runtime.panelTarget = exports.ox_target:addBoxZone({
+        name     = optionName,
+        coords   = coords,
+        size     = size,
+        rotation = GetEntityHeading(runtime.entity),
+        debug    = target.debug == true,
+        options  = {
+            {
+                name     = optionName,
+                icon     = Config.Interaction.target.panelIcon,
+                label    = Config.Interaction.text.panel,
+                distance = Config.Interaction.target.panelDistance,
+                canInteract = function()
+                    return CanOpenPanelTarget(shaftId)
+                end,
+                onSelect = function()
+                    if CanOpenPanelTarget(shaftId) then
+                        -- Keeps the existing animated camera and mouse panel intact.
+                        EnterPanelView(shaftId)
+                    end
+                end,
+            },
+        },
+    })
+    runtime.panelTargetStop = stopId or ReadShaftState(shaftId, 'stop', 1)
+end
+
+-- ox_target zones are static: remove the box for the trip, then recreate it
+-- from the cabin-relative terminal offset once the cabin has arrived.
+local function SyncCabinTarget(shaftId, phase, stopId)
+    local runtime = shaftRuntime[shaftId]
+    if not (runtime and runtime.entity and DoesEntityExist(runtime.entity)) then
+        UnregisterCabinTarget(shaftId)
+        return
+    end
+
+    phase = phase or ReadShaftState(shaftId, 'phase', Neox.Phase.IDLE)
+    stopId = stopId or ReadShaftState(shaftId, 'stop', 1)
+
+    if IsCabinMoving(runtime, phase) then
+        UnregisterCabinTarget(shaftId)
+        return
+    end
+
+    if runtime.panelTarget and runtime.panelTargetStop ~= stopId then
+        UnregisterCabinTarget(shaftId)
+    end
+
+    RegisterCabinTarget(shaftId, stopId)
 end
 
 -- ---------------------------------------------------------
@@ -908,7 +950,7 @@ function BuildShaft(shaftId)
 
     DriveCabin(shaftId, true)
     DriveDoors(shaftId)
-    RegisterCabinTarget(shaftId)
+    SyncCabinTarget(shaftId)
 
     return true
 end
@@ -1622,7 +1664,8 @@ AddEventHandler('onResourceStart', function(resourceName)
 
     for shaftId, runtime in pairs(shaftRuntime) do
         runtime.panelTarget = nil
-        RegisterCabinTarget(shaftId)
+        runtime.panelTargetStop = nil
+        SyncCabinTarget(shaftId)
     end
 end)
 
@@ -1712,6 +1755,7 @@ function RunShaftFrame(shaftId)
     end
 
     cabinCoords = DriveCabin(shaftId, nil, cabinCoords) or cabinCoords
+    SyncCabinTarget(shaftId, phase, stopId)
 
     BlockCombatWhileRiding(shaftId)
 
