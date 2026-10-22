@@ -121,8 +121,8 @@ Config = {
                 startCoords = vector3(1714.885, 3689.190, 35.724),
                 endCoords = vector3(1714.885, 3689.190, 39.059),
                 moveType = "coords",
-                openDelay = 0,
-                closeDelay = 0.1
+                openDelay = 0, -- ms; 0 = natychmiast
+                closeDelay = 0 -- ms; 0 = natychmiast
             },
             animations = {
                 dict = "anim@prompt_sandy_is_lift_new",
@@ -151,8 +151,8 @@ Config = {
                 startCoords = vector3(1711.945, 3694.260, 35.724),
                 endCoords = vector3(1711.945, 3694.260, 39.059),
                 moveType = "coords",
-                openDelay = 0,
-                closeDelay = 0.1
+                openDelay = 0, -- ms; 0 = natychmiast
+                closeDelay = 0 -- ms; 0 = natychmiast
             },
             animations = {
                 dict = "anim@prompt_sandy_is_lift_new",
@@ -181,8 +181,8 @@ Config = {
                 startCoords = vector3(1709.065, 3699.260, 35.724),
                 endCoords = vector3(1709.065, 3699.260, 39.059),
                 moveType = "coords",
-                openDelay = 0,
-                closeDelay = 0.1
+                openDelay = 0, -- ms; 0 = natychmiast
+                closeDelay = 0 -- ms; 0 = natychmiast
             },
             animations = {
                 dict = "anim@prompt_sandy_is_lift_new",
@@ -211,8 +211,8 @@ Config = {
                 startCoords = vector3(1706.065, 3704.450, 35.724),
                 endCoords = vector3(1706.065, 3704.450, 39.059),
                 moveType = "coords",
-                openDelay = 0,
-                closeDelay = 0.1
+                openDelay = 0, -- ms; 0 = natychmiast
+                closeDelay = 0 -- ms; 0 = natychmiast
             },
             animations = {
                 dict = "anim@prompt_sandy_is_lift_new",
@@ -241,8 +241,8 @@ Config = {
                 startCoords = vector3(1703.035, 3709.690, 35.724),
                 endCoords = vector3(1703.035, 3709.690, 39.059),
                 moveType = "coords",
-                openDelay = 0,
-                closeDelay = 0.1
+                openDelay = 0, -- ms; 0 = natychmiast
+                closeDelay = 0 -- ms; 0 = natychmiast
             },
             animations = {
                 dict = "anim@prompt_sandy_is_lift_new",

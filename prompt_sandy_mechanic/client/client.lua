@@ -1,3279 +1,1168 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1, L27_1
-L0_1 = GetResourceState
-L1_1 = "ox_lib"
-L0_1 = L0_1(L1_1)
-L0_1 = "started" == L0_1
-L1_1 = L0_1 or L1_1
-if L0_1 then
-  L1_1 = lib
-  L1_1 = nil ~= L1_1
+-- Sprawdzenie czy ox_lib jest uruchomiony i załadowany
+local isOxLibStarted = GetResourceState("ox_lib") == "started"
+local hasLib = isOxLibStarted
+
+if isOxLibStarted then
+    hasLib = lib ~= nil
 end
-function L2_1(...)
-  local L0_2, L1_2
-  L0_2 = Config
-  L0_2 = L0_2.Debug
-  if L0_2 then
-    L0_2 = print
-    L1_2 = ...
-    L0_2(L1_2)
-  end
-end
-L3_1 = vector3
-L4_1 = 1705.4022
-L5_1 = 3690.8555
-L6_1 = 34.5232
-L3_1 = L3_1(L4_1, L5_1, L6_1)
-L4_1 = nil
-function L5_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2
-  L0_2 = L4_1
-  if L0_2 then
-    L0_2 = L4_1
-    if 0 ~= L0_2 then
-      L0_2 = L4_1
-      return L0_2
+
+local function debugPrint(...)
+    if Config.Debug then
+        print(...)
     end
-  end
-  L0_2 = 0
-  while L0_2 < 50 do
-    L1_2 = GetInteriorAtCoords
-    L2_2 = L3_1.x
-    L3_2 = L3_1.y
-    L4_2 = L3_1.z
-    L1_2 = L1_2(L2_2, L3_2, L4_2)
-    L4_1 = L1_2
-    L1_2 = L4_1
-    if L1_2 then
-      L1_2 = L4_1
-      if 0 ~= L1_2 then
-        L1_2 = L2_1
-        L2_2 = "[COMPOUND] Interior found: "
-        L3_2 = tostring
-        L4_2 = L4_1
-        L3_2 = L3_2(L4_2)
-        L2_2 = L2_2 .. L3_2
-        L1_2(L2_2)
-        L1_2 = L4_1
-        return L1_2
-      end
-    end
-    L0_2 = L0_2 + 1
-    L1_2 = Wait
-    L2_2 = 100
-    L1_2(L2_2)
-  end
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND WARNING] Could not find interior after 5 seconds"
-  L1_2(L2_2)
-  L1_2 = 0
-  return L1_2
 end
-function L6_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2
-  L0_2 = L5_1
-  L0_2 = L0_2()
-  if 0 == L0_2 then
+
+-- Współrzędne wnętrza (Interior)
+local garageCoords = vector3(1705.4022, 3690.8555, 34.5232)
+local interiorID = nil
+
+-- Forward declarations (deklaracje wyprzedzające, żeby uniknąć błędów nil value)
+local createProp, createCollision, createLinkedProp, animateProp, playPropAnimation, playStaticAnimation, getOxTargetLabels
+
+-- Funkcja wyszukująca ID wnętrza dla podanych współrzędnych
+local function getGarageInterior()
+    if interiorID and interiorID ~= 0 then
+        return interiorID
+    end
+
+    for i = 0, 49 do
+        interiorID = GetInteriorAtCoords(garageCoords.x, garageCoords.y, garageCoords.z)
+        if interiorID and interiorID ~= 0 then
+            debugPrint("[COMPOUND] Interior found: " .. tostring(interiorID))
+            return interiorID
+        end
+        Wait(100)
+    end
+
+    debugPrint("[COMPOUND WARNING] Could not find interior after 5 seconds")
+    return 0
+end
+
+-- Włączenie domyślnego zestawu obiektów (entity set)
+local function enableDefaultEntitySet()
+    local interior = getGarageInterior()
+    if interior == 0 then return end
+
+    debugPrint("[COMPOUND] Enabling default entity set (InteriorId: " .. tostring(interior) .. ")")
+    ActivateInteriorEntitySet(interior, "default")
+    RefreshInterior(interior)
+end
+enableDefault = enableDefaultEntitySet
+
+-- Wyłączenie domyślnego zestawu obiektów (gdy używamy własnych propów animowanych)
+local function disableDefaultEntitySet()
+    local interior = getGarageInterior()
+    if interior == 0 then return end
+
+    debugPrint("[COMPOUND] Disabling default entity set (InteriorId: " .. tostring(interior) .. ")")
+    DeactivateInteriorEntitySet(interior, "default")
+    RefreshInterior(interior)
+end
+disableDefault = disableDefaultEntitySet
+
+-- Sprawdzenie konfiguracji animacji
+local animsEnabled = hasLib
+if hasLib then
+    animsEnabled = Config.EnableAnimations
+end
+
+if not animsEnabled then
+    CreateThread(function()
+        enableDefaultEntitySet()
+    end)
+
+    local errorMsg = ""
+    if not isOxLibStarted then
+        errorMsg = "ox_lib resource not started"
+    elseif not hasLib then
+        errorMsg = "ox_lib failed to initialize (lib global missing)"
+    else
+        errorMsg = "Config.EnableAnimations is false"
+    end
+
+    debugPrint("[COMPOUND ANIMS DISABLED] " .. errorMsg)
     return
-  end
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] ========== ENABLING ENTITY SET =========="
-  L1_2(L2_2)
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] InteriorId: "
-  L3_2 = tostring
-  L4_2 = L0_2
-  L3_2 = L3_2(L4_2)
-  L2_2 = L2_2 .. L3_2
-  L1_2(L2_2)
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] Caller: "
-  L3_2 = debug
-  L3_2 = L3_2.traceback
-  L3_2 = L3_2()
-  L2_2 = L2_2 .. L3_2
-  L1_2(L2_2)
-  L1_2 = ActivateInteriorEntitySet
-  L2_2 = L0_2
-  L3_2 = "default"
-  L1_2(L2_2, L3_2)
-  L1_2 = RefreshInterior
-  L2_2 = L0_2
-  L1_2(L2_2)
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] Entity set \"default\" ACTIVATED"
-  L1_2(L2_2)
 end
-enableDefault = L6_1
-function L6_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L1_2 = Config
-  L1_2 = L1_2.Debug
-  if not L1_2 then
-    return
-  end
-  L1_2 = GetInteriorAtCoords
-  L2_2 = L3_1.x
-  L3_2 = L3_1.y
-  L4_2 = L3_1.z
-  L1_2 = L1_2(L2_2, L3_2, L4_2)
-  if L1_2 and 0 ~= L1_2 then
-    L2_2 = IsInteriorEntitySetActive
-    L3_2 = L1_2
-    L4_2 = "default"
-    L2_2 = L2_2(L3_2, L4_2)
-    L3_2 = print
-    L4_2 = "[COMPOUND DEBUG] "
-    L5_2 = A0_2
-    L6_2 = " | InteriorId: "
-    L7_2 = tostring
-    L8_2 = L1_2
-    L7_2 = L7_2(L8_2)
-    L8_2 = " | EntitySet \"default\" active: "
-    L9_2 = tostring
-    L10_2 = L2_2
-    L9_2 = L9_2(L10_2)
-    L4_2 = L4_2 .. L5_2 .. L6_2 .. L7_2 .. L8_2 .. L9_2
-    L3_2(L4_2)
-  else
-    L2_2 = print
-    L3_2 = "[COMPOUND DEBUG] "
-    L4_2 = A0_2
-    L5_2 = " | Interior not found"
-    L3_2 = L3_2 .. L4_2 .. L5_2
-    L2_2(L3_2)
-  end
-end
-L7_1 = L1_1 or L7_1
-if L1_1 then
-  L7_1 = Config
-  L7_1 = L7_1.EnableAnimations
-end
-if not L7_1 then
-  L8_1 = CreateThread
-  function L9_1()
-    local L0_2, L1_2
-    L0_2 = L2_1
-    L1_2 = "[COMPOUND] Animations disabled - enabling entity set instead"
-    L0_2(L1_2)
-    L0_2 = L6_1
-    L1_2 = "BEFORE enableDefault (no animations)"
-    L0_2(L1_2)
-    L0_2 = enableDefault
-    L0_2()
-    L0_2 = L6_1
-    L1_2 = "AFTER enableDefault (no animations)"
-    L0_2(L1_2)
-  end
-  L8_1(L9_1)
-  if not L0_1 then
-    L8_1 = "ox_lib resource not started"
-    if L8_1 then
-      goto lbl_47
-    end
-  end
-  if not L1_1 then
-    L8_1 = "ox_lib failed to initialize (lib global missing)"
-    if L8_1 then
-      goto lbl_47
-    end
-  end
-  L8_1 = "Config.EnableAnimations is false"
-  ::lbl_47::
-  L9_1 = L2_1
-  L10_1 = "[COMPOUND ANIMS DISABLED] "
-  L11_1 = L8_1
-  L10_1 = L10_1 .. L11_1
-  L9_1(L10_1)
-  return
-end
-L8_1 = L2_1
-L9_1 = "[COMPOUND ANIMS ENABLED] Using animated props instead of default entity set"
-L8_1(L9_1)
-L8_1 = useTarget
-if L8_1 then
-  L8_1 = L2_1
-  L9_1 = "[COMPOUND] Target system detected: "
-  L10_1 = TargetSystem
-  L11_1 = " - using target interactions"
-  L9_1 = L9_1 .. L10_1 .. L11_1
-  L8_1(L9_1)
+
+-- Jeśli animacje są włączone, wyłączamy domyślny zestaw obiektów i używamy własnych propów
+CreateThread(function()
+    disableDefaultEntitySet()
+end)
+
+debugPrint("[COMPOUND ANIMS ENABLED] Using animated props instead of default entity set")
+
+if useTarget then
+    debugPrint("[COMPOUND] Target system detected: " .. TargetSystem .. " - using target interactions")
 else
-  L8_1 = L2_1
-  L9_1 = "[COMPOUND] No target system available or disabled - using zone interactions"
-  L8_1(L9_1)
+    debugPrint("[COMPOUND] No target system available or disabled - using zone interactions")
 end
-L8_1 = {}
-L9_1 = {}
-L10_1 = {}
-L11_1 = nil
-L12_1 = false
-L13_1 = {}
-L14_1 = {}
-L15_1 = {}
-L16_1 = {}
-function L17_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2
-  L1_2 = type
-  L2_2 = A0_2
-  L1_2 = L1_2(L2_2)
-  L1_2 = "string" == L1_2
-  return L1_2
+
+-- Globalne tablice przechowujące stany, obiekty i strefy
+local spawnedProps = {}
+local collisionProps = {}
+local linkedPropsTable = {}
+local currentTextUI = nil
+local isInInteractionZone = false
+local activeZones = {}
+local oxTargetZones = {}
+local zoneEnterCounts = {}
+local activeZoneData = {}
+local propSpawnPending = {}
+
+-- Pomocnicza funkcja sprawdzająca czy to jedna z pięciu rolet mechanika.
+-- W dekompilacji warunek został uszkodzony do samego type(...) == "string",
+-- przez co AutoOpen obejmowało także podnośniki.
+local function isGarageRollup(propName)
+    return type(propName) == "string" and propName:match("^garage_rollup_%d+$") ~= nil
 end
-function L18_1()
-  local L0_2, L1_2, L2_2
-  L0_2 = GlobalState
-  L0_2 = L0_2.sandy_compound
-  if not L0_2 then
-    L0_2 = TriggerServerEvent
-    L1_2 = "compound_anims:initializeState"
-    L2_2 = {}
-    L0_2(L1_2, L2_2)
-  end
+
+-- Jedyna droga inicjowania zmiany stanu przez klienta: prośba do serwera.
+-- Serwer waliduje prop/dystans/uprawnienia/busy, zmienia GlobalState,
+-- a wszyscy klienci (też inicjator) odtwarzają animację ze state-baga.
+local function requestPropState(propName, state)
+    TriggerServerEvent("compound_anims:requestToggleProp", propName, state)
 end
-function L19_1(A0_2, A1_2, A2_2, A3_2, A4_2)
-  local L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2
-  if A0_2 and A1_2 then
-    L5_2 = IsModelValid
-    L6_2 = A0_2
-    L5_2 = L5_2(L6_2)
-    if L5_2 then
-      goto lbl_16
+
+-- Funkcja pomocnicza do tworzenia obiektów (propów) bez offsetu
+local function spawnObjectModel(model, coords, rotation, isCollision, freezeCollision)
+    if not model or not IsModelValid(model) then
+        debugPrint("[COMPOUND] Model not valid: " .. tostring(model))
+        return nil
     end
-  end
-  L5_2 = L2_1
-  L6_2 = "[COMPOUND] Model not valid:"
-  L7_2 = A0_2
-  L5_2(L6_2, L7_2)
-  L5_2 = nil
-  do return L5_2 end
-  ::lbl_16::
-  L5_2 = lib
-  L5_2 = L5_2.requestModel
-  L6_2 = A0_2
-  L5_2 = L5_2(L6_2)
-  if L5_2 then
-    L6_2 = type
-    L7_2 = L5_2
-    L6_2 = L6_2(L7_2)
-    if "table" == L6_2 then
-      L6_2 = L5_2.await
-      if L6_2 then
-        L6_2 = L5_2.await
-        L6_2()
-      end
+
+    local modelLoadResult = lib.requestModel(model)
+    if modelLoadResult and type(modelLoadResult) == "table" and modelLoadResult.await then
+        modelLoadResult.await()
     end
-  end
-  L6_2 = CreateObjectNoOffset
-  L7_2 = joaat
-  L8_2 = A0_2
-  L7_2 = L7_2(L8_2)
-  L8_2 = A1_2.x
-  L9_2 = A1_2.y
-  L10_2 = A1_2.z
-  L11_2 = false
-  L12_2 = false
-  L13_2 = A3_2 or L13_2
-  if not A3_2 then
-    L13_2 = false
-  end
-  L6_2 = L6_2(L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-  if not L6_2 or 0 == L6_2 then
-    L7_2 = nil
-    return L7_2
-  end
-  L7_2 = SetEntityRotation
-  L8_2 = L6_2
-  L9_2 = A2_2.x
-  L10_2 = A2_2.y
-  L11_2 = A2_2.z
-  L12_2 = 2
-  L13_2 = true
-  L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2)
-  L7_2 = FreezeEntityPosition
-  L8_2 = L6_2
-  L9_2 = true
-  L7_2(L8_2, L9_2)
-  if A3_2 then
-    L7_2 = SetEntityCollision
-    L8_2 = L6_2
-    L9_2 = true
-    L10_2 = true
-    L7_2(L8_2, L9_2, L10_2)
-    if A4_2 then
-      L7_2 = FreezeEntityPosition
-      L8_2 = L6_2
-      L9_2 = true
-      L7_2(L8_2, L9_2)
+
+    local entity = CreateObjectNoOffset(joaat(model), coords.x, coords.y, coords.z, false, false, isCollision or false)
+    if not entity or entity == 0 then
+        debugPrint("[COMPOUND] Failed to create entity for model: " .. tostring(model))
+        return nil
     end
-    L7_2 = SetEntityVisible
-    L8_2 = L6_2
-    L9_2 = false
-    L7_2(L8_2, L9_2)
-  end
-  L7_2 = SetModelAsNoLongerNeeded
-  L8_2 = A0_2
-  L7_2(L8_2)
-  return L6_2
-end
-L20_1 = false
-function L21_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2
-  L0_2 = L20_1
-  if L0_2 then
-    return
-  end
-  L0_2 = GetInteriorAtCoords
-  L1_2 = L3_1.x
-  L2_2 = L3_1.y
-  L3_2 = L3_1.z
-  L0_2 = L0_2(L1_2, L2_2, L3_2)
-  if L0_2 and 0 ~= L0_2 then
-    L1_2 = IsInteriorEntitySetActive
-    L2_2 = L0_2
-    L3_2 = "default"
-    L1_2 = L1_2(L2_2, L3_2)
-    if L1_2 then
-      L2_2 = L2_1
-      L3_2 = "[COMPOUND] !!!! ALERT: Entity set \"default\" was enabled by another resource! Disabling it now..."
-      L2_2(L3_2)
-      L2_2 = DeactivateInteriorEntitySet
-      L3_2 = L0_2
-      L4_2 = "default"
-      L2_2(L3_2, L4_2)
-      L2_2 = RefreshInterior
-      L3_2 = L0_2
-      L2_2(L3_2)
-      L2_2 = L2_1
-      L3_2 = "[COMPOUND] Entity set \"default\" has been disabled"
-      L2_2(L3_2)
-    end
-    L2_2 = true
-    L20_1 = L2_2
-  end
-end
-function L22_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L2_2 = A0_2.name
-  L1_2 = L8_1
-  L1_2 = L1_2[L2_2]
-  if L1_2 then
-    L1_2 = DoesEntityExist
-    L3_2 = A0_2.name
-    L2_2 = L8_1
-    L2_2 = L2_2[L3_2]
-    L1_2 = L1_2(L2_2)
-    if L1_2 then
-      L1_2 = L2_1
-      L2_2 = "[COMPOUND] Prop already exists, skipping: "
-      L3_2 = A0_2.name
-      L4_2 = " (entity: "
-      L5_2 = tostring
-      L7_2 = A0_2.name
-      L6_2 = L8_1
-      L6_2 = L6_2[L7_2]
-      L5_2 = L5_2(L6_2)
-      L6_2 = ")"
-      L2_2 = L2_2 .. L3_2 .. L4_2 .. L5_2 .. L6_2
-      L1_2(L2_2)
-      L2_2 = A0_2.name
-      L1_2 = L8_1
-      L1_2 = L1_2[L2_2]
-      return L1_2
-    end
-  end
-  L1_2 = L21_1
-  L1_2()
-  L1_2 = L6_1
-  L2_2 = "BEFORE creating prop: "
-  L3_2 = A0_2.name
-  L2_2 = L2_2 .. L3_2
-  L1_2(L2_2)
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] Creating prop: "
-  L3_2 = A0_2.name
-  L4_2 = " with model: "
-  L5_2 = tostring
-  L6_2 = A0_2.model
-  L5_2 = L5_2(L6_2)
-  L2_2 = L2_2 .. L3_2 .. L4_2 .. L5_2
-  L1_2(L2_2)
-  L1_2 = L19_1
-  L2_2 = A0_2.model
-  L3_2 = A0_2.coords
-  L4_2 = A0_2.rotation
-  L5_2 = false
-  L6_2 = false
-  L1_2 = L1_2(L2_2, L3_2, L4_2, L5_2, L6_2)
-  if not L1_2 then
-    L2_2 = L2_1
-    L3_2 = "[COMPOUND ERROR] Failed to create entity for prop: "
-    L4_2 = A0_2.name
-    L3_2 = L3_2 .. L4_2
-    L2_2(L3_2)
-    L2_2 = nil
-    return L2_2
-  end
-  L2_2 = L2_1
-  L3_2 = "[COMPOUND] Successfully created prop entity: "
-  L4_2 = A0_2.name
-  L5_2 = " (entity: "
-  L6_2 = tostring
-  L7_2 = L1_2
-  L6_2 = L6_2(L7_2)
-  L7_2 = ")"
-  L3_2 = L3_2 .. L4_2 .. L5_2 .. L6_2 .. L7_2
-  L2_2(L3_2)
-  L2_2 = L6_1
-  L3_2 = "AFTER creating prop: "
-  L4_2 = A0_2.name
-  L3_2 = L3_2 .. L4_2
-  L2_2(L3_2)
-  L3_2 = A0_2.name
-  L2_2 = L8_1
-  L2_2[L3_2] = L1_2
-  L2_2 = A0_2.collision
-  if L2_2 then
-    L2_2 = createCollision
-    L3_2 = A0_2
-    L2_2(L3_2)
-  end
-  L2_2 = A0_2.linkedProps
-  if L2_2 then
-    L2_2 = ipairs
-    L3_2 = A0_2.linkedProps
-    L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-    for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-      L8_2 = createLinkedProp
-      L9_2 = L7_2
-      L10_2 = A0_2.name
-      L8_2(L9_2, L10_2)
-    end
-  end
-  L2_2 = GlobalState
-  L2_2 = L2_2.sandy_compound
-  if L2_2 then
-    L2_2 = GlobalState
-    L2_2 = L2_2.sandy_compound
-    L3_2 = A0_2.name
-    L2_2 = L2_2[L3_2]
-    if nil ~= L2_2 then
-      L2_2 = SetTimeout
-      L3_2 = 100
-      function L4_2()
-        local L0_3, L1_3, L2_3, L3_3, L4_3
-        L0_3 = animateProp
-        L1_3 = A0_2.name
-        L2_3 = GlobalState
-        L2_3 = L2_3.sandy_compound
-        L3_3 = A0_2.name
-        L2_3 = L2_3[L3_3]
-        L3_3 = true
-        L4_3 = true
-        L0_3(L1_3, L2_3, L3_3, L4_3)
-      end
-      L2_2(L3_2, L4_2)
-  end
-  else
-    L2_2 = A0_2.animations
-    if L2_2 then
-      L2_2 = A0_2.animations
-      L2_2 = L2_2.static
-      if L2_2 then
-        L2_2 = SetTimeout
-        L3_2 = 100
-        function L4_2()
-          local L0_3, L1_3, L2_3
-          L0_3 = playStaticAnimation
-          L1_3 = L1_2
-          L2_3 = A0_2
-          L0_3(L1_3, L2_3)
+
+    SetEntityRotation(entity, rotation.x, rotation.y, rotation.z, 2, true)
+    FreezeEntityPosition(entity, true)
+
+    if isCollision then
+        SetEntityCollision(entity, true, true)
+        if freezeCollision then
+            FreezeEntityPosition(entity, true)
         end
-        L2_2(L3_2, L4_2)
-      end
+        SetEntityVisible(entity, false)
     end
-  end
-  return L1_2
+
+    SetModelAsNoLongerNeeded(model)
+    return entity
 end
-createProp = L22_1
-function L22_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L1_2 = GetPlayerServerId
-  L2_2 = PlayerId
-  L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2 = L2_2()
-  L1_2 = L1_2(L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2)
-  L2_2 = nil
-  L3_2 = nil
-  L4_2 = type
-  L5_2 = A0_2.label
-  L4_2 = L4_2(L5_2)
-  if "table" == L4_2 then
-    L4_2 = A0_2.label
-    L2_2 = L4_2.open
-    L4_2 = A0_2.label
-    L3_2 = L4_2.close
-  else
-    L4_2 = A0_2.label
-    L2_2 = L4_2 or L2_2
-    if not L4_2 then
-      L4_2 = Config
-      L4_2 = L4_2.Messages
-      L2_2 = L4_2.open
-    end
-    L4_2 = A0_2.label
-    L3_2 = L4_2 or L3_2
-    if not L4_2 then
-      L4_2 = Config
-      L4_2 = L4_2.Messages
-      L3_2 = L4_2.close
-    end
-  end
-  L4_2 = {}
-  L5_2 = GetCustomLabel
-  L6_2 = A0_2.name
-  L7_2 = L1_2
-  L8_2 = L2_2
-  L5_2 = L5_2(L6_2, L7_2, L8_2)
-  L4_2.open = L5_2
-  L5_2 = GetCustomLabel
-  L6_2 = A0_2.name
-  L7_2 = L1_2
-  L8_2 = L3_2
-  L5_2 = L5_2(L6_2, L7_2, L8_2)
-  L4_2.close = L5_2
-  return L4_2
-end
-getOxTargetLabels = L22_1
-function L22_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L1_2 = A0_2.interactionZone
-  if not L1_2 then
-    return
-  end
-  L2_2 = A0_2.name
-  L1_2 = L15_1
-  L1_2 = L1_2[L2_2]
-  if L1_2 then
-    return
-  end
-  L1_2 = GetPlayerServerId
-  L2_2 = PlayerId
-  L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2 = L2_2()
-  L1_2 = L1_2(L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2)
-  L2_2 = "compound_"
-  L3_2 = A0_2.name
-  L2_2 = L2_2 .. L3_2
-  L3_2 = Config
-  L3_2 = L3_2.AutoOpen
-  if L3_2 then
-    L3_2 = L17_1
-    L4_2 = A0_2.name
-    L3_2 = L3_2(L4_2)
-  end
-  L4_2 = nil
-  if L3_2 then
-    L5_2 = {}
-    L6_2 = {}
-    L7_2 = L2_2
-    L8_2 = "_unlock"
-    L7_2 = L7_2 .. L8_2
-    L6_2.name = L7_2
-    L6_2.icon = "fas fa-lock-open"
-    L7_2 = Config
-    L7_2 = L7_2.Messages
-    L7_2 = L7_2.unlock
-    L6_2.label = L7_2
-    function L7_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3
-      L0_3 = GlobalState
-      L0_3 = L0_3.sandy_compound_locks
-      if not L0_3 then
-        L0_3 = {}
-      end
-      L1_3 = A0_2.name
-      L1_3 = L0_3[L1_3]
-      if not L1_3 then
-        L1_3 = false
-        return L1_3
-      end
-      L1_3 = GlobalState
-      L1_3 = L1_3.sandy_compound_busy
-      if L1_3 then
-        L1_3 = GlobalState
-        L1_3 = L1_3.sandy_compound_busy
-        L2_3 = A0_2.name
-        L1_3 = L1_3[L2_3]
-      end
-      if L1_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = CanPlayerInteract
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      if not L2_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = HasJobAccess
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      if not L2_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = true
-      return L2_3
-    end
-    L6_2.canInteract = L7_2
-    function L7_2()
-      local L0_3, L1_3, L2_3
-      L0_3 = TriggerServerEvent
-      L1_3 = "compound_anims:toggleLock"
-      L2_3 = A0_2.name
-      L0_3(L1_3, L2_3)
-    end
-    L6_2.onSelect = L7_2
-    L7_2 = {}
-    L8_2 = L2_2
-    L9_2 = "_lock"
-    L8_2 = L8_2 .. L9_2
-    L7_2.name = L8_2
-    L7_2.icon = "fas fa-lock"
-    L8_2 = Config
-    L8_2 = L8_2.Messages
-    L8_2 = L8_2.lock
-    L7_2.label = L8_2
-    function L8_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3
-      L0_3 = GlobalState
-      L0_3 = L0_3.sandy_compound_locks
-      if not L0_3 then
-        L0_3 = {}
-      end
-      L1_3 = A0_2.name
-      L1_3 = L0_3[L1_3]
-      if L1_3 then
-        L1_3 = false
-        return L1_3
-      end
-      L1_3 = GlobalState
-      L1_3 = L1_3.sandy_compound_busy
-      if L1_3 then
-        L1_3 = GlobalState
-        L1_3 = L1_3.sandy_compound_busy
-        L2_3 = A0_2.name
-        L1_3 = L1_3[L2_3]
-      end
-      if L1_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = CanPlayerInteract
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      if not L2_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = HasJobAccess
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      if not L2_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = true
-      return L2_3
-    end
-    L7_2.canInteract = L8_2
-    function L8_2()
-      local L0_3, L1_3, L2_3
-      L0_3 = TriggerServerEvent
-      L1_3 = "compound_anims:toggleLock"
-      L2_3 = A0_2.name
-      L0_3(L1_3, L2_3)
-    end
-    L7_2.onSelect = L8_2
-    L5_2[1] = L6_2
-    L5_2[2] = L7_2
-    L4_2 = L5_2
-  else
-    L5_2 = getOxTargetLabels
-    L6_2 = A0_2
-    L5_2 = L5_2(L6_2)
-    L6_2 = {}
-    L7_2 = {}
-    L8_2 = L2_2
-    L9_2 = "_open"
-    L8_2 = L8_2 .. L9_2
-    L7_2.name = L8_2
-    L7_2.icon = "fas fa-door-open"
-    L8_2 = L5_2.open
-    L7_2.label = L8_2
-    function L8_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
-      L0_3 = GlobalState
-      L0_3 = L0_3.sandy_compound
-      if L0_3 then
-        L0_3 = GlobalState
-        L0_3 = L0_3.sandy_compound
-        L1_3 = A0_2.name
-        L0_3 = L0_3[L1_3]
-      end
-      L1_3 = GlobalState
-      L1_3 = L1_3.sandy_compound_busy
-      if L1_3 then
-        L1_3 = GlobalState
-        L1_3 = L1_3.sandy_compound_busy
-        L2_3 = A0_2.name
-        L1_3 = L1_3[L2_3]
-      end
-      if L1_3 then
-        L2_3 = false
-        return L2_3
-      end
-      if L0_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = CanPlayerInteract
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      L3_3 = HasJobAccess
-      L4_3 = A0_2.name
-      L5_3 = L1_2
-      L3_3 = L3_3(L4_3, L5_3)
-      L4_3 = L2_3 or L4_3
-      if L2_3 then
-        L4_3 = L3_3
-      end
-      return L4_3
-    end
-    L7_2.canInteract = L8_2
-    function L8_2()
-      local L0_3, L1_3, L2_3, L3_3
-      L0_3 = OnPropInteraction
-      L1_3 = A0_2.name
-      L2_3 = L1_2
-      L3_3 = false
-      L0_3(L1_3, L2_3, L3_3)
-      L0_3 = A0_2.onExecute
-      if L0_3 then
-        L0_3 = A0_2.onExecute
-        L1_3 = A0_2
-        L0_3(L1_3)
-      end
-      L0_3 = TriggerServerEvent
-      L1_3 = "compound_anims:setPropBusy"
-      L2_3 = A0_2.name
-      L3_3 = true
-      L0_3(L1_3, L2_3, L3_3)
-      L0_3 = animateProp
-      L1_3 = A0_2.name
-      L2_3 = true
-      L0_3(L1_3, L2_3)
-    end
-    L7_2.onSelect = L8_2
-    L8_2 = {}
-    L9_2 = L2_2
-    L10_2 = "_close"
-    L9_2 = L9_2 .. L10_2
-    L8_2.name = L9_2
-    L8_2.icon = "fas fa-door-closed"
-    L9_2 = L5_2.close
-    L8_2.label = L9_2
-    function L9_2()
-      local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
-      L0_3 = GlobalState
-      L0_3 = L0_3.sandy_compound
-      if L0_3 then
-        L0_3 = GlobalState
-        L0_3 = L0_3.sandy_compound
-        L1_3 = A0_2.name
-        L0_3 = L0_3[L1_3]
-      end
-      L1_3 = GlobalState
-      L1_3 = L1_3.sandy_compound_busy
-      if L1_3 then
-        L1_3 = GlobalState
-        L1_3 = L1_3.sandy_compound_busy
-        L2_3 = A0_2.name
-        L1_3 = L1_3[L2_3]
-      end
-      if L1_3 then
-        L2_3 = false
-        return L2_3
-      end
-      if not L0_3 then
-        L2_3 = false
-        return L2_3
-      end
-      L2_3 = CanPlayerInteract
-      L3_3 = A0_2.name
-      L4_3 = L1_2
-      L2_3 = L2_3(L3_3, L4_3)
-      L3_3 = HasJobAccess
-      L4_3 = A0_2.name
-      L5_3 = L1_2
-      L3_3 = L3_3(L4_3, L5_3)
-      L4_3 = L2_3 or L4_3
-      if L2_3 then
-        L4_3 = L3_3
-      end
-      return L4_3
-    end
-    L8_2.canInteract = L9_2
-    function L9_2()
-      local L0_3, L1_3, L2_3, L3_3
-      L0_3 = OnPropInteraction
-      L1_3 = A0_2.name
-      L2_3 = L1_2
-      L3_3 = true
-      L0_3(L1_3, L2_3, L3_3)
-      L0_3 = A0_2.onExecute
-      if L0_3 then
-        L0_3 = A0_2.onExecute
-        L1_3 = A0_2
-        L0_3(L1_3)
-      end
-      L0_3 = TriggerServerEvent
-      L1_3 = "compound_anims:setPropBusy"
-      L2_3 = A0_2.name
-      L3_3 = true
-      L0_3(L1_3, L2_3, L3_3)
-      L0_3 = animateProp
-      L1_3 = A0_2.name
-      L2_3 = false
-      L0_3(L1_3, L2_3)
-    end
-    L8_2.onSelect = L9_2
-    L6_2[1] = L7_2
-    L6_2[2] = L8_2
-    L4_2 = L6_2
-  end
-  L5_2 = TargetAddBoxZone
-  L6_2 = {}
-  L6_2.name = L2_2
-  L7_2 = A0_2.interactionZone
-  L7_2 = L7_2.coords
-  L6_2.coords = L7_2
-  L7_2 = A0_2.interactionZone
-  L7_2 = L7_2.size
-  L6_2.size = L7_2
-  L7_2 = A0_2.interactionZone
-  L7_2 = L7_2.rotation
-  if not L7_2 then
-    L7_2 = 0
-  end
-  L6_2.rotation = L7_2
-  L7_2 = Config
-  L7_2 = L7_2.Debug
-  L6_2.debug = L7_2
-  L6_2.options = L4_2
-  L5_2(L6_2)
-  L6_2 = A0_2.name
-  L5_2 = L15_1
-  L5_2[L6_2] = L2_2
-  L5_2 = L2_1
-  L6_2 = "[COMPOUND] Registered target zone for prop: "
-  L7_2 = A0_2.name
-  if L3_2 then
-    L8_2 = " (lock/unlock mode)"
-    if L8_2 then
-      goto lbl_129
-    end
-  end
-  L8_2 = " (open/close mode)"
-  ::lbl_129::
-  L6_2 = L6_2 .. L7_2 .. L8_2
-  L5_2(L6_2)
-end
-registerOxTarget = L22_1
-function L22_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L2_2 = A0_2.name
-  L1_2 = L15_1
-  L1_2 = L1_2[L2_2]
-  if not L1_2 then
-    return
-  end
-  L1_2 = TargetRemoveZone
-  L3_2 = A0_2.name
-  L2_2 = L15_1
-  L2_2 = L2_2[L3_2]
-  L1_2(L2_2)
-  L2_2 = A0_2.name
-  L1_2 = L15_1
-  L1_2[L2_2] = nil
-end
-removeTarget = L22_1
-function L22_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2
-  L1_2 = A0_2.collision
-  if L1_2 then
-    L1_2 = A0_2.collision
-    L2_2 = L1_2.name
-    L1_2 = L9_1
-    L1_2 = L1_2[L2_2]
-    if not L1_2 then
-      goto lbl_11
-    end
-  end
-  do return end
-  ::lbl_11::
-  L1_2 = A0_2.collision
-  L1_2 = L1_2.coords
-  L2_2 = A0_2.collision
-  L2_2 = L2_2.rotation
-  L3_2 = GlobalState
-  L3_2 = L3_2.sandy_compound
-  if L3_2 then
-    L3_2 = GlobalState
-    L3_2 = L3_2.sandy_compound
-    L4_2 = A0_2.name
-    L3_2 = L3_2[L4_2]
-  end
-  L4_2 = A0_2.collision
-  L4_2 = L4_2.moveType
-  if "coords" == L4_2 and nil ~= L3_2 then
-    if L3_2 then
-      L4_2 = A0_2.collision
-      L4_2 = L4_2.endCoords
-      L1_2 = L4_2 or L1_2
-    end
-    if not L4_2 then
-      L4_2 = A0_2.collision
-      L1_2 = L4_2.startCoords
-    end
-  else
-    L4_2 = A0_2.collision
-    L4_2 = L4_2.moveType
-    if "rotation" == L4_2 and nil ~= L3_2 then
-      if L3_2 then
-        L4_2 = A0_2.collision
-        L4_2 = L4_2.endRotation
-        if L4_2 then
-          goto lbl_52
-          L2_2 = L4_2 or L2_2
+
+-- Tworzenie kolizji dla obiektów
+createCollision = function(propData)
+    if propData.collision then
+        local collisionName = propData.collision.name
+        if collisionProps[collisionName] and DoesEntityExist(collisionProps[collisionName]) then
+            return collisionProps[collisionName]
         end
-      end
-      L4_2 = A0_2.collision
-      L2_2 = L4_2.startRotation
+    else
+        return
     end
-  end
-  ::lbl_52::
-  L4_2 = L19_1
-  L5_2 = A0_2.collision
-  L5_2 = L5_2.model
-  L6_2 = L1_2
-  L7_2 = L2_2
-  L8_2 = true
-  L9_2 = true
-  L4_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2)
-  if L4_2 then
-    L5_2 = A0_2.collision
-    L6_2 = L5_2.name
-    L5_2 = L9_1
-    L5_2[L6_2] = L4_2
-  end
-  return L4_2
-end
-createCollision = L22_1
-function L22_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L3_2 = A0_2.name
-  L2_2 = L10_1
-  L2_2 = L2_2[L3_2]
-  if L2_2 then
-    L3_2 = A0_2.name
-    L2_2 = L10_1
-    L2_2 = L2_2[L3_2]
-    return L2_2
-  end
-  L2_2 = L19_1
-  L3_2 = A0_2.model
-  L4_2 = A0_2.coords
-  L5_2 = A0_2.rotation
-  L6_2 = false
-  L7_2 = false
-  L2_2 = L2_2(L3_2, L4_2, L5_2, L6_2, L7_2)
-  if L2_2 then
-    L4_2 = A0_2.name
-    L3_2 = L10_1
-    L5_2 = {}
-    L5_2.entity = L2_2
-    L5_2.parent = A1_2
-    L3_2[L4_2] = L5_2
-  end
-  return L2_2
-end
-createLinkedProp = L22_1
-function L22_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2, A7_2)
-  local L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2
-  if A0_2 then
-    L8_2 = DoesEntityExist
-    L9_2 = A0_2
-    L8_2 = L8_2(L9_2)
-    if L8_2 then
-      goto lbl_9
-    end
-  end
-  do return end
-  ::lbl_9::
-  L8_2 = lib
-  L8_2 = L8_2.requestAnimDict
-  L9_2 = A1_2
-  L8_2 = L8_2(L9_2)
-  if L8_2 then
-    L9_2 = type
-    L10_2 = L8_2
-    L9_2 = L9_2(L10_2)
-    if "table" == L9_2 then
-      L9_2 = L8_2.await
-      if L9_2 then
-        L9_2 = L8_2.await
-        L9_2()
-      end
-    end
-  end
-  L9_2 = PlayEntityAnim
-  L10_2 = A0_2
-  L11_2 = A2_2
-  L12_2 = A1_2
-  L13_2 = 8.0
-  L14_2 = A4_2 or L14_2
-  if not A4_2 then
-    L14_2 = false
-  end
-  L15_2 = A5_2 or L15_2
-  if not A5_2 then
-    L15_2 = true
-  end
-  L16_2 = false
-  L17_2 = A6_2 or L17_2
-  if not A6_2 then
-    L17_2 = 0.0
-  end
-  L18_2 = A7_2 or L18_2
-  if not A7_2 then
-    L18_2 = 0
-  end
-  L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2)
-  L9_2 = RemoveAnimDict
-  L10_2 = A1_2
-  L9_2(L10_2)
-end
-function L23_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2
-  if A0_2 then
-    L2_2 = DoesEntityExist
-    L3_2 = A0_2
-    L2_2 = L2_2(L3_2)
-    if L2_2 then
-      L2_2 = A1_2.animations
-      if L2_2 then
-        L2_2 = A1_2.animations
-        L2_2 = L2_2.static
-        if L2_2 then
-          goto lbl_16
-        end
-      end
-    end
-  end
-  do return end
-  ::lbl_16::
-  L2_2 = A1_2.animations
-  L2_2 = L2_2.dict
-  L3_2 = A1_2.animations
-  L3_2 = L3_2.static
-  L4_2 = L22_1
-  L5_2 = A0_2
-  L6_2 = L2_2
-  L7_2 = L3_2
-  L8_2 = 0
-  L9_2 = false
-  L10_2 = true
-  L11_2 = 0.0
-  L12_2 = 0
-  L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-  L4_2 = A1_2.linkedProps
-  if L4_2 then
-    L4_2 = A1_2.animations
-    L4_2 = L4_2.linkedAnims
-    if L4_2 then
-      L4_2 = ipairs
-      L5_2 = A1_2.linkedProps
-      L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-      for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-        L11_2 = L9_2.name
-        L10_2 = L10_1
-        L10_2 = L10_2[L11_2]
-        if L10_2 then
-          L11_2 = L10_2.entity
-          if L11_2 then
-            L11_2 = A1_2.animations
-            L11_2 = L11_2.linkedAnims
-            L11_2 = L11_2[L8_2]
-            L11_2 = L11_2.static
-            if L11_2 then
-              L12_2 = L22_1
-              L13_2 = L10_2.entity
-              L14_2 = L2_2
-              L15_2 = L11_2
-              L16_2 = 0
-              L17_2 = false
-              L18_2 = true
-              L19_2 = 0.0
-              L20_2 = 0
-              L12_2(L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2)
-            end
-          end
-        end
-      end
-    end
-  end
-end
-playStaticAnimation = L23_1
-function L23_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2)
-  local L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-  if not A5_2 then
-    A5_2 = 1
-  end
-  L6_2 = #A0_2
-  if A5_2 > L6_2 then
-    return
-  end
-  L6_2 = A0_2[A5_2]
-  L8_2 = L6_2.name
-  L7_2 = L10_1
-  L7_2 = L7_2[L8_2]
-  if L7_2 then
-    L8_2 = L7_2.entity
-    if L8_2 then
-      if A3_2 then
-        L8_2 = A1_2[A5_2]
-        L8_2 = L8_2.open
-        if L8_2 then
-          goto lbl_25
-        end
-      end
-      L8_2 = A1_2[A5_2]
-      L8_2 = L8_2.close
-      ::lbl_25::
-      L9_2 = L22_1
-      L10_2 = L7_2.entity
-      L11_2 = A2_2
-      L12_2 = L8_2
-      L13_2 = A4_2
-      L14_2 = false
-      L15_2 = true
-      L16_2 = 0.0
-      L17_2 = 0
-      L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2)
-    end
-  end
-  L8_2 = L23_1
-  L9_2 = A0_2
-  L10_2 = A1_2
-  L11_2 = A2_2
-  L12_2 = A3_2
-  L13_2 = A4_2
-  L14_2 = A5_2 + 1
-  L8_2(L9_2, L10_2, L11_2, L12_2, L13_2, L14_2)
-end
-function L24_1(A0_2, A1_2, A2_2, A3_2)
-  local L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2
-  L4_2 = nil
-  L5_2 = pairs
-  L6_2 = Config
-  L6_2 = L6_2.Props
-  L5_2, L6_2, L7_2, L8_2 = L5_2(L6_2)
-  for L9_2, L10_2 in L5_2, L6_2, L7_2, L8_2 do
-    L11_2 = L10_2.name
-    if L11_2 == A0_2 then
-      L4_2 = L10_2
-      break
-    end
-  end
-  if L4_2 then
-    L5_2 = L8_1
-    L5_2 = L5_2[A0_2]
-    if L5_2 then
-      goto lbl_22
-    end
-  end
-  do return end
-  ::lbl_22::
-  L5_2 = L8_1
-  L5_2 = L5_2[A0_2]
-  L6_2 = L4_2.animations
-  L6_2 = L6_2.dict
-  if A1_2 then
-    L7_2 = L4_2.animations
-    L7_2 = L7_2.open
-    if L7_2 then
-      goto lbl_34
-    end
-  end
-  L7_2 = L4_2.animations
-  L7_2 = L7_2.close
-  ::lbl_34::
-  L8_2 = lib
-  L8_2 = L8_2.requestAnimDict
-  L9_2 = L6_2
-  L8_2(L9_2)
-  L8_2 = GetAnimDuration
-  L9_2 = L6_2
-  L10_2 = L7_2
-  L8_2 = L8_2(L9_2, L10_2)
-  L8_2 = L8_2 * 1000
-  L9_2 = L8_2 or L9_2
-  if not (L8_2 > 0) or not L8_2 then
-    L9_2 = L4_2.animations
-    L9_2 = L9_2.duration
-  end
-  L10_2 = L4_2.playerAnimation
-  if L10_2 and not A3_2 then
-    if A1_2 then
-      L10_2 = L4_2.playerAnimation
-      L10_2 = L10_2.name
-      if L10_2 then
-        goto lbl_67
-      end
-    end
-    L10_2 = L4_2.playerAnimation
-    L10_2 = L10_2.closeName
-    if not L10_2 then
-      L10_2 = L4_2.playerAnimation
-      L10_2 = L10_2.name
-    end
-    ::lbl_67::
-    L11_2 = DoesEntityExist
-    L12_2 = L5_2
-    L11_2 = L11_2(L12_2)
-    if not L11_2 then
-      L11_2 = L2_1
-      L12_2 = "[COMPOUND] Error: The prop does not exist to animate"
-      L11_2(L12_2)
-      L11_2 = false
-      return L11_2
-    end
-    L11_2 = TriggerServerEvent
-    L12_2 = "compound_anims:requestPlayerAnimation"
-    L13_2 = {}
-    L14_2 = L4_2.playerAnimation
-    L14_2 = L14_2.dict
-    L13_2.dict = L14_2
-    L13_2.anim = L10_2
-    L14_2 = type
-    L15_2 = L4_2.playerAnimation
-    L15_2 = L15_2.position
-    L14_2 = L14_2(L15_2)
-    if "table" == L14_2 then
-      L14_2 = L4_2.playerAnimation
-      L14_2 = L14_2.position
-      L14_2 = L14_2[L10_2]
-      if L14_2 then
-        goto lbl_98
-      end
-    end
-    L14_2 = L4_2.playerAnimation
-    L14_2 = L14_2.position
-    ::lbl_98::
-    L13_2.position = L14_2
-    L14_2 = type
-    L15_2 = L4_2.playerAnimation
-    L15_2 = L15_2.heading
-    L14_2 = L14_2(L15_2)
-    if "table" == L14_2 then
-      L14_2 = L4_2.playerAnimation
-      L14_2 = L14_2.heading
-      L14_2 = L14_2[L10_2]
-      if L14_2 then
-        goto lbl_112
-      end
-    end
-    L14_2 = L4_2.playerAnimation
-    L14_2 = L14_2.heading
-    ::lbl_112::
-    L13_2.heading = L14_2
-    L13_2.propName = A0_2
-    L13_2.state = A1_2
-    L11_2(L12_2, L13_2)
-  else
-    L10_2 = animatePropObject
-    L11_2 = L4_2
-    L12_2 = L5_2
-    L13_2 = A1_2
-    L14_2 = L6_2
-    L15_2 = L7_2
-    L16_2 = L9_2
-    L17_2 = A2_2
-    L10_2(L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2)
-  end
-  L10_2 = true
-  return L10_2
-end
-animateProp = L24_1
-function L24_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2)
-  local L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2
-  L7_2 = L22_1
-  L8_2 = A1_2
-  L9_2 = A3_2
-  L10_2 = A4_2
-  L11_2 = A5_2
-  L12_2 = false
-  L13_2 = true
-  L14_2 = 0.0
-  L15_2 = 0
-  L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-  if not A6_2 then
-    L7_2 = TriggerEvent
-    L8_2 = "prompt_sandy_mechanic:liftStateChanged"
-    L9_2 = A0_2.name
-    L10_2 = A2_2
-    L7_2(L8_2, L9_2, L10_2)
-  end
-  L7_2 = A0_2.linkedProps
-  if L7_2 then
-    L7_2 = A0_2.animations
-    L7_2 = L7_2.linkedAnims
-    if L7_2 then
-      L7_2 = L23_1
-      L8_2 = A0_2.linkedProps
-      L9_2 = A0_2.animations
-      L9_2 = L9_2.linkedAnims
-      L10_2 = A3_2
-      L11_2 = A2_2
-      L12_2 = A5_2
-      L7_2(L8_2, L9_2, L10_2, L11_2, L12_2)
-    end
-  end
-  L7_2 = A0_2.collision
-  if L7_2 then
-    L7_2 = A0_2.collision
-    L8_2 = L7_2.name
-    L7_2 = L9_1
-    L7_2 = L7_2[L8_2]
-    if L7_2 then
-      L8_2 = A0_2.collision
-      L8_2 = L8_2.moveType
-      if "coords" == L8_2 then
-        if A2_2 then
-          L8_2 = A0_2.collision
-          L8_2 = L8_2.startCoords
-          if L8_2 then
-            goto lbl_54
-          end
-        end
-        L8_2 = A0_2.collision
-        L8_2 = L8_2.endCoords
-        ::lbl_54::
-        if A2_2 then
-          L9_2 = A0_2.collision
-          L9_2 = L9_2.endCoords
-          if L9_2 then
-            goto lbl_62
-          end
-        end
-        L9_2 = A0_2.collision
-        L9_2 = L9_2.startCoords
-        ::lbl_62::
-        L10_2 = A5_2
-        L11_2 = 0
-        L12_2 = "easeInOut"
-        L13_2 = A0_2.collision
-        L13_2 = L13_2.liftSettings
-        if L13_2 then
-          if A2_2 then
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.liftSettings
-            L13_2 = L13_2.upDelay
-            L11_2 = L13_2 or L11_2
-            if not L13_2 then
-              L11_2 = 200
-            end
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.liftSettings
-            L13_2 = L13_2.upSpeedFactor
-            if not L13_2 then
-              L13_2 = 0.8
-            end
-            L10_2 = A5_2 * L13_2
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.liftSettings
-            L13_2 = L13_2.upCurve
-            L12_2 = L13_2 or L12_2
-            if not L13_2 then
-              L12_2 = "easeInOutQuad"
-            end
-          else
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.liftSettings
-            L13_2 = L13_2.downSpeedFactor
-            if not L13_2 then
-              L13_2 = 1.2
-            end
-            L10_2 = A5_2 * L13_2
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.liftSettings
-            L13_2 = L13_2.downCurve
-            L12_2 = L13_2 or L12_2
-            if not L13_2 then
-              L12_2 = "easeOutCubic"
-            end
-          end
+
+    local coords = propData.collision.coords
+    local rotation = propData.collision.rotation
+    local propStates = GlobalState.sandy_compound
+    local stateValue = propStates and propStates[propData.name]
+
+    if propData.collision.moveType == "coords" and stateValue ~= nil then
+        if stateValue then
+            coords = propData.collision.endCoords or coords
         else
-          L13_2 = A0_2.name
-          if "prompt_sandy_is_lift" == L13_2 then
-            if A2_2 then
-              L11_2 = 200
-              L10_2 = A5_2 * 0.8
-              L12_2 = "easeInOutQuad"
+            coords = propData.collision.startCoords
+        end
+    elseif propData.collision.moveType == "rotation" and stateValue ~= nil then
+        if stateValue then
+            rotation = propData.collision.endRotation or rotation
+        else
+            rotation = propData.collision.startRotation
+        end
+    end
+
+    local entity = spawnObjectModel(propData.collision.model, coords, rotation, true, true)
+    if entity then
+        collisionProps[propData.collision.name] = entity
+    end
+    return entity
+end
+
+-- Tworzenie powiązanych propów (linked props)
+createLinkedProp = function(propData, parentName)
+    if linkedPropsTable[propData.name] and DoesEntityExist(linkedPropsTable[propData.name].entity) then
+        return linkedPropsTable[propData.name].entity
+    end
+
+    local entity = spawnObjectModel(propData.model, propData.coords, propData.rotation, false, false)
+    if entity then
+        linkedPropsTable[propData.name] = {
+            entity = entity,
+            parent = parentName
+        }
+    end
+    return entity
+end
+
+-- Odtwarzanie animacji dla encji: klip gra DOKŁADNIE RAZ i trzyma ostatnią
+-- klatkę (otwarte drzwi / podniesiony lift mają zostać w pozycji końcowej).
+-- Wcześniej parametry duration/loop/flag/playbackRate były przekłamane:
+-- każde wywołanie trafiało do PlayEntityAnim jako bLoop=true oraz liczba 0.0
+-- jako bHoldLastFrame, więc każda animacja propa zapętlała się w kółko.
+local function playEntityAnimation(entity, animDict, animName)
+    if not entity or not DoesEntityExist(entity) then return end
+
+    local animLoadResult = lib.requestAnimDict(animDict)
+    if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
+        animLoadResult.await()
+    end
+
+    -- PlayEntityAnim(entity, animName, animDict, blendDelta,
+    --                bLoop, bHoldLastFrame, bDriveToPose, startPhase, flags)
+    PlayEntityAnim(entity, animName, animDict, 8.0, false, true, false, 0.0, 0)
+    RemoveAnimDict(animDict)
+end
+
+-- Odtwarzanie statycznej animacji
+playStaticAnimation = function(entity, propData)
+    if not entity or not DoesEntityExist(entity) then return end
+    if not propData.animations or not propData.animations.static then return end
+
+    local dict = propData.animations.dict
+    local staticAnim = propData.animations.static
+
+    playEntityAnimation(entity, dict, staticAnim)
+
+    if propData.linkedProps and propData.animations.linkedAnims then
+        for index, linkedProp in ipairs(propData.linkedProps) do
+            local linkedInfo = linkedPropsTable[linkedProp.name]
+            if linkedInfo and linkedInfo.entity and DoesEntityExist(linkedInfo.entity) then
+                local linkedAnim = propData.animations.linkedAnims[index]
+                if linkedAnim and linkedAnim.static then
+                    playEntityAnimation(linkedInfo.entity, dict, linkedAnim.static)
+                end
+            end
+        end
+    end
+end
+
+-- Funkcja pomocnicza do animowania wielu obiektów naraz
+local function animateMultipleProps(propsList, animationsList, animDict, isOpen, speed, index)
+    index = index or 1
+    if index > #propsList then return end
+
+    local propInfo = propsList[index]
+    local targetProp = linkedPropsTable[propInfo.name]
+
+    if targetProp and targetProp.entity and DoesEntityExist(targetProp.entity) then
+        local animName = isOpen and animationsList[index].open or animationsList[index].close
+        playEntityAnimation(targetProp.entity, animDict, animName)
+    end
+
+    animateMultipleProps(propsList, animationsList, animDict, isOpen, speed, index + 1)
+end
+
+-- Odtwarza LOKALNIE animację propa do stanu ustawionego przez serwer
+-- (wywoływane z handlera state-baga oraz przy odtworzeniu stanu po spawnie).
+-- Nie wysyła żadnych eventów serwerowych: busy zwalnia serwerowy watchdog.
+-- emitLocalEvents: czy emitować lokalne eventy liftStateChanged/Complete
+-- (false przy cichym odtworzeniu stanu po spawnie propa).
+playPropAnimation = function(propConfig, propEntity, isOpen, animDict, animName, duration, emitLocalEvents)
+    playEntityAnimation(propEntity, animDict, animName)
+
+    if emitLocalEvents then
+        TriggerEvent("prompt_sandy_mechanic:liftStateChanged", propConfig.name, isOpen)
+    end
+
+    if propConfig.linkedProps and propConfig.animations.linkedAnims then
+        animateMultipleProps(propConfig.linkedProps, propConfig.animations.linkedAnims, animDict, isOpen, duration)
+    end
+
+    local collision = propConfig.collision
+    if collision then
+        local collisionEntity = collisionProps[collision.name]
+
+        if collisionEntity and DoesEntityExist(collisionEntity) then
+            if collision.moveType == "coords" and collision.startCoords and collision.endCoords then
+                -- Konwencja zgodna z createCollision: otwarty = endCoords,
+                -- zamknięty = startCoords (wcześniej kierunek był odwrócony).
+                local startCoords = isOpen and collision.startCoords or collision.endCoords
+                local endCoords = isOpen and collision.endCoords or collision.startCoords
+                local moveTime = duration
+                local delay = 0
+                local easing = "easeInOut"
+
+                if collision.liftSettings then
+                    if isOpen then
+                        delay = collision.liftSettings.upDelay or 200
+                        moveTime = duration * (collision.liftSettings.upSpeedFactor or 0.8)
+                        easing = collision.liftSettings.upCurve or "easeInOutQuad"
+                    else
+                        moveTime = duration * (collision.liftSettings.downSpeedFactor or 1.2)
+                        easing = collision.liftSettings.downCurve or "easeOutCubic"
+                    end
+                elseif propConfig.name == "prompt_sandy_is_lift_2" then
+                    if isOpen then
+                        delay = 200
+                        moveTime = duration * 0.8
+                        easing = "easeInOutQuad"
+                    else
+                        moveTime = duration * 1.2
+                        easing = "easeOutCubic"
+                    end
+                end
+
+                local extraDelay = isOpen and collision.openDelay or collision.closeDelay
+                if extraDelay then
+                    SetTimeout(math.floor(extraDelay), function()
+                        AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                    end)
+                elseif delay > 0 then
+                    SetTimeout(delay, function()
+                        AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                    end)
+                else
+                    AnimateObjectCoords(collisionEntity, startCoords, endCoords, moveTime, easing)
+                end
+            elseif collision.moveType == "rotation" and collision.startRotation and collision.endRotation then
+                local startRotation = isOpen and collision.startRotation or collision.endRotation
+                local endRotation = isOpen and collision.endRotation or collision.startRotation
+                AnimateObjectRotation(collisionEntity, startRotation, endRotation, duration, "easeInOut")
+            end
+            -- Kolizje statyczne (bez moveType): nic nie robimy.
+            -- Wcześniej otrzymywały AnimateObjectCoords(nil, nil), który
+            -- wyrzucał błąd w wątku przy każdej animacji.
+        end
+    end
+
+    if emitLocalEvents then
+        SetTimeout(duration, function()
+            TriggerEvent("prompt_sandy_mechanic:liftAnimationComplete", propConfig.name, isOpen)
+        end)
+    end
+end
+
+-- Lokalne odtworzenie animacji propa po nazwie (TYLKO playback ze stanu
+-- serwerowego; do inicjowania zmian służy requestPropState powyżej).
+animateProp = function(propName, isOpen, emitLocalEvents)
+    local propConfig = nil
+    for _, config in pairs(Config.Props) do
+        if config.name == propName then
+            propConfig = config
+            break
+        end
+    end
+
+    local propEntity = spawnedProps[propName]
+    if not propConfig or not propEntity or not DoesEntityExist(propEntity) then return false end
+    if not propConfig.animations or not propConfig.animations.dict then return false end
+
+    local animDict = propConfig.animations.dict
+    local animName = isOpen and propConfig.animations.open or propConfig.animations.close
+
+    local animLoadResult = lib.requestAnimDict(animDict)
+    if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
+        animLoadResult.await()
+    end
+
+    local animDuration = GetAnimDuration(animDict, animName) * 1000
+    if not animDuration or animDuration <= 0 then
+        animDuration = propConfig.animations.duration or 5000
+    end
+
+    playPropAnimation(propConfig, propEntity, isOpen, animDict, animName, animDuration, emitLocalEvents)
+    return true
+end
+
+-- Tworzenie pojedynczego propa na podstawie konfiguracji.
+-- attempt: numer próby — po chwilowej porażce spawnu ponawiamy próbę zamiast
+-- czekać, aż gracz wyjdzie i wróci w zasięg pointa (objaw: brak drzwi tuż po
+-- spawnie gracza przy garażu, mimo że model jest poprawny).
+createProp = function(propData, attempt)
+    local existingEntity = spawnedProps[propData.name]
+    if existingEntity and DoesEntityExist(existingEntity) then
+        -- Przy okazji ulecz ewentualnie brakującą kolizję / linked propy
+        -- (obie funkcje same odrzucają duplikaty).
+        if propData.collision then
+            createCollision(propData)
+        end
+        if propData.linkedProps then
+            for _, linkedData in ipairs(propData.linkedProps) do
+                createLinkedProp(linkedData, propData.name)
+            end
+        end
+        return existingEntity
+    end
+
+    -- spawnObjectModel yielduje przy ładowaniu modelu: równoległa próba
+    -- (onEnter pointa + retry) nie może utworzyć duplikatu.
+    if propSpawnPending[propData.name] then
+        return nil
+    end
+    propSpawnPending[propData.name] = true
+    attempt = attempt or 1
+
+    debugPrint("[COMPOUND] Creating prop: " .. propData.name .. " with model: " .. tostring(propData.model))
+    local entity = spawnObjectModel(propData.model, propData.coords, propData.rotation, false, false)
+    propSpawnPending[propData.name] = nil
+
+    if not entity then
+        if attempt <= 5 then
+            SetTimeout(1000 * attempt, function()
+                createProp(propData, attempt + 1)
+            end)
+        else
+            debugPrint("[COMPOUND ERROR] Failed to create entity for prop: " .. propData.name)
+        end
+        return nil
+    end
+
+    debugPrint("[COMPOUND] Successfully created prop entity: " .. propData.name .. " (entity: " .. tostring(entity) .. ")")
+    spawnedProps[propData.name] = entity
+
+    if propData.collision and not createCollision(propData) then
+        SetTimeout(1500, function()
+            createCollision(propData)
+        end)
+    end
+
+    if propData.linkedProps then
+        for _, linkedData in ipairs(propData.linkedProps) do
+            createLinkedProp(linkedData, propData.name)
+        end
+    end
+
+    local propStates = GlobalState.sandy_compound
+    if propStates and propStates[propData.name] ~= nil then
+        SetTimeout(100, function()
+            animateProp(propData.name, propStates[propData.name], false)
+        end)
+    elseif propData.animations and propData.animations.static then
+        SetTimeout(100, function()
+            playStaticAnimation(entity, propData)
+        end)
+    end
+
+    return entity
+end
+
+-- Pobieranie etykiet (labeli) dla ox_target
+getOxTargetLabels = function(propData)
+    local playerId = GetPlayerServerId(PlayerId())
+    local openLabel, closeLabel = nil, nil
+
+    if type(propData.label) == "table" then
+        openLabel = propData.label.open
+        closeLabel = propData.label.close
+    else
+        openLabel = propData.label or Config.Messages.open
+        closeLabel = propData.label or Config.Messages.close
+    end
+
+    return {
+        open = GetCustomLabel(propData.name, playerId, openLabel),
+        close = GetCustomLabel(propData.name, playerId, closeLabel)
+    }
+end
+
+-- Rejestracja stref targetu dla ox_target
+local function registerOxTarget(propData)
+    if not propData.interactionZone then return end
+    if oxTargetZones[propData.name] then return end
+
+    local playerId = GetPlayerServerId(PlayerId())
+    local targetName = "compound_" .. propData.name
+    local originalName = propData.originalName or propData.name
+    local isAutoOpenZone = Config.AutoOpen and isGarageRollup(originalName)
+
+    local options = nil
+
+    if isAutoOpenZone then
+        options = {
+            {
+                name = targetName .. "_unlock",
+                icon = "fas fa-lock-open",
+                label = Config.Messages.unlock,
+                canInteract = function()
+                    local locks = GlobalState.sandy_compound_locks or {}
+                    if not locks[originalName] then return false end
+                    local busy = GlobalState.sandy_compound_busy and GlobalState.sandy_compound_busy[originalName]
+                    if busy then return false end
+                    return CanPlayerInteract(originalName, playerId) and HasJobAccess(originalName, playerId)
+                end,
+                onSelect = function()
+                    TriggerServerEvent("compound_anims:toggleLock", originalName)
+                end
+            },
+            {
+                name = targetName .. "_lock",
+                icon = "fas fa-lock",
+                label = Config.Messages.lock,
+                canInteract = function()
+                    local locks = GlobalState.sandy_compound_locks or {}
+                    if locks[originalName] then return false end
+                    local busy = GlobalState.sandy_compound_busy and GlobalState.sandy_compound_busy[originalName]
+                    if busy then return false end
+                    return CanPlayerInteract(originalName, playerId) and HasJobAccess(originalName, playerId)
+                end,
+                onSelect = function()
+                    TriggerServerEvent("compound_anims:toggleLock", originalName)
+                end
+            }
+        }
+    else
+        local labels = getOxTargetLabels(propData)
+        options = {
+            {
+                name = targetName .. "_open",
+                icon = "fas fa-door-open",
+                label = labels.open,
+                canInteract = function()
+                    local propStates = GlobalState.sandy_compound and GlobalState.sandy_compound[originalName]
+                    local busy = GlobalState.sandy_compound_busy and GlobalState.sandy_compound_busy[originalName]
+                    if busy or propStates then return false end
+                    return CanPlayerInteract(originalName, playerId) and HasJobAccess(originalName, playerId)
+                end,
+                onSelect = function()
+                    OnPropInteraction(originalName, playerId, false)
+                    if propData.onExecute then propData.onExecute(propData) end
+                    requestPropState(originalName, true)
+                end
+            },
+            {
+                name = targetName .. "_close",
+                icon = "fas fa-door-closed",
+                label = labels.close,
+                canInteract = function()
+                    local propStates = GlobalState.sandy_compound and GlobalState.sandy_compound[originalName]
+                    local busy = GlobalState.sandy_compound_busy and GlobalState.sandy_compound_busy[originalName]
+                    if busy or not propStates then return false end
+                    return CanPlayerInteract(originalName, playerId) and HasJobAccess(originalName, playerId)
+                end,
+                onSelect = function()
+                    OnPropInteraction(originalName, playerId, true)
+                    if propData.onExecute then propData.onExecute(propData) end
+                    requestPropState(originalName, false)
+                end
+            }
+        }
+    end
+
+    TargetAddBoxZone({
+        name = targetName,
+        coords = propData.interactionZone.coords,
+        size = propData.interactionZone.size,
+        rotation = propData.interactionZone.rotation or 0,
+        debug = Config.Debug,
+        options = options
+    })
+
+    oxTargetZones[propData.name] = targetName
+    debugPrint("[COMPOUND] Registered target zone for prop: " .. propData.name)
+end
+
+-- Usuwanie strefy ox_target
+local function removeOxTarget(propData)
+    local zoneName = oxTargetZones[propData.name]
+    if not zoneName then return end
+
+    TargetRemoveZone(zoneName)
+    oxTargetZones[propData.name] = nil
+end
+
+-- Eksportowane funkcje globalne
+exports("getLiftState", function(propName)
+    local propStates = GlobalState.sandy_compound or {}
+    return propStates[propName]
+end)
+
+exports("isLiftBusy", function(propName)
+    local busyState = GlobalState.sandy_compound_busy or {}
+    return busyState[propName] or false
+end)
+
+-- Zleca zmianę stanu serwerowi (walidacja dystansu/uprawnień/busy po jego stronie).
+-- Animacja odtworzy się lokalnie dopiero po zmianie GlobalState (state-bag).
+exports("setLiftState", function(propName, state)
+    requestPropState(propName, state)
+end)
+
+-- Debugowanie eventów w trybie debug
+if Config.Debug then
+    AddEventHandler("prompt_sandy_mechanic:liftStateChanged", function(propName, state)
+        print(string.format("[COMPOUND EXPORT DEBUG] [CLIENT] liftStateChanged -> propName: %s | state: %s (%s)", tostring(propName), tostring(state), state and "UP" or "DOWN"))
+        local liftState = exports[GetCurrentResourceName()]:getLiftState(propName)
+        print(string.format("[COMPOUND EXPORT DEBUG] [CLIENT] getLiftState(%s) = %s", tostring(propName), tostring(liftState)))
+        local isBusy = exports[GetCurrentResourceName()]:isLiftBusy(propName)
+        print(string.format("[COMPOUND EXPORT DEBUG] [CLIENT] isLiftBusy(%s) = %s", tostring(propName), tostring(isBusy)))
+    end)
+
+    AddEventHandler("prompt_sandy_mechanic:liftAnimationComplete", function(propName, state)
+        print(string.format("[COMPOUND EXPORT DEBUG] [CLIENT] liftAnimationComplete -> propName: %s | state: %s (%s)", tostring(propName), tostring(state), state and "UP" or "DOWN"))
+    end)
+end
+
+-- Aktualizacja interfejsu TextUI
+local function updateTextUI(text)
+    if currentTextUI ~= text then
+        if text then
+            lib.showTextUI(text)
+        else
+            lib.hideTextUI()
+        end
+        currentTextUI = text
+    end
+end
+
+-- Tworzenie klasycznej strefy interakcji (lib.zones)
+local function createInteractionZone(propData)
+    if not propData.interactionZone then return end
+
+    local isAutoOpen = Config.AutoOpen and isGarageRollup(propData.name)
+
+    return lib.zones.box({
+        coords = propData.interactionZone.coords,
+        size = propData.interactionZone.size,
+        rotation = propData.interactionZone.rotation,
+        debug = false,
+        onEnter = function()
+            isInInteractionZone = true
+            activeZones[propData.name] = true
+            local playerId = GetPlayerServerId(PlayerId())
+
+            activeZoneData[propData.name] = {
+                canInteract = CanPlayerInteract(propData.name, playerId),
+                hasAccess = HasJobAccess(propData.name, playerId),
+                playerId = playerId
+            }
+        end,
+        onExit = function()
+            activeZoneData[propData.name] = nil
+            activeZones[propData.name] = nil
+            if next(activeZones) == nil then
+                isInInteractionZone = false
+                updateTextUI(nil)
+            end
+        end,
+        inside = function()
+            local zoneInfo = activeZoneData[propData.name]
+            local isBusy = GlobalState.sandy_compound_busy and GlobalState.sandy_compound_busy[propData.name]
+
+            if isBusy then
+                updateTextUI(nil)
+                return
+            end
+
+            if isAutoOpen then
+                if not zoneInfo or not zoneInfo.canInteract or not zoneInfo.hasAccess then
+                    updateTextUI(nil)
+                    return
+                end
+
+                local locks = GlobalState.sandy_compound_locks or {}
+                local isLocked = locks[propData.name] or false
+                local lockMsg = isLocked and Config.Messages.unlock or Config.Messages.lock
+
+                local customLabel = GetCustomLabel(propData.name, zoneInfo.playerId, lockMsg)
+                updateTextUI("[" .. Config.InteractionKey.display .. "] " .. customLabel)
+
+                if IsControlJustPressed(0, Config.InteractionKey.control) then
+                    TriggerServerEvent("compound_anims:toggleLock", propData.name)
+                end
             else
-              L10_2 = A5_2 * 1.2
-              L12_2 = "easeOutCubic"
+                if not zoneInfo or not zoneInfo.canInteract or not zoneInfo.hasAccess then
+                    updateTextUI(nil)
+                    return
+                end
+
+                local propStates = GlobalState.sandy_compound
+                local isOpen = propStates and propStates[propData.name]
+                local actionMsg = nil
+
+                if type(propData.label) == "table" then
+                    actionMsg = isOpen and propData.label.close or propData.label.open
+                else
+                    actionMsg = propData.label or (isOpen and Config.Messages.close .. " " .. propData.name or Config.Messages.open .. " " .. propData.name)
+                end
+
+                local customLabel = GetCustomLabel(propData.name, zoneInfo.playerId, actionMsg)
+                updateTextUI("[" .. Config.InteractionKey.display .. "] " .. customLabel)
+
+                if IsControlJustPressed(0, Config.InteractionKey.control) then
+                    OnPropInteraction(propData.name, zoneInfo.playerId, isOpen)
+                    if propData.onExecute then propData.onExecute(propData) end
+                    requestPropState(propData.name, not isOpen)
+                end
             end
-          end
         end
-        if A2_2 then
-          L13_2 = A0_2.collision
-          L13_2 = L13_2.openDelay
-          if L13_2 then
-            goto lbl_132
-          end
+    })
+end
+
+-- Tworzenie stref automatycznego otwierania przy wejściu (AutoOpen)
+local function createAutoOpenZone(propData)
+    if not propData.interactionZone then return end
+
+    local propName = propData.name
+    zoneEnterCounts[propName] = 0
+
+    return lib.zones.box({
+        coords = propData.interactionZone.coords,
+        size = propData.interactionZone.size,
+        rotation = propData.interactionZone.rotation,
+        debug = Config.Debug,
+        onEnter = function()
+            zoneEnterCounts[propName] = (zoneEnterCounts[propName] or 0) + 1
+            TriggerServerEvent("compound_anims:zoneEnter", propName)
+
+            local locks = GlobalState.sandy_compound_locks or {}
+            if locks[propName] then return end
+
+            local propStates = GlobalState.sandy_compound or {}
+            if propStates[propName] then return end
+
+            local busyState = GlobalState.sandy_compound_busy or {}
+            if busyState[propName] then return end
+
+            local playerId = GetPlayerServerId(PlayerId())
+            if not CanPlayerInteract(propName, playerId) or not HasJobAccess(propName, playerId) then return end
+
+            TriggerServerEvent("compound_anims:requestAutoOpen", propName)
+        end,
+        onExit = function()
+            TriggerServerEvent("compound_anims:zoneExit", propName)
+            local currentCount = zoneEnterCounts[propName] or 0
+
+            SetTimeout(Config.AutoOpenCloseDelay, function()
+                if (zoneEnterCounts[propName] or 0) ~= currentCount then return end
+                TriggerServerEvent("compound_anims:requestAutoClose", propName)
+            end)
         end
-        if not A2_2 then
-          L13_2 = A0_2.collision
-          L13_2 = L13_2.closeDelay
-          ::lbl_132::
-          if L13_2 then
-            if A2_2 then
-              L13_2 = A0_2.collision
-              L13_2 = L13_2.openDelay
-              if L13_2 then
-                goto lbl_140
-              end
+    })
+end
+
+-- Inicjalizacja wszystkich stref interakcji
+local function createInteractionZones()
+    if useTarget then
+        debugPrint("[COMPOUND] Creating target zones for all props")
+        for _, propConfig in pairs(Config.Props) do
+            if propConfig.interactionZone then
+                registerOxTarget(propConfig)
             end
-            L13_2 = A0_2.collision
-            L13_2 = L13_2.closeDelay
-            ::lbl_140::
-            L14_2 = SetTimeout
-            L15_2 = L13_2
-            function L16_2()
-              local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
-              L0_3 = AnimateObjectCoords
-              L1_3 = L7_2
-              L2_3 = L8_2
-              L3_3 = L9_2
-              L4_3 = L10_2
-              L5_3 = L12_2
-              L0_3(L1_3, L2_3, L3_3, L4_3, L5_3)
+            if propConfig.extraZones then
+                for extraIndex, extraZone in ipairs(propConfig.extraZones) do
+                    local clonedConfig = table.clone(propConfig)
+                    clonedConfig.interactionZone = extraZone
+                    clonedConfig.originalName = propConfig.name
+                    clonedConfig.name = propConfig.name .. "_extra_" .. extraIndex
+                    registerOxTarget(clonedConfig)
+                end
             end
-            L14_2(L15_2, L16_2)
         end
-        elseif L11_2 > 0 then
-          L13_2 = SetTimeout
-          L14_2 = L11_2
-          function L15_2()
-            local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
-            L0_3 = AnimateObjectCoords
-            L1_3 = L7_2
-            L2_3 = L8_2
-            L3_3 = L9_2
-            L4_3 = L10_2
-            L5_3 = L12_2
-            L0_3(L1_3, L2_3, L3_3, L4_3, L5_3)
-          end
-          L13_2(L14_2, L15_2)
-        else
-          L13_2 = AnimateObjectCoords
-          L14_2 = L7_2
-          L15_2 = L8_2
-          L16_2 = L9_2
-          L17_2 = L10_2
-          L18_2 = L12_2
-          L13_2(L14_2, L15_2, L16_2, L17_2, L18_2)
-        end
-      else
-        L8_2 = A0_2.collision
-        L8_2 = L8_2.moveType
-        if "rotation" == L8_2 then
-          if A2_2 then
-            L8_2 = A0_2.collision
-            L8_2 = L8_2.startRotation
-            if L8_2 then
-              goto lbl_173
-            end
-          end
-          L8_2 = A0_2.collision
-          L8_2 = L8_2.endRotation
-          ::lbl_173::
-          if A2_2 then
-            L9_2 = A0_2.collision
-            L9_2 = L9_2.endRotation
-            if L9_2 then
-              goto lbl_181
-            end
-          end
-          L9_2 = A0_2.collision
-          L9_2 = L9_2.startRotation
-          ::lbl_181::
-          L10_2 = AnimateObjectRotation
-          L11_2 = L7_2
-          L12_2 = L8_2
-          L13_2 = L9_2
-          L14_2 = A5_2
-          L15_2 = "easeInOut"
-          L10_2(L11_2, L12_2, L13_2, L14_2, L15_2)
-        end
-      end
-    end
-  end
-  if not A6_2 then
-    L7_2 = TriggerServerEvent
-    L8_2 = "compound_anims:updatePropState"
-    L9_2 = A0_2.name
-    L10_2 = A2_2
-    L7_2(L8_2, L9_2, L10_2)
-  end
-  L7_2 = SetTimeout
-  L8_2 = A5_2
-  function L9_2()
-    local L0_3, L1_3, L2_3, L3_3
-    L0_3 = TriggerServerEvent
-    L1_3 = "compound_anims:setPropBusy"
-    L2_3 = A0_2.name
-    L3_3 = false
-    L0_3(L1_3, L2_3, L3_3)
-    L0_3 = A6_2
-    if not L0_3 then
-      L0_3 = TriggerEvent
-      L1_3 = "prompt_sandy_mechanic:liftAnimationComplete"
-      L2_3 = A0_2.name
-      L3_3 = A2_2
-      L0_3(L1_3, L2_3, L3_3)
-    end
-  end
-  L7_2(L8_2, L9_2)
-end
-animatePropObject = L24_1
-L24_1 = exports
-L25_1 = "getLiftState"
-function L26_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = GlobalState
-  L1_2 = L1_2.sandy_compound
-  if not L1_2 then
-    L1_2 = {}
-  end
-  L2_2 = L1_2[A0_2]
-  return L2_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "isLiftBusy"
-function L26_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = GlobalState
-  L1_2 = L1_2.sandy_compound_busy
-  if not L1_2 then
-    L1_2 = {}
-  end
-  L2_2 = L1_2[A0_2]
-  if not L2_2 then
-    L2_2 = false
-  end
-  return L2_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = exports
-L25_1 = "setLiftState"
-function L26_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2
-  L2_2 = animateProp
-  L3_2 = A0_2
-  L4_2 = A1_2
-  L2_2(L3_2, L4_2)
-  L2_2 = TriggerServerEvent
-  L3_2 = "compound_anims:setPropBusy"
-  L4_2 = A0_2
-  L5_2 = true
-  L2_2(L3_2, L4_2, L5_2)
-end
-L24_1(L25_1, L26_1)
-L24_1 = Config
-L24_1 = L24_1.Debug
-if L24_1 then
-  L24_1 = AddEventHandler
-  L25_1 = "prompt_sandy_mechanic:liftStateChanged"
-  function L26_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2
-    L2_2 = print
-    L3_2 = "[SANDY MECHANIC EXPORT DEBUG] [CLIENT] liftStateChanged -> propName: %s | state: %s (%s)"
-    L4_2 = L3_2
-    L3_2 = L3_2.format
-    L5_2 = A0_2
-    L6_2 = tostring
-    L7_2 = A1_2
-    L6_2 = L6_2(L7_2)
-    if A1_2 then
-      L7_2 = "UP"
-      if L7_2 then
-        goto lbl_14
-      end
-    end
-    L7_2 = "DOWN"
-    ::lbl_14::
-    L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2 = L3_2(L4_2, L5_2, L6_2, L7_2)
-    L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2)
-    L2_2 = exports
-    L3_2 = GetCurrentResourceName
-    L3_2 = L3_2()
-    L2_2 = L2_2[L3_2]
-    L3_2 = L2_2
-    L2_2 = L2_2.getLiftState
-    L4_2 = A0_2
-    L2_2 = L2_2(L3_2, L4_2)
-    L3_2 = print
-    L4_2 = "[SANDY MECHANIC EXPORT DEBUG] [CLIENT] getLiftState(%s) = %s"
-    L5_2 = L4_2
-    L4_2 = L4_2.format
-    L6_2 = A0_2
-    L7_2 = tostring
-    L8_2 = L2_2
-    L7_2, L8_2, L9_2 = L7_2(L8_2)
-    L4_2, L5_2, L6_2, L7_2, L8_2, L9_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2)
-    L3_2(L4_2, L5_2, L6_2, L7_2, L8_2, L9_2)
-    L3_2 = exports
-    L4_2 = GetCurrentResourceName
-    L4_2 = L4_2()
-    L3_2 = L3_2[L4_2]
-    L4_2 = L3_2
-    L3_2 = L3_2.isLiftBusy
-    L5_2 = A0_2
-    L3_2 = L3_2(L4_2, L5_2)
-    L4_2 = print
-    L5_2 = "[SANDY MECHANIC EXPORT DEBUG] [CLIENT] isLiftBusy(%s) = %s"
-    L6_2 = L5_2
-    L5_2 = L5_2.format
-    L7_2 = A0_2
-    L8_2 = tostring
-    L9_2 = L3_2
-    L8_2, L9_2 = L8_2(L9_2)
-    L5_2, L6_2, L7_2, L8_2, L9_2 = L5_2(L6_2, L7_2, L8_2, L9_2)
-    L4_2(L5_2, L6_2, L7_2, L8_2, L9_2)
-  end
-  L24_1(L25_1, L26_1)
-  L24_1 = AddEventHandler
-  L25_1 = "prompt_sandy_mechanic:liftAnimationComplete"
-  function L26_1(A0_2, A1_2)
-    local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-    L2_2 = print
-    L3_2 = "[SANDY MECHANIC EXPORT DEBUG] [CLIENT] liftAnimationComplete -> propName: %s | state: %s (%s)"
-    L4_2 = L3_2
-    L3_2 = L3_2.format
-    L5_2 = A0_2
-    L6_2 = tostring
-    L7_2 = A1_2
-    L6_2 = L6_2(L7_2)
-    if A1_2 then
-      L7_2 = "UP"
-      if L7_2 then
-        goto lbl_14
-      end
-    end
-    L7_2 = "DOWN"
-    ::lbl_14::
-    L3_2, L4_2, L5_2, L6_2, L7_2 = L3_2(L4_2, L5_2, L6_2, L7_2)
-    L2_2(L3_2, L4_2, L5_2, L6_2, L7_2)
-  end
-  L24_1(L25_1, L26_1)
-end
-function L24_1(A0_2)
-  local L1_2, L2_2
-  L1_2 = L11_1
-  if L1_2 ~= A0_2 then
-    if A0_2 then
-      L1_2 = lib
-      L1_2 = L1_2.showTextUI
-      L2_2 = A0_2
-      L1_2(L2_2)
     else
-      L1_2 = lib
-      L1_2 = L1_2.hideTextUI
-      L1_2()
-    end
-    L11_1 = A0_2
-  end
-end
-updateTextUI = L24_1
-function L24_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2
-  L0_2 = {}
-  L1_2 = pairs
-  L2_2 = Config
-  L2_2 = L2_2.Props
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = GlobalState
-    L7_2 = L7_2.sandy_compound
-    if L7_2 then
-      L7_2 = GlobalState
-      L7_2 = L7_2.sandy_compound
-      L8_2 = L6_2.name
-      L7_2 = L7_2[L8_2]
-    end
-    if L7_2 then
-      L8_2 = Config
-      L8_2 = L8_2.Messages
-      L8_2 = L8_2.close
-      if L8_2 then
-        goto lbl_26
-      end
-    end
-    L8_2 = Config
-    L8_2 = L8_2.Messages
-    L8_2 = L8_2.open
-    ::lbl_26::
-    L9_2 = table
-    L9_2 = L9_2.insert
-    L10_2 = L0_2
-    L11_2 = {}
-    L12_2 = L6_2.name
-    L11_2.title = L12_2
-    L12_2 = L8_2
-    L13_2 = " "
-    L14_2 = L6_2.name
-    L12_2 = L12_2 .. L13_2 .. L14_2
-    L11_2.description = L12_2
-    L11_2.icon = "building"
-    function L12_2()
-      local L0_3, L1_3, L2_3
-      L0_3 = animateProp
-      L1_3 = L6_2.name
-      L2_3 = L7_2
-      L2_3 = not L2_3
-      L0_3(L1_3, L2_3)
-    end
-    L11_2.onSelect = L12_2
-    L9_2(L10_2, L11_2)
-  end
-  return L0_2
-end
-getTestMenu = L24_1
-function L24_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2
-  L1_2 = A0_2.interactionZone
-  if not L1_2 then
-    return
-  end
-  L1_2 = {}
-  L2_2 = Config
-  L2_2 = L2_2.AutoOpen
-  if L2_2 then
-    L2_2 = L17_1
-    L3_2 = A0_2.name
-    L2_2 = L2_2(L3_2)
-  end
-  L3_2 = lib
-  L3_2 = L3_2.zones
-  L3_2 = L3_2.box
-  L4_2 = {}
-  L5_2 = A0_2.interactionZone
-  L5_2 = L5_2.coords
-  L4_2.coords = L5_2
-  L5_2 = A0_2.interactionZone
-  L5_2 = L5_2.size
-  L4_2.size = L5_2
-  L5_2 = A0_2.interactionZone
-  L5_2 = L5_2.rotation
-  L4_2.rotation = L5_2
-  L4_2.debug = false
-  function L5_2()
-    local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
-    L0_3 = true
-    L12_1 = L0_3
-    L1_3 = A0_2.name
-    L0_3 = L13_1
-    L0_3[L1_3] = true
-    L0_3 = GetPlayerServerId
-    L1_3 = PlayerId
-    L1_3, L2_3, L3_3, L4_3, L5_3 = L1_3()
-    L0_3 = L0_3(L1_3, L2_3, L3_3, L4_3, L5_3)
-    L1_3 = CanPlayerInteract
-    L2_3 = A0_2.name
-    L3_3 = L0_3
-    L1_3 = L1_3(L2_3, L3_3)
-    L2_3 = HasJobAccess
-    L3_3 = A0_2.name
-    L4_3 = L0_3
-    L2_3 = L2_3(L3_3, L4_3)
-    L4_3 = A0_2.name
-    L3_3 = L1_2
-    L5_3 = {}
-    L5_3.canInteract = L1_3
-    L5_3.hasAccess = L2_3
-    L5_3.playerId = L0_3
-    L3_3[L4_3] = L5_3
-  end
-  L4_2.onEnter = L5_2
-  function L5_2()
-    local L0_3, L1_3
-    L1_3 = A0_2.name
-    L0_3 = L13_1
-    L0_3[L1_3] = nil
-    L1_3 = A0_2.name
-    L0_3 = L1_2
-    L0_3[L1_3] = nil
-    L0_3 = next
-    L1_3 = L13_1
-    L0_3 = L0_3(L1_3)
-    if not L0_3 then
-      L0_3 = false
-      L12_1 = L0_3
-      L0_3 = updateTextUI
-      L1_3 = nil
-      L0_3(L1_3)
-    end
-  end
-  L4_2.onExit = L5_2
-  function L5_2()
-    local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3
-    L1_3 = A0_2.name
-    L0_3 = L1_2
-    L0_3 = L0_3[L1_3]
-    L1_3 = GlobalState
-    L1_3 = L1_3.sandy_compound_busy
-    if L1_3 then
-      L1_3 = GlobalState
-      L1_3 = L1_3.sandy_compound_busy
-      L2_3 = A0_2.name
-      L1_3 = L1_3[L2_3]
-    end
-    if L1_3 then
-      L2_3 = updateTextUI
-      L3_3 = nil
-      L2_3(L3_3)
-      return
-    end
-    L2_3 = L2_2
-    if L2_3 then
-      if L0_3 then
-        L2_3 = L0_3.canInteract
-        if L2_3 then
-          L2_3 = L0_3.hasAccess
-          if L2_3 then
-            goto lbl_33
-          end
+        debugPrint("[COMPOUND] Creating lib.zones for all props")
+        for _, propConfig in pairs(Config.Props) do
+            createInteractionZone(propConfig)
+            if propConfig.extraZones then
+                for _, extraZone in ipairs(propConfig.extraZones) do
+                    local clonedConfig = table.clone(propConfig)
+                    clonedConfig.interactionZone = extraZone
+                    createInteractionZone(clonedConfig)
+                end
+            end
         end
-      end
-      L2_3 = updateTextUI
-      L3_3 = nil
-      L2_3(L3_3)
-      do return end
-      ::lbl_33::
-      L2_3 = GlobalState
-      L2_3 = L2_3.sandy_compound_locks
-      if not L2_3 then
-        L2_3 = {}
-      end
-      L3_3 = A0_2.name
-      L3_3 = L2_3[L3_3]
-      if not L3_3 then
-        L3_3 = false
-      end
-      if L3_3 then
-        L4_3 = Config
-        L4_3 = L4_3.Messages
-        L4_3 = L4_3.unlock
-        if L4_3 then
-          goto lbl_54
+    end
+
+    if Config.AutoOpen then
+        debugPrint("[COMPOUND] Creating auto-open zones for garage rollup doors")
+        for _, propConfig in pairs(Config.Props) do
+            if isGarageRollup(propConfig.name) and propConfig.interactionZone then
+                createAutoOpenZone(propConfig)
+            end
         end
-      end
-      L4_3 = Config
-      L4_3 = L4_3.Messages
-      L4_3 = L4_3.lock
-      ::lbl_54::
-      L5_3 = GetCustomLabel
-      L6_3 = A0_2.name
-      L7_3 = L0_3.playerId
-      L8_3 = L4_3
-      L5_3 = L5_3(L6_3, L7_3, L8_3)
-      L4_3 = L5_3
-      L5_3 = updateTextUI
-      L6_3 = "[E] "
-      L7_3 = L4_3
-      L6_3 = L6_3 .. L7_3
-      L5_3(L6_3)
-      L5_3 = IsControlJustPressed
-      L6_3 = 0
-      L7_3 = 38
-      L5_3 = L5_3(L6_3, L7_3)
-      if L5_3 then
-        L5_3 = TriggerServerEvent
-        L6_3 = "compound_anims:toggleLock"
-        L7_3 = A0_2.name
-        L5_3(L6_3, L7_3)
-      end
+    end
+end
+
+-- Tworzenie punktów spawnujących obiekty wokół gracza (Distance streaming)
+local function createSpawnPoint(propData)
+    local point = lib.points.new({
+        coords = propData.coords,
+        distance = Config.SpawnDistance,
+        onEnter = function()
+            debugPrint("[COMPOUND] onEnter triggered for prop: " .. propData.name)
+            createProp(propData)
+        end,
+        onExit = function()
+        end
+    })
+
+    if point then
+        spawnedProps[propData.name] = nil
+        debugPrint("[COMPOUND] Spawn point created and stored for: " .. propData.name)
+
+        -- Gracz może już stać w zasięgu (spawn przy propie / restart zasobu):
+        -- spróbuj od razu, nie polegaj wyłącznie na onEnter pointa.
+        if #(GetEntityCoords(cache.ped) - propData.coords) <= Config.SpawnDistance then
+            createProp(propData)
+        end
     else
-      if L0_3 then
-        L2_3 = L0_3.canInteract
-        if L2_3 then
-          L2_3 = L0_3.hasAccess
-          if L2_3 then
-            goto lbl_88
-          end
-        end
-      end
-      L2_3 = updateTextUI
-      L3_3 = nil
-      L2_3(L3_3)
-      do return end
-      ::lbl_88::
-      L2_3 = GlobalState
-      L2_3 = L2_3.sandy_compound
-      if L2_3 then
-        L2_3 = GlobalState
-        L2_3 = L2_3.sandy_compound
-        L3_3 = A0_2.name
-        L2_3 = L2_3[L3_3]
-      end
-      L3_3 = nil
-      L4_3 = type
-      L5_3 = A0_2.label
-      L4_3 = L4_3(L5_3)
-      if "table" == L4_3 then
-        if L2_3 then
-          L4_3 = A0_2.label
-          L4_3 = L4_3.close
-          L3_3 = L4_3 or L3_3
-        end
-        if not L4_3 then
-          L4_3 = A0_2.label
-          L3_3 = L4_3.open
-        end
-      else
-        L4_3 = A0_2.label
-        L3_3 = L4_3 or L3_3
-        if not L4_3 then
-          if L2_3 then
-            L4_3 = Config
-            L4_3 = L4_3.Messages
-            L4_3 = L4_3.close
-            L5_3 = " "
-            L6_3 = A0_2.name
-            L4_3 = L4_3 .. L5_3 .. L6_3
-            if L4_3 then
-              goto lbl_131
-              L3_3 = L4_3 or L3_3
+        debugPrint("[COMPOUND WARNING] Failed to create spawn point for: " .. propData.name)
+    end
+end
+
+local function createSpawnPoints()
+    for _, propConfig in pairs(Config.Props) do
+        createSpawnPoint(propConfig)
+    end
+end
+
+-- Zdarzenia sieciowe (Net Events)
+RegisterNetEvent("compound_anims:syncAnimation")
+AddEventHandler("compound_anims:syncAnimation", function(sourcePlayerId, animDict, animName, duration)
+    if type(animDict) ~= "string" or type(animName) ~= "string" then return end
+
+    local player = GetPlayerFromServerId(sourcePlayerId)
+    if player == -1 or not NetworkIsPlayerActive(player) then return end
+
+    local targetPed = GetPlayerPed(player)
+    if not targetPed or targetPed == 0 or targetPed == cache.ped then return end
+
+    local animLoadResult = lib.requestAnimDict(animDict)
+    if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
+        animLoadResult.await()
+    end
+
+    TaskPlayAnim(targetPed, animDict, animName, 8.0, -8.0,
+        type(duration) == "number" and duration or -1, 0, 0, false, false, false)
+    RemoveAnimDict(animDict)
+end)
+
+-- UWAGA: dawny handler compound_anims:animatePropAfterPlayerAnim został
+-- usunięty. Serwer po udanej animacji gracza zmienia GlobalState,
+-- a prop animuje się u wszystkich z handlera state-baga poniżej.
+
+-- Rejestracja handlerów zmian stanów (StateBag)
+local function registerPropStateHandlers()
+    AddStateBagChangeHandler("sandy_compound", nil, function(bagName, key, value)
+        if not value then return end
+        local propStates = GlobalState.sandy_compound or {}
+
+        for _, propConfig in pairs(Config.Props) do
+            local propName = propConfig.name
+            if value[propName] ~= nil and value[propName] ~= propStates[propName] then
+                if spawnedProps[propName] and DoesEntityExist(spawnedProps[propName]) then
+                    animateProp(propName, value[propName], true)
+                end
             end
-          end
-          L4_3 = Config
-          L4_3 = L4_3.Messages
-          L4_3 = L4_3.open
-          L5_3 = " "
-          L6_3 = A0_2.name
-          L4_3 = L4_3 .. L5_3 .. L6_3
-          L3_3 = L4_3
         end
-      end
-      ::lbl_131::
-      L4_3 = GetCustomLabel
-      L5_3 = A0_2.name
-      L6_3 = L0_3.playerId
-      L7_3 = L3_3
-      L4_3 = L4_3(L5_3, L6_3, L7_3)
-      L3_3 = L4_3
-      L4_3 = updateTextUI
-      L5_3 = "[E] "
-      L6_3 = L3_3
-      L5_3 = L5_3 .. L6_3
-      L4_3(L5_3)
-      L4_3 = IsControlJustPressed
-      L5_3 = 0
-      L6_3 = 38
-      L4_3 = L4_3(L5_3, L6_3)
-      if L4_3 then
-        L4_3 = OnPropInteraction
-        L5_3 = A0_2.name
-        L6_3 = L0_3.playerId
-        L7_3 = L2_3
-        L4_3(L5_3, L6_3, L7_3)
-        L4_3 = A0_2.onExecute
-        if L4_3 then
-          L4_3 = A0_2.onExecute
-          L5_3 = A0_2
-          L4_3(L5_3)
-        end
-        L4_3 = TriggerServerEvent
-        L5_3 = "compound_anims:setPropBusy"
-        L6_3 = A0_2.name
-        L7_3 = true
-        L4_3(L5_3, L6_3, L7_3)
-        L4_3 = animateProp
-        L5_3 = A0_2.name
-        L6_3 = not L2_3
-        L4_3(L5_3, L6_3)
-      end
-    end
-  end
-  L4_2.inside = L5_2
-  return L3_2(L4_2)
-end
-createInteractionZone = L24_1
-function L24_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2
-  L1_2 = A0_2.interactionZone
-  if not L1_2 then
-    return
-  end
-  L1_2 = A0_2.name
-  L2_2 = L16_1
-  L2_2[L1_2] = 0
-  L2_2 = lib
-  L2_2 = L2_2.zones
-  L2_2 = L2_2.box
-  L3_2 = {}
-  L4_2 = A0_2.interactionZone
-  L4_2 = L4_2.coords
-  L3_2.coords = L4_2
-  L4_2 = A0_2.interactionZone
-  L4_2 = L4_2.size
-  L3_2.size = L4_2
-  L4_2 = A0_2.interactionZone
-  L4_2 = L4_2.rotation
-  L3_2.rotation = L4_2
-  L4_2 = Config
-  L4_2 = L4_2.Debug
-  L3_2.debug = L4_2
-  function L4_2()
-    local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
-    L1_3 = L1_2
-    L0_3 = L16_1
-    L3_3 = L1_2
-    L2_3 = L16_1
-    L2_3 = L2_3[L3_3]
-    if not L2_3 then
-      L2_3 = 0
-    end
-    L2_3 = L2_3 + 1
-    L0_3[L1_3] = L2_3
-    L0_3 = TriggerServerEvent
-    L1_3 = "compound_anims:zoneEnter"
-    L2_3 = L1_2
-    L0_3(L1_3, L2_3)
-    L0_3 = GlobalState
-    L0_3 = L0_3.sandy_compound_locks
-    if not L0_3 then
-      L0_3 = {}
-    end
-    L1_3 = L1_2
-    L1_3 = L0_3[L1_3]
-    if L1_3 then
-      return
-    end
-    L1_3 = GlobalState
-    L1_3 = L1_3.sandy_compound
-    if not L1_3 then
-      L1_3 = {}
-    end
-    L2_3 = L1_2
-    L2_3 = L1_3[L2_3]
-    if L2_3 then
-      return
-    end
-    L2_3 = GlobalState
-    L2_3 = L2_3.sandy_compound_busy
-    if not L2_3 then
-      L2_3 = {}
-    end
-    L3_3 = L1_2
-    L3_3 = L2_3[L3_3]
-    if L3_3 then
-      return
-    end
-    L3_3 = GetPlayerServerId
-    L4_3 = PlayerId
-    L4_3, L5_3, L6_3 = L4_3()
-    L3_3 = L3_3(L4_3, L5_3, L6_3)
-    L4_3 = CanPlayerInteract
-    L5_3 = L1_2
-    L6_3 = L3_3
-    L4_3 = L4_3(L5_3, L6_3)
-    if not L4_3 then
-      return
-    end
-    L4_3 = HasJobAccess
-    L5_3 = L1_2
-    L6_3 = L3_3
-    L4_3 = L4_3(L5_3, L6_3)
-    if not L4_3 then
-      return
-    end
-    L4_3 = TriggerServerEvent
-    L5_3 = "compound_anims:requestAutoOpen"
-    L6_3 = L1_2
-    L4_3(L5_3, L6_3)
-  end
-  L3_2.onEnter = L4_2
-  function L4_2()
-    local L0_3, L1_3, L2_3, L3_3
-    L0_3 = TriggerServerEvent
-    L1_3 = "compound_anims:zoneExit"
-    L2_3 = L1_2
-    L0_3(L1_3, L2_3)
-    L1_3 = L1_2
-    L0_3 = L16_1
-    L0_3 = L0_3[L1_3]
-    if not L0_3 then
-      L0_3 = 0
-    end
-    L1_3 = SetTimeout
-    L2_3 = Config
-    L2_3 = L2_3.AutoOpenCloseDelay
-    function L3_3()
-      local L0_4, L1_4, L2_4
-      L1_4 = L1_2
-      L0_4 = L16_1
-      L0_4 = L0_4[L1_4]
-      if not L0_4 then
-        L0_4 = 0
-      end
-      L1_4 = L0_3
-      if L0_4 ~= L1_4 then
-        return
-      end
-      L0_4 = TriggerServerEvent
-      L1_4 = "compound_anims:requestAutoClose"
-      L2_4 = L1_2
-      L0_4(L1_4, L2_4)
-    end
-    L1_3(L2_3, L3_3)
-  end
-  L3_2.onExit = L4_2
-  return L2_2(L3_2)
-end
-createAutoOpenZone = L24_1
-function L24_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = useTarget
-  if L0_2 then
-    L0_2 = L2_1
-    L1_2 = "[COMPOUND] Creating ox_target zones for all props"
-    L0_2(L1_2)
-    L0_2 = pairs
-    L1_2 = Config
-    L1_2 = L1_2.Props
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = L5_2.interactionZone
-      if L6_2 then
-        L6_2 = registerOxTarget
-        L7_2 = L5_2
-        L6_2(L7_2)
-      end
-    end
-  else
-    L0_2 = L2_1
-    L1_2 = "[COMPOUND] Creating lib.zones for all props"
-    L0_2(L1_2)
-    L0_2 = pairs
-    L1_2 = Config
-    L1_2 = L1_2.Props
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = createInteractionZone
-      L7_2 = L5_2
-      L6_2(L7_2)
-    end
-  end
-  L0_2 = Config
-  L0_2 = L0_2.AutoOpen
-  if L0_2 then
-    L0_2 = L2_1
-    L1_2 = "[COMPOUND] Creating auto-open zones for garage rollup doors"
-    L0_2(L1_2)
-    L0_2 = pairs
-    L1_2 = Config
-    L1_2 = L1_2.Props
-    L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-    for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-      L6_2 = L17_1
-      L7_2 = L5_2.name
-      L6_2 = L6_2(L7_2)
-      if L6_2 then
-        L6_2 = L5_2.interactionZone
-        if L6_2 then
-          L6_2 = createAutoOpenZone
-          L7_2 = L5_2
-          L6_2(L7_2)
-        end
-      end
-    end
-  end
-end
-createInteractionZones = L24_1
-function L24_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2
-  L1_2 = lib
-  L1_2 = L1_2.points
-  L1_2 = L1_2.new
-  L2_2 = {}
-  L3_2 = A0_2.coords
-  L2_2.coords = L3_2
-  L3_2 = Config
-  L3_2 = L3_2.SpawnDistance
-  L2_2.distance = L3_2
-  function L3_2()
-    local L0_3, L1_3, L2_3
-    L0_3 = L2_1
-    L1_3 = "[COMPOUND] onEnter triggered for prop: "
-    L2_3 = A0_2.name
-    L1_3 = L1_3 .. L2_3
-    L0_3(L1_3)
-    L0_3 = createProp
-    L1_3 = A0_2
-    L0_3(L1_3)
-  end
-  L2_2.onEnter = L3_2
-  function L3_2()
-    local L0_3, L1_3
-  end
-  L2_2.onExit = L3_2
-  L1_2 = L1_2(L2_2)
-  if L1_2 then
-    L3_2 = A0_2.name
-    L2_2 = L14_1
-    L2_2[L3_2] = L1_2
-    L2_2 = L2_1
-    L3_2 = "[COMPOUND] Spawn point created and stored for: "
-    L4_2 = A0_2.name
-    L3_2 = L3_2 .. L4_2
-    L2_2(L3_2)
-  else
-    L2_2 = L2_1
-    L3_2 = "[COMPOUND WARNING] Failed to create spawn point for: "
-    L4_2 = A0_2.name
-    L3_2 = L3_2 .. L4_2
-    L2_2(L3_2)
-  end
-end
-createSpawnPoint = L24_1
-function L24_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = pairs
-  L1_2 = Config
-  L1_2 = L1_2.Props
-  L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-  for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-    L6_2 = createSpawnPoint
-    L7_2 = L5_2
-    L6_2(L7_2)
-  end
-end
-createSpawnPoints = L24_1
-L24_1 = RegisterNetEvent
-L25_1 = "compound_anims:syncAnimation"
-L24_1(L25_1)
-L24_1 = AddEventHandler
-L25_1 = "compound_anims:syncAnimation"
-function L26_1(A0_2, A1_2, A2_2, A3_2)
-  local L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2
-  L4_2 = GetPlayerPed
-  L5_2 = GetPlayerFromServerId
-  L6_2 = A0_2
-  L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2 = L5_2(L6_2)
-  L4_2 = L4_2(L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-  L5_2 = cache
-  L5_2 = L5_2.ped
-  if L4_2 ~= L5_2 then
-    L5_2 = lib
-    L5_2 = L5_2.requestAnimDict
-    L6_2 = A1_2
-    L5_2(L6_2)
-    L5_2 = TaskPlayAnim
-    L6_2 = L4_2
-    L7_2 = A1_2
-    L8_2 = A2_2
-    L9_2 = 8.0
-    L10_2 = -8.0
-    L11_2 = A3_2
-    L12_2 = 0
-    L13_2 = 0
-    L14_2 = false
-    L15_2 = false
-    L16_2 = false
-    L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-    L5_2 = RemoveAnimDict
-    L6_2 = A1_2
-    L5_2(L6_2)
-  end
-end
-L24_1(L25_1, L26_1)
-L24_1 = RegisterNetEvent
-L25_1 = "compound_anims:animatePropAfterPlayerAnim"
-L24_1(L25_1)
-L24_1 = AddEventHandler
-L25_1 = "compound_anims:animatePropAfterPlayerAnim"
-function L26_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2
-  L1_2 = A0_2.propName
-  L2_2 = A0_2.state
-  L3_2 = nil
-  L4_2 = pairs
-  L5_2 = Config
-  L5_2 = L5_2.Props
-  L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-  for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-    L10_2 = L9_2.name
-    if L10_2 == L1_2 then
-      L3_2 = L9_2
-      break
-    end
-  end
-  if not L3_2 then
-    L4_2 = L2_1
-    L5_2 = "[COMPOUND] Error: The prop configuration was not found: "
-    L6_2 = L1_2
-    L5_2 = L5_2 .. L6_2
-    L4_2(L5_2)
-    return
-  end
-  L4_2 = L8_1
-  L4_2 = L4_2[L1_2]
-  if not L4_2 then
-    L4_2 = L2_1
-    L5_2 = "[COMPOUND] Error: The prop is not spawned: "
-    L6_2 = L1_2
-    L5_2 = L5_2 .. L6_2
-    L4_2(L5_2)
-    return
-  end
-  L4_2 = L8_1
-  L4_2 = L4_2[L1_2]
-  L5_2 = DoesEntityExist
-  L6_2 = L4_2
-  L5_2 = L5_2(L6_2)
-  if not L5_2 then
-    L5_2 = L2_1
-    L6_2 = "[COMPOUND] Error: The prop entity does not exist: "
-    L7_2 = L1_2
-    L6_2 = L6_2 .. L7_2
-    L5_2(L6_2)
-    return
-  end
-  L5_2 = L3_2.animations
-  L5_2 = L5_2.dict
-  if L2_2 then
-    L6_2 = L3_2.animations
-    L6_2 = L6_2.open
-    if L6_2 then
-      goto lbl_58
-    end
-  end
-  L6_2 = L3_2.animations
-  L6_2 = L6_2.close
-  ::lbl_58::
-  L7_2 = lib
-  L7_2 = L7_2.requestAnimDict
-  L8_2 = L5_2
-  L7_2(L8_2)
-  L7_2 = GetAnimDuration
-  L8_2 = L5_2
-  L9_2 = L6_2
-  L7_2 = L7_2(L8_2, L9_2)
-  L7_2 = L7_2 * 1000
-  L8_2 = L7_2 or L8_2
-  if not (L7_2 > 0) or not L7_2 then
-    L8_2 = L3_2.animations
-    L8_2 = L8_2.duration
-  end
-  L9_2 = animatePropObject
-  L10_2 = L3_2
-  L11_2 = L4_2
-  L12_2 = L2_2
-  L13_2 = L5_2
-  L14_2 = L6_2
-  L15_2 = L8_2
-  L16_2 = false
-  L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-end
-L24_1(L25_1, L26_1)
-function L24_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L0_2 = AddStateBagChangeHandler
-  L1_2 = "sandy_compound"
-  L2_2 = nil
-  function L3_2(A0_3, A1_3, A2_3, A3_3, A4_3)
-    local L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3
-    if not A2_3 then
-      return
-    end
-    L5_3 = GlobalState
-    L5_3 = L5_3.sandy_compound
-    if not L5_3 then
-      L5_3 = {}
-    end
-    L6_3 = pairs
-    L7_3 = Config
-    L7_3 = L7_3.Props
-    L6_3, L7_3, L8_3, L9_3 = L6_3(L7_3)
-    for L10_3, L11_3 in L6_3, L7_3, L8_3, L9_3 do
-      L12_3 = L11_3.name
-      L13_3 = A2_3[L12_3]
-      if nil ~= L13_3 then
-        L13_3 = A2_3[L12_3]
-        L14_3 = L5_3[L12_3]
-        if L13_3 ~= L14_3 then
-          L13_3 = L8_1
-          L13_3 = L13_3[L12_3]
-          if L13_3 then
-            L13_3 = animateProp
-            L14_3 = L12_3
-            L15_3 = A2_3[L12_3]
-            L16_3 = true
-            L17_3 = true
-            L13_3(L14_3, L15_3, L16_3, L17_3)
-          end
-        end
-      end
-    end
-  end
-  L0_2(L1_2, L2_2, L3_2)
-  L0_2 = Config
-  L0_2 = L0_2.AutoOpen
-  if L0_2 then
-    L0_2 = {}
-    L1_2 = GlobalState
-    L1_2 = L1_2.sandy_compound_locks
-    L2_2 = type
-    L3_2 = L1_2
-    L2_2 = L2_2(L3_2)
-    if "table" == L2_2 then
-      L2_2 = pairs
-      L3_2 = L1_2
-      L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-      for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-        L0_2[L6_2] = L7_2
-      end
-    end
-    L2_2 = AddStateBagChangeHandler
-    L3_2 = "sandy_compound_locks"
-    L4_2 = nil
-    function L5_2(A0_3, A1_3, A2_3, A3_3, A4_3)
-      local L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3, L20_3, L21_3, L22_3
-      if not A2_3 then
-        return
-      end
-      L5_3 = pairs
-      L6_3 = Config
-      L6_3 = L6_3.Props
-      L5_3, L6_3, L7_3, L8_3 = L5_3(L6_3)
-      for L9_3, L10_3 in L5_3, L6_3, L7_3, L8_3 do
-        L11_3 = L10_3.name
-        L12_3 = L17_1
-        L13_3 = L11_3
-        L12_3 = L12_3(L13_3)
-        if L12_3 then
-          L12_3 = A2_3[L11_3]
-          if nil ~= L12_3 then
-            L12_3 = A2_3[L11_3]
-            L13_3 = L0_2
-            L13_3 = L13_3[L11_3]
-            if L12_3 ~= L13_3 then
-              L12_3 = L10_3.coords
-              L13_3 = A2_3[L11_3]
-              if L13_3 then
-                L13_3 = PlaySoundFromCoord
-                L14_3 = -1
-                L15_3 = "CLOSING"
-                L16_3 = L12_3.x
-                L17_3 = L12_3.y
-                L18_3 = L12_3.z
-                L19_3 = "MP_PROPERTIES_ELEVATOR_DOORS"
-                L20_3 = true
-                L21_3 = 0
-                L22_3 = false
-                L13_3(L14_3, L15_3, L16_3, L17_3, L18_3, L19_3, L20_3, L21_3, L22_3)
-              else
-                L13_3 = PlaySoundFromCoord
-                L14_3 = -1
-                L15_3 = "OPENING"
-                L16_3 = L12_3.x
-                L17_3 = L12_3.y
-                L18_3 = L12_3.z
-                L19_3 = "MP_PROPERTIES_ELEVATOR_DOORS"
-                L20_3 = true
-                L21_3 = 0
-                L22_3 = false
-                L13_3(L14_3, L15_3, L16_3, L17_3, L18_3, L19_3, L20_3, L21_3, L22_3)
-              end
+    end)
+
+    if Config.AutoOpen then
+        local previousLocks = {}
+        local locksState = GlobalState.sandy_compound_locks
+        if type(locksState) == "table" then
+            for k, v in pairs(locksState) do
+                previousLocks[k] = v
             end
-          end
         end
-      end
-      L5_3 = pairs
-      L6_3 = A2_3
-      L5_3, L6_3, L7_3, L8_3 = L5_3(L6_3)
-      for L9_3, L10_3 in L5_3, L6_3, L7_3, L8_3 do
-        L11_3 = L0_2
-        L11_3[L9_3] = L10_3
-      end
+
+        AddStateBagChangeHandler("sandy_compound_locks", nil, function(bagName, key, value)
+            if not value then return end
+
+            for _, propConfig in pairs(Config.Props) do
+                local propName = propConfig.name
+                if isGarageRollup(propName) then
+                    local currentLockState = value[propName]
+                    if currentLockState ~= nil and currentLockState ~= previousLocks[propName] then
+                        local coords = propConfig.coords
+                        if currentLockState then
+                            PlaySoundFromCoord(-1, "CLOSING", coords.x, coords.y, coords.z, "MP_PROPERTIES_ELEVATOR_DOORS", true, 0, false)
+                        else
+                            PlaySoundFromCoord(-1, "OPENING", coords.x, coords.y, coords.z, "MP_PROPERTIES_ELEVATOR_DOORS", true, 0, false)
+                        end
+                    end
+                end
+            end
+
+            for k, v in pairs(value) do
+                previousLocks[k] = v
+            end
+        end)
     end
-    L2_2(L3_2, L4_2, L5_2)
-  end
 end
-registerPropStateHandlers = L24_1
-L24_1 = lib
-L24_1 = L24_1.callback
-L24_1 = L24_1.register
-L25_1 = "compound_anims:playPlayerAnimation"
-function L26_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2
-  if A0_2 then
-    L1_2 = A0_2.dict
-    if L1_2 then
-      L1_2 = A0_2.anim
-      if L1_2 then
-        L1_2 = A0_2.propName
-        if L1_2 then
-          goto lbl_17
-        end
-      end
+
+-- Rejestracja callbacku ox_lib do odtwarzania animacji gracza
+-- (serwer buduje animData z configa; klient dodatkowo toleruje kształty
+-- tabelaryczne position/heading per nazwa animacji)
+lib.callback.register("compound_anims:playPlayerAnimation", function(animData)
+    if not animData or not animData.dict or not animData.anim or not animData.propName then
+        debugPrint("[COMPOUND] Error: Incomplete data for the player animation")
+        return false
     end
-  end
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] Error: Incomplete data for the player animation"
-  L1_2(L2_2)
-  L1_2 = false
-  do return L1_2 end
-  ::lbl_17::
-  L1_2 = A0_2.position
-  if L1_2 then
-    L1_2 = A0_2.heading
-    if L1_2 then
-      goto lbl_28
+
+    local position = animData.position
+    if type(position) == "table" and position[animData.anim] then
+        position = position[animData.anim]
     end
-  end
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] Error: Position or heading not provided for the animation"
-  L1_2(L2_2)
-  L1_2 = false
-  do return L1_2 end
-  ::lbl_28::
-  L1_2 = PlayerPedId
-  L1_2 = L1_2()
-  L2_2 = ClearPedTasks
-  L3_2 = L1_2
-  L2_2(L3_2)
-  L2_2 = TaskGoStraightToCoord
-  L3_2 = L1_2
-  L4_2 = A0_2.position
-  L4_2 = L4_2.x
-  L5_2 = A0_2.position
-  L5_2 = L5_2.y
-  L6_2 = A0_2.position
-  L6_2 = L6_2.z
-  L7_2 = 1.0
-  L8_2 = -1
-  L9_2 = A0_2.heading
-  L10_2 = 0.1
-  L2_2(L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2)
-  L2_2 = 0.5
-  L3_2 = 5000
-  L4_2 = GetGameTimer
-  L4_2 = L4_2()
-  while true do
-    L5_2 = GetEntityCoords
-    L6_2 = L1_2
-    L5_2 = L5_2(L6_2)
-    L6_2 = A0_2.position
-    L6_2 = L5_2 - L6_2
-    L6_2 = #L6_2
-    if L2_2 > L6_2 then
-      break
+
+    local heading = animData.heading
+    if type(heading) == "table" and heading[animData.anim] ~= nil then
+        heading = heading[animData.anim]
     end
-    L7_2 = GetGameTimer
-    L7_2 = L7_2()
-    L7_2 = L7_2 - L4_2
-    if L3_2 < L7_2 then
-      L7_2 = SetEntityCoords
-      L8_2 = L1_2
-      L9_2 = A0_2.position
-      L9_2 = L9_2.x
-      L10_2 = A0_2.position
-      L10_2 = L10_2.y
-      L11_2 = A0_2.position
-      L11_2 = L11_2.z
-      L12_2 = false
-      L13_2 = false
-      L14_2 = false
-      L15_2 = false
-      L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-      break
+
+    if not position or position.x == nil or position.y == nil or position.z == nil
+        or type(heading) ~= "number" then
+        debugPrint("[COMPOUND] Error: Position or heading not provided for the animation")
+        return false
     end
-    L7_2 = Wait
-    L8_2 = 100
-    L7_2(L8_2)
-  end
-  L5_2 = SetEntityCoordsNoOffset
-  L6_2 = L1_2
-  L7_2 = A0_2.position
-  L7_2 = L7_2.x
-  L8_2 = A0_2.position
-  L8_2 = L8_2.y
-  L9_2 = A0_2.position
-  L9_2 = L9_2.z
-  L10_2 = false
-  L11_2 = false
-  L12_2 = false
-  L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2)
-  L5_2 = SetEntityHeading
-  L6_2 = L1_2
-  L7_2 = A0_2.heading
-  L5_2(L6_2, L7_2)
-  L5_2 = lib
-  L5_2 = L5_2.requestAnimDict
-  L6_2 = A0_2.dict
-  L5_2(L6_2)
-  L5_2 = TaskPlayAnim
-  L6_2 = L1_2
-  L7_2 = A0_2.dict
-  L8_2 = A0_2.anim
-  L9_2 = 8.0
-  L10_2 = 8.0
-  L11_2 = -1
-  L12_2 = 0
-  L13_2 = 0
-  L14_2 = false
-  L15_2 = false
-  L16_2 = false
-  L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2)
-  L5_2 = RemoveAnimDict
-  L6_2 = A0_2.dict
-  L5_2(L6_2)
-  L5_2 = TriggerServerEvent
-  L6_2 = "compound_anims:syncAnimation"
-  L7_2 = A0_2.dict
-  L8_2 = A0_2.anim
-  L9_2 = -1
-  L5_2(L6_2, L7_2, L8_2, L9_2)
-  L5_2 = Wait
-  L6_2 = 600
-  L5_2(L6_2)
-  L5_2 = true
-  return L5_2
-end
-L24_1(L25_1, L26_1)
-L24_1 = AddEventHandler
-L25_1 = "onResourceStop"
-function L26_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2
-  L1_2 = GetCurrentResourceName
-  L1_2 = L1_2()
-  if L1_2 ~= A0_2 then
-    return
-  end
-  L1_2 = L2_1
-  L2_2 = "[COMPOUND] ========== RESOURCE STOPPING =========="
-  L1_2(L2_2)
-  L1_2 = L6_1
-  L2_2 = "RESOURCE STOP - BEFORE CLEANUP"
-  L1_2(L2_2)
-  L1_2 = useTarget
-  if L1_2 then
-    L1_2 = pairs
-    L2_2 = L15_1
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = TargetRemoveZone
-      L8_2 = L6_2
-      L7_2(L8_2)
-      L7_2 = L2_1
-      L8_2 = "[COMPOUND] Removed target zone: "
-      L9_2 = L6_2
-      L8_2 = L8_2 .. L9_2
-      L7_2(L8_2)
-    end
-    L1_2 = {}
-    L15_1 = L1_2
-  end
-  L1_2 = 0
-  L2_2 = pairs
-  L3_2 = L8_1
-  L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-  for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-    L8_2 = DoesEntityExist
-    L9_2 = L7_2
-    L8_2 = L8_2(L9_2)
-    if L8_2 then
-      L8_2 = DeleteEntity
-      L9_2 = L7_2
-      L8_2(L9_2)
-      L1_2 = L1_2 + 1
-      L8_2 = L2_1
-      L9_2 = "[COMPOUND] Deleted prop: "
-      L10_2 = L6_2
-      L9_2 = L9_2 .. L10_2
-      L8_2(L9_2)
-    end
-  end
-  L2_2 = L2_1
-  L3_2 = "[COMPOUND] Total props deleted: "
-  L4_2 = L1_2
-  L3_2 = L3_2 .. L4_2
-  L2_2(L3_2)
-  L2_2 = {}
-  L8_1 = L2_2
-  L2_2 = 0
-  L3_2 = pairs
-  L4_2 = L9_1
-  L3_2, L4_2, L5_2, L6_2 = L3_2(L4_2)
-  for L7_2, L8_2 in L3_2, L4_2, L5_2, L6_2 do
-    L9_2 = DoesEntityExist
-    L10_2 = L8_2
-    L9_2 = L9_2(L10_2)
-    if L9_2 then
-      L9_2 = DeleteEntity
-      L10_2 = L8_2
-      L9_2(L10_2)
-      L2_2 = L2_2 + 1
-      L9_2 = L2_1
-      L10_2 = "[COMPOUND] Deleted collision: "
-      L11_2 = L7_2
-      L10_2 = L10_2 .. L11_2
-      L9_2(L10_2)
-    end
-  end
-  L3_2 = L2_1
-  L4_2 = "[COMPOUND] Total collisions deleted: "
-  L5_2 = L2_2
-  L4_2 = L4_2 .. L5_2
-  L3_2(L4_2)
-  L3_2 = {}
-  L9_1 = L3_2
-  L3_2 = 0
-  L4_2 = pairs
-  L5_2 = L10_1
-  L4_2, L5_2, L6_2, L7_2 = L4_2(L5_2)
-  for L8_2, L9_2 in L4_2, L5_2, L6_2, L7_2 do
-    L10_2 = L9_2.entity
-    if L10_2 then
-      L10_2 = DoesEntityExist
-      L11_2 = L9_2.entity
-      L10_2 = L10_2(L11_2)
-      if L10_2 then
-        L10_2 = DeleteEntity
-        L11_2 = L9_2.entity
-        L10_2(L11_2)
-        L3_2 = L3_2 + 1
-        L10_2 = L2_1
-        L11_2 = "[COMPOUND] Deleted linked prop: "
-        L12_2 = L8_2
-        L11_2 = L11_2 .. L12_2
-        L10_2(L11_2)
-      end
-    end
-  end
-  L4_2 = L2_1
-  L5_2 = "[COMPOUND] Total linked props deleted: "
-  L6_2 = L3_2
-  L5_2 = L5_2 .. L6_2
-  L4_2(L5_2)
-  L4_2 = {}
-  L10_1 = L4_2
-  L4_2 = updateTextUI
-  L5_2 = nil
-  L4_2(L5_2)
-  L4_2 = L6_1
-  L5_2 = "RESOURCE STOP - AFTER CLEANUP"
-  L4_2(L5_2)
-  L4_2 = L2_1
-  L5_2 = "[COMPOUND] Resource stopped - props cleaned up (entity set NOT touched)"
-  L4_2(L5_2)
-  L4_2 = L2_1
-  L5_2 = "[COMPOUND] ========== RESOURCE STOP COMPLETE =========="
-  L4_2(L5_2)
-end
-L24_1(L25_1, L26_1)
-L24_1 = RegisterCommand
-L25_1 = "testsound"
-function L26_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2
-  L2_2 = #A1_2
-  if L2_2 < 2 then
-    L2_2 = print
-    L3_2 = "[SOUND] Usage: /testsound <audioName> <audioRef> [spatial]"
-    L2_2(L3_2)
-    L2_2 = print
-    L3_2 = "[SOUND] Example: /testsound BOLT_LOCK GTAO_APT_DOOR_SOUNDS"
-    L2_2(L3_2)
-    L2_2 = print
-    L3_2 = "[SOUND] Add \"3d\" as 3rd arg for spatial at player coords"
-    L2_2(L3_2)
-    return
-  end
-  L2_2 = A1_2[1]
-  L3_2 = A1_2[2]
-  L4_2 = A1_2[3]
-  L4_2 = "3d" == L4_2
-  if L4_2 then
-    L5_2 = GetEntityCoords
-    L6_2 = PlayerPedId
-    L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2 = L6_2()
-    L5_2 = L5_2(L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-    L6_2 = PlaySoundFromCoord
-    L7_2 = -1
-    L8_2 = L2_2
-    L9_2 = L5_2.x
-    L10_2 = L5_2.y
-    L11_2 = L5_2.z
-    L12_2 = L3_2
-    L13_2 = true
-    L14_2 = 0
-    L15_2 = false
-    L6_2(L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-    L6_2 = print
-    L7_2 = "[SOUND] PlaySoundFromCoord: "
-    L8_2 = L2_2
-    L9_2 = " / "
-    L10_2 = L3_2
-    L7_2 = L7_2 .. L8_2 .. L9_2 .. L10_2
-    L6_2(L7_2)
-  else
-    L5_2 = PlaySoundFrontend
-    L6_2 = -1
-    L7_2 = L2_2
-    L8_2 = L3_2
-    L9_2 = true
-    L5_2(L6_2, L7_2, L8_2, L9_2)
-    L5_2 = print
-    L6_2 = "[SOUND] PlaySoundFrontend: "
-    L7_2 = L2_2
-    L8_2 = " / "
-    L9_2 = L3_2
-    L6_2 = L6_2 .. L7_2 .. L8_2 .. L9_2
-    L5_2(L6_2)
-  end
-end
-L27_1 = true
-L24_1(L25_1, L26_1, L27_1)
-L24_1 = RegisterCommand
-L25_1 = "testautodoors_flow"
-function L26_1()
-  local L0_2, L1_2
-  L0_2 = Config
-  L0_2 = L0_2.AutoOpen
-  if not L0_2 then
-    L0_2 = print
-    L1_2 = "^1[TEST] Config.AutoOpen is false \226\128\148 cannot run flow test^0"
-    L0_2(L1_2)
-    return
-  end
-  L0_2 = CreateThread
-  function L1_2()
-    local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3, L20_3, L21_3, L22_3
-    L0_3 = PlayerPedId
-    L0_3 = L0_3()
-    L1_3 = 0
-    L2_3 = 0
-    L3_3 = {}
-    function L4_3(A0_4, A1_4)
-      local L2_4, L3_4, L4_4, L5_4
-      if A1_4 then
-        L2_4 = L1_3
-        L2_4 = L2_4 + 1
-        L1_3 = L2_4
-        L2_4 = L3_3
-        L2_4 = #L2_4
-        L3_4 = L2_4 + 1
-        L2_4 = L3_3
-        L4_4 = "^2  PASS^0: "
-        L5_4 = A0_4
-        L4_4 = L4_4 .. L5_4
-        L2_4[L3_4] = L4_4
-      else
-        L2_4 = L2_3
-        L2_4 = L2_4 + 1
-        L2_3 = L2_4
-        L2_4 = L3_3
-        L2_4 = #L2_4
-        L3_4 = L2_4 + 1
-        L2_4 = L3_3
-        L4_4 = "^1  FAIL^0: "
-        L5_4 = A0_4
-        L4_4 = L4_4 .. L5_4
-        L2_4[L3_4] = L4_4
-      end
-    end
-    function L5_3(A0_4)
-      local L1_4, L2_4, L3_4
-      L1_4 = print
-      L2_4 = "[TEST] "
-      L3_4 = A0_4
-      L2_4 = L2_4 .. L3_4
-      L1_4(L2_4)
-    end
-    L6_3 = "garage_rollup_1"
-    L7_3 = Config
-    L7_3 = L7_3.Props
-    L7_3 = L7_3.garage_rollup_1
-    L8_3 = L7_3.interactionZone
-    L8_3 = L8_3.coords
-    L9_3 = vector3
-    L10_3 = L8_3.x
-    L10_3 = L10_3 + 20.0
-    L11_3 = L8_3.y
-    L12_3 = L8_3.z
-    L9_3 = L9_3(L10_3, L11_3, L12_3)
-    L10_3 = L5_3
-    L11_3 = "^3========== Full-Flow Auto-Door Test ==========^0"
-    L10_3(L11_3)
-    L10_3 = L4_3
-    L11_3 = "isGarageRollup client helper works"
-    L12_3 = L17_1
-    L13_3 = "garage_rollup_1"
-    L12_3 = L12_3(L13_3)
-    L12_3 = true == L12_3
-    L10_3(L11_3, L12_3)
-    L10_3 = L4_3
-    L11_3 = "isGarageRollup rejects lifts"
-    L12_3 = L17_1
-    L13_3 = "prompt_sandy_is_lift_2"
-    L12_3 = L12_3(L13_3)
-    L12_3 = false == L12_3
-    L10_3(L11_3, L12_3)
-    L10_3 = L5_3
-    L11_3 = "Step 1: Teleporting outside zone..."
-    L10_3(L11_3)
-    L10_3 = SetEntityCoordsNoOffset
-    L11_3 = L0_3
-    L12_3 = L9_3.x
-    L13_3 = L9_3.y
-    L14_3 = L9_3.z
-    L15_3 = false
-    L16_3 = false
-    L17_3 = false
-    L10_3(L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3)
-    L10_3 = Wait
-    L11_3 = 500
-    L10_3(L11_3)
-    L10_3 = GlobalState
-    L10_3 = L10_3.sandy_compound_locks
-    if not L10_3 then
-      L10_3 = {}
-    end
-    L11_3 = L4_3
-    L12_3 = "Door starts locked"
-    L13_3 = L10_3[L6_3]
-    L13_3 = true == L13_3
-    L11_3(L12_3, L13_3)
-    L11_3 = GlobalState
-    L11_3 = L11_3.sandy_compound
-    if not L11_3 then
-      L11_3 = {}
-    end
-    L12_3 = L4_3
-    L13_3 = "Door starts closed"
-    L14_3 = L11_3[L6_3]
-    L14_3 = not L14_3
-    L12_3(L13_3, L14_3)
-    L12_3 = L5_3
-    L13_3 = "Step 2: Teleporting into zone (door locked)..."
-    L12_3(L13_3)
-    L12_3 = SetEntityCoordsNoOffset
-    L13_3 = L0_3
-    L14_3 = L8_3.x
-    L15_3 = L8_3.y
-    L16_3 = L8_3.z
-    L17_3 = false
-    L18_3 = false
-    L19_3 = false
-    L12_3(L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3)
-    L12_3 = Wait
-    L13_3 = 1500
-    L12_3(L13_3)
-    L12_3 = GlobalState
-    L12_3 = L12_3.sandy_compound
-    L11_3 = L12_3 or L11_3
-    if not L12_3 then
-      L12_3 = {}
-      L11_3 = L12_3
-    end
-    L12_3 = L4_3
-    L13_3 = "Locked door does NOT auto-open"
-    L14_3 = L11_3[L6_3]
-    L14_3 = not L14_3
-    L12_3(L13_3, L14_3)
-    L12_3 = L5_3
-    L13_3 = "Step 3: Teleporting out..."
-    L12_3(L13_3)
-    L12_3 = SetEntityCoordsNoOffset
-    L13_3 = L0_3
-    L14_3 = L9_3.x
-    L15_3 = L9_3.y
-    L16_3 = L9_3.z
-    L17_3 = false
-    L18_3 = false
-    L19_3 = false
-    L12_3(L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3)
-    L12_3 = Wait
-    L13_3 = 1000
-    L12_3(L13_3)
-    L12_3 = L5_3
-    L13_3 = "Step 4: Unlocking door..."
-    L12_3(L13_3)
-    L12_3 = TriggerServerEvent
-    L13_3 = "compound_anims:toggleLock"
-    L14_3 = L6_3
-    L12_3(L13_3, L14_3)
-    L12_3 = Wait
-    L13_3 = 1000
-    L12_3(L13_3)
-    L12_3 = GlobalState
-    L12_3 = L12_3.sandy_compound_locks
-    L10_3 = L12_3 or L10_3
-    if not L12_3 then
-      L12_3 = {}
-      L10_3 = L12_3
-    end
-    L12_3 = L4_3
-    L13_3 = "Door is now unlocked"
-    L14_3 = L10_3[L6_3]
-    L14_3 = false == L14_3
-    L12_3(L13_3, L14_3)
-    L12_3 = L5_3
-    L13_3 = "Step 5: Teleporting into zone (door unlocked)..."
-    L12_3(L13_3)
-    L12_3 = SetEntityCoordsNoOffset
-    L13_3 = L0_3
-    L14_3 = L8_3.x
-    L15_3 = L8_3.y
-    L16_3 = L8_3.z
-    L17_3 = false
-    L18_3 = false
-    L19_3 = false
-    L12_3(L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3)
-    L12_3 = Wait
-    L13_3 = 2000
-    L12_3(L13_3)
-    L12_3 = GlobalState
-    L12_3 = L12_3.sandy_compound
-    L11_3 = L12_3 or L11_3
-    if not L12_3 then
-      L12_3 = {}
-      L11_3 = L12_3
-    end
-    L12_3 = L4_3
-    L13_3 = "Unlocked door auto-opens on zone enter"
-    L14_3 = L11_3[L6_3]
-    L14_3 = true == L14_3
-    L12_3(L13_3, L14_3)
-    L12_3 = L5_3
-    L13_3 = "Step 6: Waiting for animation to finish..."
-    L12_3(L13_3)
-    L12_3 = GetGameTimer
-    L12_3 = L12_3()
+
+    local targetPosition = vector3(position.x, position.y, position.z)
+
+    local ped = PlayerPedId()
+    ClearPedTasks(ped)
+    TaskGoStraightToCoord(ped, targetPosition.x, targetPosition.y, targetPosition.z, 1.0, -1, heading, 0.1)
+
+    local targetDistance = 0.5
+    local startTime = GetGameTimer()
+
     while true do
-      L13_3 = GlobalState
-      L13_3 = L13_3.sandy_compound_busy
-      if not L13_3 then
-        L13_3 = {}
-      end
-      L13_3 = L13_3[L6_3]
-      if not L13_3 then
-        break
-      end
-      L13_3 = GetGameTimer
-      L13_3 = L13_3()
-      L13_3 = L13_3 - L12_3
-      L14_3 = 8000
-      if not (L13_3 < L14_3) then
-        break
-      end
-      L13_3 = Wait
-      L14_3 = 200
-      L13_3(L14_3)
+        local currentCoords = GetEntityCoords(ped)
+        local distance = #(currentCoords - targetPosition)
+        if targetDistance > distance then
+            break
+        end
+
+        if GetGameTimer() - startTime > 5000 then
+            SetEntityCoords(ped, targetPosition.x, targetPosition.y, targetPosition.z, false, false, false, false)
+            break
+        end
+        Wait(100)
     end
-    L13_3 = GlobalState
-    L13_3 = L13_3.sandy_compound_busy
-    if not L13_3 then
-      L13_3 = {}
+
+    SetEntityCoordsNoOffset(ped, targetPosition.x, targetPosition.y, targetPosition.z, false, false, false)
+    SetEntityHeading(ped, heading)
+
+    local animLoadResult = lib.requestAnimDict(animData.dict)
+    if animLoadResult and type(animLoadResult) == "table" and animLoadResult.await then
+        animLoadResult.await()
     end
-    L14_3 = L4_3
-    L15_3 = "Busy flag clears after animation"
-    L16_3 = L13_3[L6_3]
-    L16_3 = not L16_3
-    L14_3(L15_3, L16_3)
-    L14_3 = L5_3
-    L15_3 = "Step 7: Teleporting out of zone..."
-    L14_3(L15_3)
-    L14_3 = SetEntityCoordsNoOffset
-    L15_3 = L0_3
-    L16_3 = L9_3.x
-    L17_3 = L9_3.y
-    L18_3 = L9_3.z
-    L19_3 = false
-    L20_3 = false
-    L21_3 = false
-    L14_3(L15_3, L16_3, L17_3, L18_3, L19_3, L20_3, L21_3)
-    L14_3 = Wait
-    L15_3 = Config
-    L15_3 = L15_3.AutoOpenCloseDelay
-    L15_3 = L15_3 + 2000
-    L14_3(L15_3)
-    L14_3 = GlobalState
-    L14_3 = L14_3.sandy_compound
-    L11_3 = L14_3 or L11_3
-    if not L14_3 then
-      L14_3 = {}
-      L11_3 = L14_3
+
+    TaskPlayAnim(ped, animData.dict, animData.anim, 8.0, 8.0, -1, 0, 0, false, false, false)
+    RemoveAnimDict(animData.dict)
+
+    TriggerServerEvent("compound_anims:syncAnimation", animData.dict, animData.anim, -1)
+    Wait(600)
+    return true
+end)
+
+-- Czyszczenie zasobu po zatrzymaniu skryptu
+AddEventHandler("onResourceStop", function(resourceName)
+    if GetCurrentResourceName() ~= resourceName then return end
+
+    if useTarget then
+        for _, zoneName in pairs(oxTargetZones) do
+            TargetRemoveZone(zoneName)
+        end
+        oxTargetZones = {}
     end
-    L14_3 = GlobalState
-    L14_3 = L14_3.sandy_compound_busy
-    if not L14_3 then
-      L14_3 = {}
+
+    for _, entity in pairs(spawnedProps) do
+        DeleteEntity(entity)
     end
-    L14_3 = L14_3[L6_3]
-    if L14_3 then
-      L14_3 = Wait
-      L15_3 = 6000
-      L14_3(L15_3)
+
+    for _, entity in pairs(collisionProps) do
+        DeleteEntity(entity)
     end
-    L14_3 = GlobalState
-    L14_3 = L14_3.sandy_compound
-    L11_3 = L14_3 or L11_3
-    if not L14_3 then
-      L14_3 = {}
-      L11_3 = L14_3
+
+    for _, linkedInfo in pairs(linkedPropsTable) do
+        DeleteEntity(linkedInfo.entity)
     end
-    L14_3 = L4_3
-    L15_3 = "Door auto-closes after leaving zone"
-    L16_3 = L11_3[L6_3]
-    L16_3 = not L16_3
-    L14_3(L15_3, L16_3)
-    L14_3 = L5_3
-    L15_3 = "Step 8: Re-locking door (cleanup)..."
-    L14_3(L15_3)
-    L14_3 = TriggerServerEvent
-    L15_3 = "compound_anims:toggleLock"
-    L16_3 = L6_3
-    L14_3(L15_3, L16_3)
-    L14_3 = Wait
-    L15_3 = 1000
-    L14_3(L15_3)
-    L14_3 = GlobalState
-    L14_3 = L14_3.sandy_compound_locks
-    L10_3 = L14_3 or L10_3
-    if not L14_3 then
-      L14_3 = {}
-      L10_3 = L14_3
+
+    updateTextUI(nil)
+    enableDefaultEntitySet()
+    debugPrint("[COMPOUND] Resource stopped - restored default entity set")
+end)
+
+-- ── Wspólna permisja ACE dla komend pakietu Prompt Sandy Shores ─────
+-- Wszystkie komendy diagnostyczne/admin z tego repo sprawdzają JEDEN obiekt
+-- ACE: command.sandyshores (ANALIZA.md, rozdz. 11). Konfiguracja serwera:
+--   add_ace group.admin command.sandyshores allow
+--   add_principal identifier.license:XXXX group.admin
+-- Na kliencie poprawną natywką jest IsAceAllowed (IsPlayerAceAllowed to API
+-- serwerowe — patrz ustalenie 7.4).
+local SANDY_COMMAND_ACE = "command.sandyshores"
+
+local function canUseSandyCommand()
+    if IsAceAllowed(SANDY_COMMAND_ACE) then
+        return true
     end
-    L14_3 = L4_3
-    L15_3 = "Door re-locked for cleanup"
-    L16_3 = L10_3[L6_3]
-    L16_3 = true == L16_3
-    L14_3(L15_3, L16_3)
-    L14_3 = L5_3
-    L15_3 = "^3---------- Results ----------^0"
-    L14_3(L15_3)
-    L14_3 = ipairs
-    L15_3 = L3_3
-    L14_3, L15_3, L16_3, L17_3 = L14_3(L15_3)
-    for L18_3, L19_3 in L14_3, L15_3, L16_3, L17_3 do
-      L20_3 = print
-      L21_3 = "[TEST] "
-      L22_3 = L19_3
-      L21_3 = L21_3 .. L22_3
-      L20_3(L21_3)
-    end
-    L14_3 = L5_3
-    L15_3 = "^3========== "
-    L16_3 = L1_3
-    L17_3 = " passed, "
-    L18_3 = L2_3
-    L19_3 = " failed ==========^0"
-    L15_3 = L15_3 .. L16_3 .. L17_3 .. L18_3 .. L19_3
-    L14_3(L15_3)
-    L14_3 = exports
-    L14_3 = L14_3.ox_lib
-    L15_3 = L14_3
-    L14_3 = L14_3.notify
-    L16_3 = {}
-    L17_3 = "Auto-door flow test: "
-    L18_3 = L1_3
-    L19_3 = " passed, "
-    L20_3 = L2_3
-    L21_3 = " failed"
-    L17_3 = L17_3 .. L18_3 .. L19_3 .. L20_3 .. L21_3
-    L16_3.description = L17_3
-    if 0 == L2_3 then
-      L17_3 = "success"
-      if L17_3 then
-        goto lbl_333
-      end
-    end
-    L17_3 = "error"
-    ::lbl_333::
-    L16_3.type = L17_3
-    L16_3.duration = 8000
-    L14_3(L15_3, L16_3)
-  end
-  L0_2(L1_2)
+    print("^1[SANDY] Missing ACE permission: " .. SANDY_COMMAND_ACE .. "^0")
+    return false
 end
-L27_1 = true
-L24_1(L25_1, L26_1, L27_1)
-L24_1 = CreateThread
-function L25_1()
-  local L0_2, L1_2
-  L0_2 = L6_1
-  L1_2 = "INIT START"
-  L0_2(L1_2)
-  L0_2 = L18_1
-  L0_2()
-  L0_2 = L6_1
-  L1_2 = "AFTER initializePropsState"
-  L0_2(L1_2)
-  L0_2 = createInteractionZones
-  L0_2()
-  L0_2 = L6_1
-  L1_2 = "AFTER createInteractionZones"
-  L0_2(L1_2)
-  L0_2 = createSpawnPoints
-  L0_2()
-  L0_2 = L6_1
-  L1_2 = "AFTER createSpawnPoints"
-  L0_2(L1_2)
-  L0_2 = registerPropStateHandlers
-  L0_2()
-  L0_2 = L6_1
-  L1_2 = "AFTER registerPropStateHandlers"
-  L0_2(L1_2)
-  L0_2 = L2_1
-  L1_2 = "[COMPOUND ANIMS ENABLED] Compound animations started."
-  L0_2(L1_2)
-  L0_2 = Config
-  L0_2 = L0_2.Debug
-  if L0_2 then
-    L0_2 = CreateThread
-    function L1_2()
-      local L0_3, L1_3
-      while true do
-        L0_3 = Wait
-        L1_3 = 30000
-        L0_3(L1_3)
-        L0_3 = L6_1
-        L1_3 = "PERIODIC CHECK"
-        L0_3(L1_3)
-      end
+
+-- Komenda testowa: /testsound
+RegisterCommand("testsound", function(source, args)
+    if not canUseSandyCommand() then
+        return
     end
-    L0_2(L1_2)
-  end
-end
-L24_1(L25_1)
+    if #args < 2 then
+        print("[SOUND] Usage: /testsound <audioName> <audioRef> [spatial]")
+        print("[SOUND] Example: /testsound BOLT_LOCK GTAO_APT_DOOR_SOUNDS")
+        print("[SOUND] Add \"3d\" as 3rd arg for spatial at player coords")
+        return
+    end
+
+    local audioName = args[1]
+    local audioRef = args[2]
+    local is3D = args[3] == "3d"
+
+    if is3D then
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        PlaySoundFromCoord(-1, audioName, playerCoords.x, playerCoords.y, playerCoords.z, audioRef, true, 0, false)
+        print("[SOUND] PlaySoundFromCoord: " .. audioName .. " / " .. audioRef)
+    else
+        PlaySoundFrontend(-1, audioName, audioRef, true)
+        print("[SOUND] PlaySoundFrontend: " .. audioName .. " / " .. audioRef)
+    end
+end, false)
+
+-- Komenda testowa: /testautodoors_flow
+RegisterCommand("testautodoors_flow", function()
+    if not canUseSandyCommand() then
+        return
+    end
+    if not Config.AutoOpen then
+        print("^1[TEST] Config.AutoOpen is false — cannot run flow test^0")
+        return
+    end
+
+    CreateThread(function()
+        local ped = PlayerPedId()
+        local passedTests = 0
+        local failedTests = 0
+        local resultsLog = {}
+
+        local function logTest(testName, success)
+            if success then
+                passedTests = passedTests + 1
+                table.insert(resultsLog, "^2  PASS^0: " .. testName)
+            else
+                failedTests = failedTests + 1
+                table.insert(resultsLog, "^1  FAIL^0: " .. testName)
+            end
+        end
+
+        local function logInfo(msg)
+            print("[TEST] " .. msg)
+        end
+
+        local targetRollupName = "garage_rollup_1"
+        local rollupConfig = Config.Props.garage_rollup_1
+        local zoneCoords = rollupConfig.interactionZone.coords
+        local outsideCoords = vector3(zoneCoords.x + 20.0, zoneCoords.y, zoneCoords.z)
+        -- Poza właściwą strefą (nie wyzwala auto-open), ale w zasięgu
+        -- serwerowej walidacji dystansu dla toggleLock.
+        local nearbyCoords = vector3(zoneCoords.x + 8.0, zoneCoords.y, zoneCoords.z)
+
+        logInfo("^3========== Full-Flow Auto-Door Test (Mechanic) ==========^0")
+        logTest("isGarageRollup client helper works", isGarageRollup("garage_rollup_1") == true)
+        logTest("isGarageRollup rejects lifts", isGarageRollup("prompt_sandy_is_lift_2") == false)
+
+        logInfo("Step 1: Teleporting outside zone...")
+        SetEntityCoordsNoOffset(ped, outsideCoords.x, outsideCoords.y, outsideCoords.z, false, false, false)
+        Wait(500)
+
+        local locks = GlobalState.sandy_compound_locks or {}
+        logTest("Door starts locked", locks[targetRollupName] == true)
+
+        local propStates = GlobalState.sandy_compound or {}
+        logTest("Door starts closed", not propStates[targetRollupName])
+
+        logInfo("Step 2: Teleporting into zone (door locked)...")
+        SetEntityCoordsNoOffset(ped, zoneCoords.x, zoneCoords.y, zoneCoords.z, false, false, false)
+        Wait(1500)
+
+        propStates = GlobalState.sandy_compound or {}
+        logTest("Locked door does NOT auto-open", not propStates[targetRollupName])
+
+        logInfo("Step 3: Teleporting out...")
+        SetEntityCoordsNoOffset(ped, outsideCoords.x, outsideCoords.y, outsideCoords.z, false, false, false)
+        Wait(1000)
+
+        logInfo("Step 4: Unlocking door (near, but outside the auto-open zone)...")
+        SetEntityCoordsNoOffset(ped, nearbyCoords.x, nearbyCoords.y, nearbyCoords.z, false, false, false)
+        Wait(500)
+        TriggerServerEvent("compound_anims:toggleLock", targetRollupName)
+        Wait(1000)
+
+        locks = GlobalState.sandy_compound_locks or {}
+        logTest("Door is now unlocked", locks[targetRollupName] == false)
+
+        logInfo("Step 5: Teleporting into zone (door unlocked)...")
+        SetEntityCoordsNoOffset(ped, zoneCoords.x, zoneCoords.y, zoneCoords.z, false, false, false)
+        Wait(2000)
+
+        propStates = GlobalState.sandy_compound or {}
+        logTest("Unlocked door auto-opens on zone enter", propStates[targetRollupName] == true)
+
+        logInfo("Step 6: Waiting for animation to finish...")
+        local startTime = GetGameTimer()
+        while true do
+            local busy = GlobalState.sandy_compound_busy or {}
+            if not busy[targetRollupName] then break end
+            if GetGameTimer() - startTime > 8000 then break end
+            Wait(200)
+        end
+
+        local busyState = GlobalState.sandy_compound_busy or {}
+        logTest("Busy flag clears after animation", not busyState[targetRollupName])
+
+        logInfo("Step 7: Teleporting out of zone...")
+        SetEntityCoordsNoOffset(ped, outsideCoords.x, outsideCoords.y, outsideCoords.z, false, false, false)
+        Wait(Config.AutoOpenCloseDelay + 2000)
+
+        propStates = GlobalState.sandy_compound or {}
+        logTest("Door auto-closes after leaving zone", not propStates[targetRollupName])
+
+        logInfo("Step 8: Re-locking door (cleanup, near but outside the auto-open zone)...")
+        local relockStart = GetGameTimer()
+        while true do
+            local busyAfterClose = GlobalState.sandy_compound_busy or {}
+            if not busyAfterClose[targetRollupName] then break end
+            if GetGameTimer() - relockStart > 8000 then break end
+            Wait(200)
+        end
+        SetEntityCoordsNoOffset(ped, nearbyCoords.x, nearbyCoords.y, nearbyCoords.z, false, false, false)
+        Wait(500)
+        TriggerServerEvent("compound_anims:toggleLock", targetRollupName)
+        Wait(1000)
+
+        locks = GlobalState.sandy_compound_locks or {}
+        logTest("Door re-locked for cleanup", locks[targetRollupName] == true)
+
+        logInfo("^3---------- Results ----------^0")
+        for _, logLine in ipairs(resultsLog) do
+            print("[TEST] " .. logLine)
+        end
+
+        logInfo(string.format("^3========== %d passed, %d failed ==========^0", passedTests, failedTests))
+        lib.notify({
+            description = string.format("Auto-door flow test: %d passed, %d failed", passedTests, failedTests),
+            type = failedTests == 0 and "success" or "error",
+            duration = 8000
+        })
+    end)
+end, false)
+
+-- Główny wątek inicjalizujący skrypt
+-- (stan początkowy GlobalState ustawia wyłącznie serwer przy starcie)
+CreateThread(function()
+    createInteractionZones()
+    createSpawnPoints()
+    registerPropStateHandlers()
+    debugPrint("[COMPOUND ANIMS ENABLED] Sistema de props animados iniciado.")
+end)

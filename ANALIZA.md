@@ -933,3 +933,85 @@ i zostały w całości przepisane na czytelny, idiomatyczny kod Lua:
     `Bank`, `Marina` i `Boathouse` znikają z listy `Missing`, a wygenerowany link ma dokładną postać:
     `https://vertex-hub.com/prompt/map-data/sandy-rework/Firestation2+Hospital2+Apts+Bank+Market+Gas+Church+Cityhall+Marina+Boathouse+Sheriff`.
 - **Stan repozytorium:** zero zmian w jakimkolwiek folderze `stream/`.
+
+## 15. Runda: `prompt_sandy_classic_car_dealership` i `prompt_sandy_mechanic`
+
+Data: 2026-10-22. Zakres: dwa zasoby dodane najnowszym commitem `add classic_car_dealership & mechanic`.
+Przeniesiono do nich ustalone wcześniej zasady czyszczenia i napraw, bez edycji assetów w `stream/`.
+
+### 15.1. `sv_loader.lua` → lokalny `sv_mapdata.lua` w obu zasobach
+
+- Usunięto oba jawne loadery dekompilatora, które pobierały mutowalny kod z GitHuba i wykonywały go przez
+  `load()` (wraz ze zdalnym checkerem i telemetrią opisaną w 7.1).
+- Dodano lokalne `sv_mapdata.lua` z handlerami `mapExists` / `i_exist` / `locations` / `mapFullNameSend` /
+  `mapFinal`, callbackami przez `pcall` i bez jakiejkolwiek komunikacji sieciowej:
+  - `prompt_sandy_classic_car_dealership/sv_mapdata.lua` → `MAP_ID = "prompt_sandy_classic_car_dealership"`,
+    `MAP_NAME = "Dealer"`, `MAP_LOCATIONS = { "sandy" }`;
+  - `prompt_sandy_mechanic/sv_mapdata.lua` → `MAP_ID = "prompt_sandy_compound"`,
+    `MAP_NAME = "Mechanic"`, `MAP_LOCATIONS = { "sandy" }`.
+- Identyfikatory i nazwy są zgodne z `PROMPT_MAP_REGISTRY` oraz listą w
+  `cfx_prompt_sandy_mapdata/sv_MapDataHandler.lua`; żadna z tych wspólnych list nie wymagała zmian.
+- Oba manifesty ładują teraz `sv_mapdata.lua` zamiast `sv_loader.lua`.
+
+### 15.2. Mechanic: przepisanie kodu dekompilatora i przeniesienie napraw z garażu
+
+Przepisano `client/client.lua`, `client/utils.lua` i `server/server.lua` na czytelny Lua. Zachowano
+konfigurację **3 podnośników i 5 rolet**, identyfikatory modeli/animacji, eventy `compound_anims:*`,
+stany `sandy_compound*`, lokalne eventy `prompt_sandy_mechanic:*` i eksporty. Nie dodano nowej komendy
+`/testanims`, której ten zasób pierwotnie nie miał.
+
+Najważniejsze naprawy (wzór z rund 8–11 i poprawek 9.3):
+
+- **`isGarageRollup`:** uszkodzona dekompilacja zwracała wynik samego `type(propName) == "string"`,
+  więc AutoOpen mogło traktować jako roletę każdy prop, także podnośniki. Funkcja rozpoznaje teraz
+  wyłącznie nazwy `garage_rollup_<liczba>`; w configu jest ich dokładnie pięć.
+- **Autorytatywny serwer:** ręczne zmiany przechodzą przez `compound_anims:requestToggleProp`;
+  serwer sprawdza prop, żądany boolean, dystans do strefy, uprawnienia, `busy` i bieżący stan.
+  Usunięto klientodecyzyjne `initializeState`, `updatePropState`, `setPropBusy`,
+  `requestPlayerAnimation` i `animatePropAfterPlayerAnim`.
+- **Watchdog `busy`:** tokeny i timery zwalniają blokadę także po przerwaniu interakcji; synchronizacja
+  animacji gracza ma whitelistę, a AutoOpen waliduje pozycję, zajętość strefy i zamki.
+- **Animacje i kolizje:** `PlayEntityAnim` odtwarza klip raz (`bLoop=false`) i trzyma ostatnią klatkę;
+  ruch `coords` ma zgodny kierunek (`open = endCoords`, `close = startCoords`), obsługiwany jest także
+  `rotation`, a kolizja statyczna jest pomijana. Spawn propów ma retry i ochronę przed duplikatami.
+- **Konfiguracja kliencka:** dodano brakujące `Config.InteractionKey`; `EnablePlayerAnimations` jest
+  egzekwowane serwerowo; klient używa `IsAceAllowed` zamiast serwerowej natywki i akceptuje nazwę
+  frameworka `qbcore`. Opóźnienia kolizji rolet mają jednoznaczne wartości `0 ms`.
+- **Manifest:** dodano `dependency 'ox_lib'`, usunięto zduplikowane `dependency '/assetpacks'` i martwy,
+  zakomentowany blok starych skryptów serwerowych.
+
+### 15.3. Wspólna permisja komend Mechanic
+
+Wszystkie trzy istniejące komendy zasobu sprawdzają `command.sandyshores` ręcznie w handlerze,
+a `RegisterCommand` ma `restricted=false` (zasada z rozdz. 11):
+
+- `/testsound` (client),
+- `/testautodoors_flow` (client),
+- `/testautodoors` (server; konsola `source=0` nadal jest dozwolona, gracz wymaga ACE).
+
+Test flow używa `garage_rollup_1`, a serwerowy test rozpoznaje wszystkie pięć zamków i nie miesza
+podnośników z roletami.
+
+### 15.4. Classic Car Dealership
+
+Klient nadal wyłącza stare wnętrze `v_barbers`; jego logika nie wymagała zmian. Zasób otrzymał wyłącznie
+porządki w manifeście i bezpieczną, lokalną rejestrację mapdata jako `Dealer`.
+
+### 15.5. Weryfikacja
+
+- **Składnia:** `luaparser` — **69/69** plików `.lua` poza `stream/` w całym repozytorium.
+- **Mocki FiveM (Lua 5.4): 67/67 sprawdzeń:**
+  - 48 serwerowych/mapdata: inicjalizacja pięciu zamków, brak zamków na podnośnikach, ręczny lift,
+    odrzucenie dystansu/nieznanego propa, watchdog, pełny cykl unlock/open/close rolet, niezależność
+    pozostałych rolet, standalone fail-closed, ACE komendy, test konsolowy bez błędów oraz callbacki
+    mapdata (także callable-ref o typie inny niż `function`) dla `Mechanic` i `Dealer`;
+  - 19 klienckich/zasobów: dokładnie 8 stref interakcji + 5 stref AutoOpen, 8 pointów spawnu,
+    bramki ACE, spawn liftu z kolizją, flagi animacji bez pętli, kierunek kolizji w obie strony,
+    klient Dealera oraz podstawowe testy utility.
+- **Spójność statyczna:** eventy klient→serwer mają handlery 1:1, stare eventy klientodecyzyjne nie są
+  aktywne, manifesty wskazują istniejące pliki, a w obu nowych zasobach nie ma wzorców dekompilatora
+  ani `sv_loader.lua`.
+- `git diff --check` przechodzi, a status Gita potwierdza **zero zmian w `stream/`**.
+
+Do smoke testu w grze: każdy z 3 podnośników, wszystkie 5 rolet (zamek, AutoOpen, wyjście ze strefy),
+interakcje ox_target/E, restart zasobu przy graczu w zasięgu oraz raport mapdata z `Mechanic` i `Dealer`.

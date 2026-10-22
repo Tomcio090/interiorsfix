@@ -1,5 +1,5 @@
 Config.EnableAnimations = true -- Enable/Disable all animated props
-Config.EnablePlayerAnimations = true -- Enable/Disable player interaction animations
+Config.EnablePlayerAnimations = true -- Enable/Disable player interaction animations (enforced server-side)
 Config.Debug = false -- Enable/Disable debug messages in console
 Config.UseOxTarget = true -- Use ox_target for interactions (if available)
 Config.AutoOpen = true                  -- Enable auto-open for all garage rollup doors
@@ -20,10 +20,18 @@ Config.Permissions = {
     
     -- If you want to use ACE permissions instead of jobs, set this to true
     -- Then set acePermission on each prop (e.g. acePermission = "compound.lift")
+    -- NOTE: a prop WITHOUT acePermission falls back to allowedJobs (both client
+    -- HasJobAccess and server ServerHasJobAccess behave the same way).
     useAce = false,
     
     -- Default message when player doesn't have access
     noAccessMessage = "You don't have access to this"
+}
+
+-- Interaction key configuration
+Config.InteractionKey = {
+    control = 38,  -- Control ID (38 = E, 47 = G, 23 = F, 74 = H, 18 = Enter)
+    display = "E"  -- Display text for UI
 }
 
 Config.Messages = {

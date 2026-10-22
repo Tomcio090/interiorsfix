@@ -31,7 +31,9 @@ local function getFramework()
             detectedFramework = 'standalone'
         end
     else
-        detectedFramework = fw
+        -- Serwer nazywa ten sam framework 'qbcore' — przyjmij obie nazwy,
+        -- żeby klient i serwer nie rozjeżdżały się przy ręcznej konfiguracji.
+        detectedFramework = (fw == 'qbcore') and 'qb' or fw
     end
     
     return detectedFramework
@@ -98,8 +100,10 @@ local function getPlayerJobName()
 end
 
 -- Check if player has ACE permission
+-- UWAGA: IsPlayerAceAllowed(source, perm) to natywka SERWEROWA. Po stronie
+-- klienta odpowiednikiem jest IsAceAllowed(permission) (lokalny gracz).
 local function hasAcePermission(permission)
-    return IsPlayerAceAllowed(PlayerId(), permission)
+    return IsAceAllowed(permission)
 end
 
 -- Get prop config by name

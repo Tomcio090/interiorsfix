@@ -4,17 +4,15 @@ game 'gta5'
 this_is_a_map 'yes'
 lua54 'yes'
 
--- map by---:
 author 'Prompt Studio'
 scripts_author 'Infames Dev'
 description 'Sandy Shores Mechanic'
 version '1.2.4'
 
-
 data_file 'DLC_ITYP_REQUEST' 'stream/anims/prompt_sandy_compound_anims.ytyp'
 
 files {
-	'stream/anims/prompt_sandy_compound_anims.ytyp'
+    'stream/anims/prompt_sandy_compound_anims.ytyp'
 }
 
 escrow_ignore {
@@ -40,12 +38,9 @@ client_scripts {
 }
 
 server_scripts {
-	'sv_loader.lua',
-    'server/*.lua',
-    --[['sv_Tokens.lua',
-	'sv_MapChainHandler.lua',
-	'sv_MapVersionCheck.lua'--]]
+    'sv_mapdata.lua',
+    'server/*.lua'
 }
 
-dependency '/assetpacks'
+dependency 'ox_lib'
 dependency '/assetpacks'
