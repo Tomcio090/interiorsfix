@@ -1,9 +1,3 @@
-/*
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-*/
-
 *,
 *::before,
 *::after {
@@ -325,26 +319,4 @@ body {
 #close-hint {
     color: var(--accent) !important;
     font-weight: 600
-}
-
-/* FiveVault Watermark Branding */
-.fivevault-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 2px 7px;
-    background: rgba(88, 101, 242, 0.15);
-    border: 1px solid rgba(88, 101, 242, 0.4);
-    border-radius: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-.fivevault-badge .fv-brand {
-    color: #5865F2;
-    font-weight: 700;
-}
-.fivevault-badge .fv-net {
-    color: #94a3b8;
 }

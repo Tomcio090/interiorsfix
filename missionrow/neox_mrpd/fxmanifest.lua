@@ -1,15 +1,9 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 fx_version 'cerulean'
 game 'gta5'
 lua54 "yes"
 
-author 'Neonix3D | FiveVault'
-description 'Mission Row Police Department | Downloaded from FiveVault (https://fivevault.net)'
+author 'Neonix3D'
+description 'Mission Row Police Department'
 version '1.0.0'
 
 this_is_a_map 'yes'

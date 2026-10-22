@@ -1,8 +1,3 @@
-/*
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-*/
 "use strict";
 (function(){
 function _0x1a8f(){const _0x_arr=['b3ZlcmxheQ==','ZG9jLXRpdGxl','ZG9jLXN1YnRpdGxl','ZG9jLWJvZHk=','Y2xvc2UtYnRu','Y29udGVudC1hcmVh','bWVzc2FnZQ==','YWN0aW9u','dHlwZQ==','b3Blbg==','U0hPV19BUkNISVZF','dGV4dENvbnRlbnQ=','aGVhZGVyX3RpdGxl','aGVhZGVyX3N1YnRpdGxl','c3Rvcnk=','dWktYmFkZ2U=','YmFkZ2VfdGV4dA==','dWktcmFuay1sYWJlbA==','bGFiZWxfcmFuaw==','dWktbmFtZS1sYWJlbA==','bGFiZWxfbmFtZQ==','dWktYmFkZ2UtbGFiZWw=','bGFiZWxfYmFkZ2U=','dWktc2VydmljZS1sYWJlbA==','bGFiZWxfc2VydmljZQ==','dWktc3RhdHVzLWxhYmVs','bGFiZWxfc3RhdHVz','dmFsLXJhbms=','dmFsX3Jhbms=','dmFsLW5hbWU=','dmFsX25hbWU=','dmFsLWJhZGdl','dmFsX2JhZGdl','dmFsLXNlcnZpY2U=','dmFsX3NlcnZpY2U=','dmFsLXN0YXR1cw==','dmFsX3N0YXR1cw==','dWktZm9vdGVyLWNvcHk=','Zm9vdGVyX2NvcHk=','Y2xvc2UtaGludA==','Zm9vdGVyX2Nsb3Nl','b2ZmaWNlci1waG90bw==','cGhvdG8=','c3Jj','Y2xhc3NMaXN0','cmVtb3Zl','aGlkZGVu','c2Nyb2xsVG9w','Y2xvc2U=','SElERV9BUkNISVZF','YWRk','Y2xpY2s=','YWRkRXZlbnRMaXN0ZW5lcg==','a2V5ZG93bg==','a2V5','Y29udGFpbnM=','TmVveE5VSQ==','cG9zdA==','Y2xvc2VBcmNoaXZl','R2V0UGFyZW50UmVzb3VyY2VOYW1l','ZnVuY3Rpb24=','aHR0cHM6Ly8=','Lw==','UE9TVA==','Q29udGVudC1UeXBl','YXBwbGljYXRpb24vanNvbg==','Z2V0RWxlbWVudEJ5SWQ=','bmVveF9tcnBkX3NjcmlwdHM='];_0x1a8f=function(){return _0x_arr;};return _0x1a8f();}

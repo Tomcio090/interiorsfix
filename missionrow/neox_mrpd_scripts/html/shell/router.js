@@ -1,8 +1,3 @@
-/*
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-*/
 "use strict";
 (function () {
     const FRAME_NAMES = ['cctv', 'projector', 'killhouse', 'range', 'archive'];

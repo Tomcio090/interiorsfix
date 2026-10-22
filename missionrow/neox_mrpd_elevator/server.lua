@@ -1,11 +1,5 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 -- =========================================================
--- NEOX MRPD — ELEVATOR (server) [FiveVault]
+-- NEOX MRPD — ELEVATOR (server)
 -- =========================================================
 -- The server is the authority on where every cabin is and what it is
 -- doing. Clients only interpolate between the stops it publishes.
@@ -221,8 +215,7 @@ CreateThread(function()
     local count = 0
     for _ in pairs(shafts) do count = count + 1 end
 
-    print('^5[FiveVault]^7 neox_mrpd_elevator initialized - https://fivevault.net | discord.gg/fivevault')
-    print(('^2[%s]^7 server ready - %d shaft(s) ^5[FiveVault]^7'):format(Neox.Resource, count))
+    print(('^2[%s]^7 server ready - %d shaft(s)'):format(Neox.Resource, count))
 end)
 
 -- ---------------------------------------------------------

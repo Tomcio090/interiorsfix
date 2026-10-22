@@ -1,9 +1,3 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 local INTERIOR_ENTITY_SETS = {
     neox_mrpd_interior_02 = {
         coords = vec3(457.204041, -996.1263, 36.091465),

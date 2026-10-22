@@ -1,9 +1,3 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 print("[NEOX POLY] ^2Script loading...^7")
 
 if not NeoxConfig then

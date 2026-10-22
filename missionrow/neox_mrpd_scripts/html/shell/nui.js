@@ -1,8 +1,3 @@
-/*
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-*/
 "use strict";
 (function(){
 function _0x7c7c(){const _0x_arr=['ZnVuY3Rpb24=', 'cmVz', 'bmVveF9tcnBkX3NjcmlwdHM=', 'aHR0cHM6Ly8=', 'Lw==', 'UE9TVA==', 'Q29udGVudC1UeXBl', 'YXBwbGljYXRpb24vanNvbjsgY2hhcnNldD1VVEYtOA==', 'aW5wdXQsIHRleHRhcmVhLCBzZWxlY3QsIFtjb250ZW50ZWRpdGFibGU9InRydWUiXQ==', 'Y29udGV4dG1lbnU=', 'bWVzc2FnZQ==', 'b2JqZWN0', 'a2V5ZG93bg==', 'cGFzdGU=', 'dGV4dA==', 'dGV4dC9wbGFpbg=='];_0x7c7c=function(){return _0x_arr;};return _0x7c7c();}

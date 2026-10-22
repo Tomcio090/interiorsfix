@@ -1,9 +1,3 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 local ELEVATOR_RESOURCE = "neox_mrpd_elevator"
 local ELEVATOR_ENTITY_SET = "static_elev_01"
 local ELEVATOR_COORDS = vector3(457.204, -996.127, 36.091)

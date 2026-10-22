@@ -1,11 +1,5 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 -- =========================================================
--- NEOX MRPD — SERVER CORE [FiveVault]
+-- NEOX MRPD — SERVER CORE
 -- =========================================================
 -- Loads first, so every module server can rely on:
 --
@@ -199,7 +193,7 @@ AddEventHandler('playerDropped', function()
 end)
 
 -- ---------------------------------------------------------
--- Boot banner [FiveVault]
+-- Startup diagnostics
 -- ---------------------------------------------------------
 CreateThread(function()
     Bridge.await(10000)
@@ -212,11 +206,7 @@ CreateThread(function()
     end
     table.sort(enabled)
 
-    print('^5=============================================================^7')
-    print('^5 [FiveVault] neox_mrpd_scripts - https://fivevault.net    ^7')
-    print('^5 Discord: https://discord.gg/fivevault                     ^7')
-    print('^5=============================================================^7')
-    print(('^2[neox_mrpd_scripts]^7 server ready — framework: %s | modules: %s ^5[FiveVault]^7'):format(
+    print(('^2[neox_mrpd_scripts]^7 server ready — framework: %s | modules: %s'):format(
         Bridge.type or Config.Framework,
         #enabled > 0 and table.concat(enabled, ', ') or 'none'
     ))
