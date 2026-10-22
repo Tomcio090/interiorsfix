@@ -590,6 +590,62 @@ function ExitPanelView()
 end
 
 -- ---------------------------------------------------------
+-- ox_target: cabin panel
+-- ---------------------------------------------------------
+local function PanelTargetName(shaftId)
+    return ('neox_mrpd_elevator:%s:panel'):format(shaftId)
+end
+
+local function CanOpenPanelTarget(shaftId)
+    local runtime = shaftRuntime[shaftId]
+    if not (runtime and runtime.isInCabin and panelCam == nil) then return false end
+    if not (runtime.entity and DoesEntityExist(runtime.entity)) then return false end
+    if CanInteractWithElevator and not CanInteractWithElevator(shaftId) then return false end
+
+    return true
+end
+
+local function RegisterCabinTarget(shaftId)
+    local runtime = shaftRuntime[shaftId]
+    if not (runtime and runtime.entity and DoesEntityExist(runtime.entity)) then return end
+    if runtime.panelTarget or GetResourceState('ox_target') ~= 'started' then return end
+
+    local optionName = PanelTargetName(shaftId)
+
+    exports.ox_target:addLocalEntity(runtime.entity, {
+        {
+            name     = optionName,
+            icon     = Config.Interaction.target.panelIcon,
+            label    = Config.Interaction.text.panel,
+            distance = Config.Interaction.target.panelDistance,
+            canInteract = function()
+                return CanOpenPanelTarget(shaftId)
+            end,
+            onSelect = function()
+                if CanOpenPanelTarget(shaftId) then
+                    -- Keeps the existing animated camera and mouse panel intact.
+                    EnterPanelView(shaftId)
+                end
+            end,
+        },
+    })
+
+    runtime.panelTarget = optionName
+end
+
+local function UnregisterCabinTarget(shaftId)
+    local runtime = shaftRuntime[shaftId]
+    if not runtime then return end
+
+    local optionName = runtime.panelTarget
+    runtime.panelTarget = nil
+
+    if optionName and runtime.entity and GetResourceState('ox_target') == 'started' then
+        exports.ox_target:removeLocalEntity(runtime.entity, optionName)
+    end
+end
+
+-- ---------------------------------------------------------
 -- Keeping props in the right interior room
 -- ---------------------------------------------------------
 -- Props spawned outside the MRPD interior get culled by the portal system,
@@ -858,6 +914,7 @@ function BuildShaft(shaftId)
 
     DriveCabin(shaftId, true)
     DriveDoors(shaftId)
+    RegisterCabinTarget(shaftId)
 
     return true
 end
@@ -907,6 +964,7 @@ function ClearShaft(shaftId)
     runtime.poseStop = nil
 
     if runtime.entity then
+        UnregisterCabinTarget(shaftId)
         cabinVolumeCache[runtime.entity] = nil
         DeleteEntity(runtime.entity)
         runtime.entity = nil
@@ -1494,6 +1552,92 @@ function RequestCabinAtStop(shaftId, stopId)
 end
 
 -- ---------------------------------------------------------
+-- ox_target: landing call buttons
+-- ---------------------------------------------------------
+local callTargetZones = {}
+
+local function CanUseCallTarget(shaftId, stopId)
+    local runtime = shaftRuntime[shaftId]
+    if runtime and runtime.isInCabin then return false end
+    if CanInteractWithElevator and not CanInteractWithElevator(shaftId) then return false end
+
+    -- Preserve the existing debug behaviour; normal play can call every stop.
+    if Config.Debug.enabled and ReadShaftState(shaftId, 'stop', 1) == stopId then
+        return false
+    end
+
+    return true
+end
+
+local function CreateCallTargets()
+    if GetResourceState('ox_target') ~= 'started' then return end
+
+    for shaftId, shaft in pairs(Config.Shafts) do
+        for stopId, stop in pairs(shaft.stops or {}) do
+            local zoneKey = ('%s:%s'):format(shaftId, tostring(stopId))
+            local callPos = GetStopCallPoint(stop)
+
+            if callPos and not callTargetZones[zoneKey] then
+                local optionName = ('neox_mrpd_elevator:%s:call:%s'):format(
+                    shaftId, tostring(stopId))
+
+                callTargetZones[zoneKey] = exports.ox_target:addSphereZone({
+                    name    = optionName,
+                    coords  = callPos,
+                    radius  = shaft.callRadius or 1.5,
+                    options = {
+                        {
+                            name     = optionName,
+                            icon     = Config.Interaction.target.callIcon,
+                            label    = Config.Interaction.text.call,
+                            distance = Config.Interaction.target.callDistance,
+                            canInteract = function()
+                                return CanUseCallTarget(shaftId, stopId)
+                            end,
+                            onSelect = function()
+                                if CanUseCallTarget(shaftId, stopId) then
+                                    -- Keeps the existing walk-up, turn and bell animation.
+                                    RequestCabinAtStop(shaftId, stopId)
+                                end
+                            end,
+                        },
+                    },
+                })
+            end
+        end
+    end
+end
+
+local function RemoveCallTargets()
+    if GetResourceState('ox_target') == 'started' then
+        for _, zoneId in pairs(callTargetZones) do
+            exports.ox_target:removeZone(zoneId)
+        end
+    end
+
+    callTargetZones = {}
+end
+
+-- Rebuild client-side targets if ox_target is restarted independently.
+AddEventHandler('onResourceStart', function(resourceName)
+    if resourceName ~= 'ox_target' then return end
+
+    callTargetZones = {}
+    CreateCallTargets()
+
+    for shaftId, runtime in pairs(shaftRuntime) do
+        runtime.panelTarget = nil
+        RegisterCabinTarget(shaftId)
+    end
+end)
+
+CreateThread(function()
+    -- Let every client script finish loading before options can be selected.
+    Wait(0)
+    CreateCallTargets()
+end)
+
+-- ---------------------------------------------------------
 -- Per-frame shaft work
 -- ---------------------------------------------------------
 -- Attack, aim, melee and weapon-wheel controls, blocked while riding.
@@ -1516,7 +1660,6 @@ end
 
 local IDLE_SLEEP = 150
 local VOLUME_DRAW_DISTANCE = 6.0
-local CALL_PROMPT_MARGIN = 2.5
 local CABIN_ACTIVE_DISTANCE = 4.0
 local CABIN_CHECK_DISTANCE = 6.0
 
@@ -1566,47 +1709,10 @@ function RunShaftFrame(shaftId)
 
     if runtime.isInCabin then
         busy = true
-
-        if CanInteractWithElevator and CanInteractWithElevator(shaftId) then
-            if panelCam == nil then
-                DrawTopNotification(Config.Interaction.text.panel)
-
-                if IsControlJustReleased(0, 51) then
-                    EnterPanelView(shaftId)
-                end
-            end
-        end
     else
         -- Stepped out of the cabin while the panel was up.
         if panelCam ~= nil and panelShaftId == shaftId then
             ExitPanelView()
-        end
-
-        for callStopId, callStop in pairs(shaft.stops) do
-            -- The floor the cabin is already parked at is skipped, but only
-            -- while debug is on; normal play offers a call prompt on every
-            -- floor. (Preserved from the original.)
-            local skip = (stopId == callStopId) and Config.Debug.enabled
-
-            if not skip then
-                local callPos = GetStopCallPoint(callStop)
-                local dist = (callPos and #(pedCoords - callPos)) or math.huge
-                local radius = shaft.callRadius or 2.0
-
-                if dist < radius + CALL_PROMPT_MARGIN then
-                    busy = true
-                end
-
-                if dist < radius then
-                    if not (CanInteractWithElevator and not CanInteractWithElevator(shaftId)) then
-                        DrawTopNotification(Config.Interaction.text.call)
-
-                        if IsControlJustReleased(0, 51) then
-                            RequestCabinAtStop(shaftId, callStopId)
-                        end
-                    end
-                end
-            end
         end
     end
 
@@ -1819,6 +1925,7 @@ end)
 AddEventHandler('onResourceStop', function(resourceName)
     if resourceName ~= GetCurrentResourceName() then return end
 
+    RemoveCallTargets()
     ExitPanelView()
 
     for shaftId in pairs(Config.Shafts) do
