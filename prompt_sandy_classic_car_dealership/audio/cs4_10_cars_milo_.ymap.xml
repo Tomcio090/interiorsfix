@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CMapData>
+ <name>cs4_10_cars_milo_</name>
+ <parent>h_cs4_10_cars_lods</parent>
+ <flags value="0" />
+ <contentFlags value="73" />
+ <streamingExtentsMin x="1809.77429" y="3617.47437" z="-28.4388466" />
+ <streamingExtentsMax x="2025.9552" y="3832.934" z="96.0901947" />
+ <entitiesExtentsMin x="1891.73584" y="3699.436" z="31.5611534" />
+ <entitiesExtentsMax x="1943.99365" y="3750.97266" z="36.0901947" />
+ <entities>
+  <Item type="CMloInstanceDef">
+   <archetypeName>int_cars</archetypeName>
+   <flags value="1572872" />
+   <guid value="0" />
+   <position x="1919.15649" y="3726.05151" z="33.82295" />
+   <rotation x="0" y="0" z="-0.5" w="0.8660254" />
+   <scaleXY value="1" />
+   <scaleZ value="1" />
+   <parentIndex value="2" />
+   <lodDist value="60" />
+   <childLodDist value="0" />
+   <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+   <numChildren value="0" />
+   <priorityLevel>PRI_REQUIRED</priorityLevel>
+   <extensions />
+   <ambientOcclusionMultiplier value="255" />
+   <artificialAmbientOcclusion value="255" />
+   <tintValue value="0" />
+   <groupId value="0" />
+   <floorId value="0" />
+   <defaultEntitySets />
+   <numExitPortals value="0" />
+   <MLOInstflags value="0" />
+  </Item>
+ </entities>
+ <containerLods itemType="rage__fwContainerLodDef" />
+ <boxOccluders itemType="BoxOccluder" />
+ <occludeModels itemType="OccludeModel" />
+ <physicsDictionaries>
+  <Item>int_cars</Item>
+ </physicsDictionaries>
+ <instancedData>
+  <ImapLink />
+  <PropInstanceList itemType="rage__fwPropInstanceListDef" />
+  <GrassInstanceList itemType="rage__fwGrassInstanceListDef" />
+ </instancedData>
+ <timeCycleModifiers itemType="CTimeCycleModifier" />
+ <carGenerators itemType="CCarGen" />
+ <LODLightsSOA>
+  <direction itemType="FloatXYZ" />
+  <falloff />
+  <falloffExponent />
+  <timeAndStateFlags />
+  <hash />
+  <coneInnerAngle />
+  <coneOuterAngleOrCapExt />
+  <coronaIntensity />
+ </LODLightsSOA>
+ <DistantLODLightsSOA>
+  <position itemType="FloatXYZ" />
+  <RGBI />
+  <numStreetLights value="0" />
+  <category value="0" />
+ </DistantLODLightsSOA>
+ <block>
+  <version value="0" />
+  <flags value="0" />
+  <name>cs4_10_cars_milo_</name>
+  <exportedBy>CodeWalker</exportedBy>
+  <owner></owner>
+  <time>25 tammikuuta 2025 22.19</time>
+ </block>
+</CMapData>

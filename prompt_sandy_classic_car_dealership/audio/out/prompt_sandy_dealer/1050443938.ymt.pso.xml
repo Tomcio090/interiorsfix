@@ -1,0 +1,2293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<naOcclusionInteriorMetadata>
+  <PortalInfoList itemType="naOcclusionPortalInfoMetadata">
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="1089595736"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1348721786"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="2"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1348721786"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="3"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="4"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="5"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="6"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="7"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="2"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="8"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="2"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="9"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="3"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-664582244"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="10"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="3"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="11"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="4"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="12"/>
+      <RoomIdx value="0"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="4"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="1089595736"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1348721786"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="2"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1348721786"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="3"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="4"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="5"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="6"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="7"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="2"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-358323599"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="8"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="2"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="9"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="3"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-2057953322"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="10"/>
+      <RoomIdx value="1"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="5"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-358323599"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="2"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="2"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="2"/>
+      <RoomIdx value="2"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-358323599"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="3"/>
+      <RoomIdx value="2"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="3"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-664582244"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="3"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="2"/>
+      <RoomIdx value="3"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-2057953322"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="3"/>
+      <RoomIdx value="3"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="6"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="1173348778"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="4"/>
+      <RoomIdx value="3"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="4"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="4"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="4"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="0"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-1558008169"/>
+          <IsDoor value="false"/>
+          <IsGlass value="true"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="2"/>
+      <RoomIdx value="4"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="3"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata"/>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="3"/>
+      <RoomIdx value="4"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="5"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-2057953322"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="5"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="4"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-2057953322"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="1"/>
+      <RoomIdx value="5"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="1"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="-358323599"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+    <Item>
+      <InteriorProxyHash value="1050443938"/>
+      <PortalIdx value="0"/>
+      <RoomIdx value="6"/>
+      <DestInteriorHash value="1050443938"/>
+      <DestRoomIdx value="3"/>
+      <PortalEntityList itemType="naOcclusionPortalEntityMetadata">
+        <Item>
+          <LinkType value="1"/>
+          <MaxOcclusion value="0"/>
+          <EntityModelHashkey value="1173348778"/>
+          <IsDoor value="true"/>
+          <IsGlass value="false"/>
+        </Item>
+      </PortalEntityList>
+    </Item>
+  </PortalInfoList>
+  <PathNodeList itemType="naOcclusionPathNodeMetadata">
+    <Item>
+      <Key value="-870621205"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-602559779"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1472196081"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1562013357"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="870621207"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="13"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="14"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="15"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="16"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="17"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="18"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="19"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="268061427"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-601574875"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1483661249"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="602559781"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="24"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="25"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-268061425"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1472196083"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="28"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="29"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="601574877"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="344914585"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-89817275"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1562013359"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="33"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="34"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="89817277"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-792269097"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1483661251"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="792269099"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-344914583"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-870621204"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-268061425"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-268061425"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="601574877"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="601574877"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-602559778"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1472196080"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817277"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817277"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1562013356"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-89817275"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-89817275"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1940684842"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269097"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269097"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1127281496"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="344914585"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="344914585"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="870621208"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="13"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="14"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="15"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="16"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="17"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="18"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="19"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="602559781"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="602559781"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1472196083"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="268061428"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-601574874"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-691392150"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-89817275"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="792269099"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1483661248"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-256660290"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="344914585"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="602559782"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621207"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="870621207"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="24"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="25"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-268061424"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-869636300"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1751722674"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1472196084"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621207"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="28"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="29"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1562013359"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="601574878"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="869636304"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-89817274"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-882086372"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661249"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269097"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="344914586"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1562013360"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="1472196083"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="33"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="34"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="691392154"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="601574877"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1483661251"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="89817278"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-792269096"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="434731862"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="344914585"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1940684838"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621207"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1562013359"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1483661252"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1751722678"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="268061427"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="882086376"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-601574875"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817277"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="792269100"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1127281500"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="1472196083"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="256660294"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="601574877"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-344914582"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-434731858"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-89817275"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-870621203"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-268061424"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-268061424"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="601574878"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="601574878"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="691392154"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="691392154"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-602559777"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="869636304"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="869636304"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1472196079"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-869636300"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-869636300"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817278"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817278"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1562013355"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-89817274"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-89817274"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1940684843"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1751722674"/>
+          <PortalInfoIdx value="7"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1751722674"/>
+          <PortalInfoIdx value="8"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-882086372"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-882086372"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269096"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269096"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1127281495"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="0"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="1"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="2"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="3"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="4"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="5"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="6"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="344914586"/>
+          <PortalInfoIdx value="9"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="344914586"/>
+          <PortalInfoIdx value="10"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="434731862"/>
+          <PortalInfoIdx value="11"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="434731862"/>
+          <PortalInfoIdx value="12"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="870621209"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="13"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="14"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="15"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="16"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="17"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="18"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="19"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="602559782"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="602559782"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1472196084"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1940684838"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="268061429"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="869636304"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1751722678"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-601574873"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-869636300"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-869636300"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="882086376"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-691392149"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-89817274"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="792269100"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1483661247"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="23"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1751722674"/>
+          <PortalInfoIdx value="20"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1751722674"/>
+          <PortalInfoIdx value="21"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-882086372"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-256660289"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="344914586"/>
+          <PortalInfoIdx value="22"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="602559783"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621208"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="870621208"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="24"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="25"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-268061423"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-869636299"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-959453575"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1751722673"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-524721715"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="26"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="27"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1472196085"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621208"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="28"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="29"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1562013360"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1127281500"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="601574879"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="691392154"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="256660294"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="869636305"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-89817273"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-434731858"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-882086371"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-1483661248"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-792269096"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="344914587"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="30"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="31"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="434731862"/>
+          <PortalInfoIdx value="32"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1562013361"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="1472196084"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="33"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="34"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="-1940684838"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="691392155"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="601574878"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1483661252"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="959453581"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="869636304"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1751722678"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="89817279"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="882086376"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-792269095"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-882086372"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="36"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="434731863"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="344914586"/>
+          <PortalInfoIdx value="35"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1940684837"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="870621208"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="1562013360"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1483661253"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="691392154"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1751722679"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="268061428"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="882086377"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-601574874"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="89817278"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="792269101"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-691392150"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1227000961"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-256660290"/>
+          <PortalInfoIdx value="38"/>
+        </Item>
+        <Item>
+          <PathNodeKey value="434731862"/>
+          <PortalInfoIdx value="37"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="1127281501"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="1472196084"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="256660295"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="601574878"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="524721721"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="869636304"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-344914581"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="0"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-434731857"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-89817274"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+    <Item>
+      <Key value="-1227000955"/>
+      <PathNodeChildList itemType="naOcclusionPathNodeChildMetadata">
+        <Item>
+          <PathNodeKey value="-882086372"/>
+          <PortalInfoIdx value="39"/>
+        </Item>
+      </PathNodeChildList>
+    </Item>
+  </PathNodeList>
+</naOcclusionInteriorMetadata>

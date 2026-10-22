@@ -1,0 +1,1 @@
+if you want your gates to the compound to be closed to use doorlock and etc, replace this ymap inside cfx_prompt_sandy_mapdata
