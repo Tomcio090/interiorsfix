@@ -8,5 +8,5 @@ client_scripts {
   'client.lua'
 }
 server_scripts {
-  'sv_loader.lua'
+  'sv_mapdata.lua'
 }
