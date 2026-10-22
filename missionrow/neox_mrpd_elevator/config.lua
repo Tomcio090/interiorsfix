@@ -106,8 +106,8 @@ Config.Interaction = {
     lockDoors  = false,
 
     target = {
-        callDistance  = 2.0,
-        panelDistance = 2.5,
+        callDistance  = 1.0,
+        panelDistance = 1.5,
         callIcon      = 'fa-solid fa-elevator',
         panelIcon     = 'fa-solid fa-list-ol',
     },
@@ -115,7 +115,6 @@ Config.Interaction = {
     text = {
         call       = 'Wezwij windę',
         panel      = 'Użyj panelu',
-        leavePanel = 'Press ~INPUT_FRONTEND_CANCEL~ (ESC / Right Click) to exit panel',
     },
 }
 
@@ -161,11 +160,9 @@ Config.Shafts = {
         },
 
         panel = {
-            -- Static ox_target box, recreated at this cabin-relative offset
-            -- whenever the cabin is stationary. Set debug = true to see it.
             target = {
                 offset = vec3(1.08, 0.567, 0.2125),
-                size   = vec3(0.35, 0.30, 0.45),
+                size   = vec3(0.35, 0.30, 0.9),
                 debug  = false,
             },
             camera = {
@@ -186,9 +183,9 @@ Config.Shafts = {
         },
 
         stops = {
-            [1] = { 31.272, 'Main Lobby', '1', '1' },
-            [2] = { 35.382, 'Offices', '2', '2' },
-            [3] = { 39.81, 'Detective Offices / Meeting Room', '3', '3' },
+            [1] = { 31.272, 'Parter', '1', '1' },
+            [2] = { 35.382, 'Biura', '2', '2' },
+            [3] = { 39.81, 'Biura dedektywistyczne', '3', '3' },
         },
     },
 
@@ -217,11 +214,9 @@ Config.Shafts = {
         },
 
         panel = {
-            -- Static ox_target box, recreated at this cabin-relative offset
-            -- whenever the cabin is stationary. Set debug = true to see it.
             target = {
                 offset = vec3(1.08, 0.567, 0.2125),
-                size   = vec3(0.35, 0.30, 0.45),
+                size   = vec3(0.35, 0.30, 0.9),
                 debug  = false,
             },
             camera = {
@@ -255,9 +250,9 @@ Config.Shafts = {
         },
 
         stops = {
-            [1]  = { 31.27087, 'Main Lobby', '1', '1' },
-            [-1] = { 26.24461, 'Garage / Cells', '-1', '-1' },
-            [-2] = { 19.2332, 'SWAT Floor', '-2', '-2' },
+            [1]  = { 31.27087, 'Parter', '1', '1' },
+            [-1] = { 26.24461, 'Garaże / Cele', '-1', '-1' },
+            [-2] = { 19.2332, 'S.W.A.T', '-2', '-2' },
         },
     },
 }

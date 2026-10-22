@@ -743,17 +743,6 @@ CreateThread(function()
                 if laptopNear then
                     anyScreenNear = true
                     Proj.activateScreen(entry.laptop, 'laptop', index)
-
-                    if promptsAllowed and laptopHeight <= 2.5 and laptopFlat < reach then
-                        if not editorOpen then
-                            sleep = 0
-                            Notify.show(cfg.Locale.help_open)
-
-                            if IsControlJustReleased(0, 38) then
-                                Proj.requestOpen(index)
-                            end
-                        end
-                    end
                 else
                     Proj.deactivateScreen(entry.laptop)
                 end

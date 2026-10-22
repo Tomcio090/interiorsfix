@@ -153,7 +153,7 @@ Locales['pl'].killhouse = {
 -- ---------------------------------------------------------
 Locales['pl'].projector = {
     -- ===== Teksty w grze =====
-    help_open    = 'Naciśnij ~INPUT_CONTEXT~, aby uzyskać dostęp do projektora.',
+    help_open    = 'Naciśnij [E], aby uzyskać dostęp do projektora.',
     target_label = 'Otwórz Konsolę Prezentacji',
     no_access    = 'Nie masz dostępu do tej konsoli.',
     in_use       = '~r~Inny użytkownik korzysta obecnie z konsoli.',

@@ -962,7 +962,7 @@ function ClearShaft(shaftId)
     local runtime = shaftRuntime[shaftId]
     if not runtime then return end
 
-    ReleaseScriptAudioBank('Freight_Elevator')
+    ReleaseScriptAudioBank()
 
     if runtime.landingDoors then
         for _, doors in pairs(runtime.landingDoors) do
@@ -1625,7 +1625,7 @@ local function CreateCallTargets()
                     name    = optionName,
                     coords  = callPos,
                     radius  = shaft.callRadius or 1.5,
-                    debug = true,
+                    debug = false,
                     options = {
                         {
                             name     = optionName,
@@ -1923,21 +1923,11 @@ CreateThread(function()
                         end
                     end
 
-                    if Config.Debug.drawVolumes
-                        and not (IsButtonTuningActive and IsButtonTuningActive())
-                    then
+                    if Config.Debug.drawVolumes then
                         for _, entry in ipairs(drawn) do
                             local hovered = entry.floor == hoveredFloor
 
-                            DrawMarker(28,
-                                entry.coords.x, entry.coords.y, entry.coords.z,
-                                0.0, 0.0, 0.0,
-                                0.0, 0.0, 0.0,
-                                hitRadius, hitRadius, hitRadius,
-                                hovered and 0 or 255,
-                                hovered and 255 or 200,
-                                90, 90,
-                                false, false, 2, false, nil, nil, false)
+                            DrawMarker(28, entry.coords.x, entry.coords.y, entry.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, hitRadius, hitRadius, hitRadius, hovered and 0 or 255, hovered and 255 or 200, 90, 90, false, false, 2, false, "", "", false)
                         end
                     end
 
