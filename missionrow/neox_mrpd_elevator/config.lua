@@ -102,12 +102,19 @@ Config.Panels = {
 -- INTERACTION
 -- ============================================================
 Config.Interaction = {
-    disabled   = false, -- true removes the call / panel prompts entirely
+    disabled   = false, -- true hides all call / panel target options
     lockDoors  = false,
 
+    target = {
+        callDistance  = 2.0,
+        panelDistance = 2.5,
+        callIcon      = 'fa-solid fa-elevator',
+        panelIcon     = 'fa-solid fa-list-ol',
+    },
+
     text = {
-        call       = '~INPUT_CONTEXT~ to call elevator',
-        panel      = '~INPUT_CONTEXT~ to use elevator panel',
+        call       = 'Call elevator',
+        panel      = 'Use elevator panel',
         leavePanel = 'Press ~INPUT_FRONTEND_CANCEL~ (ESC / Right Click) to exit panel',
     },
 }
