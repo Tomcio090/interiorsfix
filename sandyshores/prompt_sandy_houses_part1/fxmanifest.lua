@@ -19,7 +19,7 @@ lua54 'yes'
 
 
 server_scripts{
-	'sv_loader.lua'
+	'sv_mapdata.lua'
 }
 
 client_scripts {

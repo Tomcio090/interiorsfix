@@ -1015,3 +1015,55 @@ porządki w manifeście i bezpieczną, lokalną rejestrację mapdata jako `Deale
 
 Do smoke testu w grze: każdy z 3 podnośników, wszystkie 5 rolet (zamek, AutoOpen, wyjście ze strefy),
 interakcje ox_target/E, restart zasobu przy graczu w zasięgu oraz raport mapdata z `Mechanic` i `Dealer`.
+
+## 16. Runda: `prompt_sandy_roads`, `prompt_sandy_corner` i `prompt_sandy_houses_part1`
+
+Data: 2026-10-23. Zakres: trzy kolejne zasoby Sandy, bez edycji assetów w `stream/` i bez zmian
+w zakończonym `missionrow/`.
+
+### 16.1. Lokalna rejestracja mapdata
+
+Wszystkie trzy manifesty ładują teraz `sv_mapdata.lua` zamiast `sv_loader.lua`. Fizyczny loader
+istniał tylko w `prompt_sandy_houses_part1` i został usunięt wraz z pobieraniem zdalnego kodu,
+`load()` i ścieżką telemetrii; w `roads` oraz `corner` pozostały po nim jedynie martwe referencje
+w manifestach.
+
+Nowe, w pełni lokalne pliki rejestrują `mapExists`, `promptmap:i_exist_*`, `promptmap:locations_*`,
+`mapFullNameSend` i pusty `mapFinal`. Callbacki są wywoływane przez `pcall`, bez filtrowania
+referencji funkcyjnych FXServera przez `type(cb) == "function"`. Wpisy są zgodne ze wspólnymi
+rejestrami:
+
+- `prompt_sandy_roads` → `Roads`, lokalizacja `sandy`;
+- `prompt_sandy_corner` → `Corner`, lokalizacja `sandy`;
+- `sandy_shores_houses_pt1` → `Houses1`, lokalizacja `sandy` (identyfikator różni się od nazwy folderu).
+
+`cfx_prompt_sandy_mapdata/sv_MapDataHandler.lua` oraz `PROMPT_MAP_REGISTRY` zawierały już wszystkie
+trzy identyfikatory i nazwy, dlatego nie dodano duplikatów ani nie zmieniono wspólnych list.
+
+### 16.2. Kod zasobów
+
+- `prompt_sandy_corner/client.lua`: zapis dekompilatora zastąpiono czytelną tabelą `interiors`;
+  IPL, współrzędne oraz trzy entity sety i ich flagi są zachowane 1:1. Oryginalny skrypt jedynie
+  tworzył lokalną tabelę, więc nie dodano nowej logiki ani efektów ubocznych.
+- `prompt_sandy_houses_part1`: pozostałe skrypty klienta i konfiguracja były już czytelne oraz nie
+  zawierały wzorców dekompilatora; poza podmianą loadera nie wymagały zmian.
+- `prompt_sandy_roads`: zasób nie ma własnego kodu logiki poza manifestem; otrzymał wyłącznie
+  lokalną rejestrację mapdata.
+- Żaden z trzech zasobów nie definiuje komend `RegisterCommand`, więc nie było uprawnień ACE do
+  przenoszenia z wcześniejszych rund.
+
+### 16.3. Weryfikacja
+
+- **Składnia:** `luaparser` — **136/136** plików `.lua` w repozytorium poza `stream/`, w tym **10/10**
+  plików trzech zasobów objętych tą rundą.
+- **Manifesty:** wszystkie referencje `client_scripts`/`server_scripts` wskazują istniejące pliki;
+  w trzech manifestach nie ma już `sv_loader.lua`. W repozytorium pozostało **0** fizycznych plików
+  `sv_loader.lua` i **0** plików Lua ze wzorcami identyfikatorów dekompilatora poza `stream/`.
+- **Mocki Lua:** każda z trzech rejestracji przeszła testy obu eventów istnienia, lokalizacji `sandy`,
+  nazwy przez `mapFullNameSend`, pustego `mapFinal`, błędów callbacków i niepoprawnych argumentów.
+- **Corner:** porównanie wykonanych tabel Lua potwierdziło równoważność danych z wersją z `HEAD`.
+- **Zakres:** `git diff --check` przechodzi; nie ma zmian w `missionrow/` ani w żadnym `stream/`.
+
+Test na FXServerze nie był dostępny. Do smoke testu w grze: restart trzech zasobów, poprawne
+wykrycie `Roads`, `Corner` i `Houses1` w raporcie mapdata oraz wizualna kontrola dróg, kręgielni
+i domów z wybranym trybem entity setów.
