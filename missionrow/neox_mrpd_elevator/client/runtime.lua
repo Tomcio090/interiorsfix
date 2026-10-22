@@ -591,7 +591,7 @@ local function PanelTargetName(shaftId)
 end
 
 local function IsCabinMoving(runtime, phase)
-    return phase == Neox.Phase.TRAVELLING or (runtime.trip and not runtime.trip.finished)
+    return phase == Neox.Phase.TRAVELLING or (runtime and runtime.trip and not runtime.trip.finished)
 end
 
 local function CanOpenPanelTarget(shaftId)
@@ -1597,8 +1597,12 @@ local function CanUseCallTarget(shaftId, stopId)
     if runtime and runtime.isInCabin then return false end
     if CanInteractWithElevator and not CanInteractWithElevator(shaftId) then return false end
 
-    -- Preserve the existing debug behaviour; normal play can call every stop.
-    if Config.Debug.enabled and ReadShaftState(shaftId, 'stop', 1) == stopId then
+    -- A parked cabin cannot be called to its current floor. Once it starts
+    -- travelling, that floor becomes available again so calls can be queued.
+    local currentStop = ReadShaftState(shaftId, 'stop', 1)
+    local phase = ReadShaftState(shaftId, 'phase', Neox.Phase.IDLE)
+
+    if currentStop == stopId and not IsCabinMoving(runtime, phase) then
         return false
     end
 
