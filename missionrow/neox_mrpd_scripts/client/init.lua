@@ -1,11 +1,5 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 -- =========================================================
--- NEOX MRPD — CLIENT BOOTSTRAP [FiveVault]
+-- NEOX MRPD — CLIENT BOOTSTRAP
 -- =========================================================
 -- Validates the framework/language settings, prints the load banner
 -- and undoes every world-level change the pack makes when it stops.
@@ -42,8 +36,7 @@ CreateThread(function()
     end
     table.sort(enabledModules)
 
-    print('^5[FiveVault]^7 Loaded neox_mrpd_scripts - https://fivevault.net | discord.gg/fivevault')
-    print(('^2[neox_mrpd_scripts]^7 loaded — framework: %s | language: %s | modules: %s ^5[FiveVault]^7'):format(
+    print(('^2[neox_mrpd_scripts]^7 loaded — framework: %s | language: %s | modules: %s'):format(
         Bridge.type or Config.Framework,
         Config.Language,
         #enabledModules > 0 and table.concat(enabledModules, ', ') or 'none'

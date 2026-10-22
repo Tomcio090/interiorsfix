@@ -1,9 +1,3 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 -- =========================================================
 -- NEOX MRPD — KILL HOUSE (client)
 -- =========================================================

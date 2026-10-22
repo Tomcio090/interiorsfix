@@ -1,15 +1,6 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 -- =========================================================
--- NEOX MRPD — ELEVATOR RUNTIME (client) [FiveVault]
+-- NEOX MRPD — ELEVATOR RUNTIME (client)
 -- =========================================================
-CreateThread(function()
-    print('^5[FiveVault]^7 Loaded neox_mrpd_elevator - https://fivevault.net | discord.gg/fivevault')
-end)
 -- Spawns and drives the cabin and door props, carries riders along,
 -- and owns the on-prop button panel view.
 --
@@ -355,21 +346,11 @@ function IsPedInCabin(ped, cabin, shaftId, cabinCoords, pedCoords)
         + delta.y * volume.up.y
         + delta.z * volume.up.z
 
-    -- ⚠ PRESERVED FROM THE DECOMPILE, AND ALMOST CERTAINLY INCOMPLETE.
-    -- alongForward and alongUp are computed and then never used, and only
-    -- the lower X plane is tested, so this returns true for anyone standing
-    -- on the +right side of the cabin centre. The bytecode clearly computed
-    -- all three axes, so the remaining comparisons were lost. Config.Ride.
-    -- volume.useModelBounds is false by default, which means THIS is the
-    -- path that actually runs. To restore the full box test, replace the
-    -- return below with:
-    --
-    --   return alongRight   >= volume.min.x and alongRight   <= volume.max.x
-    --      and alongForward >= volume.min.y and alongForward <= volume.max.y
-    --      and alongUp      >= volume.min.z and alongUp      <= volume.max.z
-    --
-    local _, _ = alongForward, alongUp
-    return alongRight >= volume.min.x
+    -- Only peds inside the full 3D cabin volume may become riders. In
+    -- particular, a ped calling the elevator from the landing must stay put.
+    return alongRight >= volume.min.x and alongRight <= volume.max.x
+        and alongForward >= volume.min.y and alongForward <= volume.max.y
+        and alongUp >= volume.min.z and alongUp <= volume.max.z
 end
 
 -- Debug overlay: the twelve edges of the cabin box.

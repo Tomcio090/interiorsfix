@@ -1,9 +1,3 @@
-================================================================================
-  FiveVault - The #1 FiveM & RedM Resource Hub
-  Website: https://fivevault.net
-  Discord: https://discord.gg/fivevault
-================================================================================
-
 This folder holds the server's own persisted state. The files appear the
 first time something is written and are plain JSON, so they can be read,
 edited or deleted while the server is stopped.

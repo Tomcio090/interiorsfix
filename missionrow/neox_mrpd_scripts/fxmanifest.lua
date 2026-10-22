@@ -1,16 +1,10 @@
---[[
-    FiveVault - The #1 FiveM & RedM Resource Hub
-    Website: https://fivevault.net
-    Discord: https://discord.gg/fivevault
-]]
-
 fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
 name 'neox_mrpd_scripts'
-author 'frazydevelopment | FiveVault'
-description 'Neonix3D — MRPD scripts feature pack | Downloaded from FiveVault (https://fivevault.net)'
+author 'frazydevelopment'
+description 'Neonix3D — MRPD scripts feature pack'
 version '1.0.0'
 
 shared_scripts {
