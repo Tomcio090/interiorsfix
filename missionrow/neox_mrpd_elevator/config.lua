@@ -113,8 +113,8 @@ Config.Interaction = {
     },
 
     text = {
-        call       = 'Call elevator',
-        panel      = 'Use elevator panel',
+        call       = 'Wezwij windę',
+        panel      = 'Użyj panelu',
         leavePanel = 'Press ~INPUT_FRONTEND_CANCEL~ (ESC / Right Click) to exit panel',
     },
 }
@@ -148,7 +148,7 @@ Config.Shafts = {
         plan = {
             doorModel  = 'v_ilev_garageliftdoor',
             slide      = 0.9,
-            callRadius = 1.2,
+            callRadius = 0.2,
             landing = {
                 left  = vec4(-0.7429, 0.8884, -1.5998, 0.01),
                 right = vec4(0.7601, 0.8884, -1.5998, 179.98),
@@ -157,7 +157,7 @@ Config.Shafts = {
                 left  = vec4(-0.736, 0.772, -1.577, 0.0),
                 right = vec4(0.756, 0.777, -1.611, -179.47),
             },
-            call = vec4(0.0367, 1.3715, -0.562, 176.51),
+            call = vec4(-0.8, 1.1, -0.2, 176.51),
         },
 
         panel = {
@@ -197,7 +197,7 @@ Config.Shafts = {
         plan = {
             doorModel  = 'v_ilev_garageliftdoor',
             slide      = 0.9,
-            callRadius = 1.2,
+            callRadius = 0.2,
             landing = {
                 left  = vec4(-0.7429, 0.8884, -1.5998, 0.01),
                 right = vec4(0.7601, 0.8884, -1.5998, 179.98),
@@ -206,7 +206,7 @@ Config.Shafts = {
                 left  = vec4(-0.736, 0.772, -1.577, 0.0),
                 right = vec4(0.756, 0.777, -1.611, -179.47),
             },
-            call = vec4(-0.0231, 1.4215, -0.563, 179.77),
+            call = vec4(-0.8, 1.1, -0.2, 176.51),
         },
 
         panel = {

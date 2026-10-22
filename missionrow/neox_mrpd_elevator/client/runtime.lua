@@ -110,12 +110,6 @@ end)
 -- ---------------------------------------------------------
 -- Drawing / maths helpers
 -- ---------------------------------------------------------
-function DrawTopNotification(text)
-    AddTextEntry('MRPD_ELEV_HELP', text)
-    BeginTextCommandDisplayHelp('MRPD_ELEV_HELP')
-    EndTextCommandDisplayHelp(0, false, false, -1)
-end
-
 function RotationToDirection(rotation)
     local radians = vector3(
         (math.pi / 180) * rotation.x,
@@ -1585,6 +1579,7 @@ local function CreateCallTargets()
                     name    = optionName,
                     coords  = callPos,
                     radius  = shaft.callRadius or 1.5,
+                    debug = true,
                     options = {
                         {
                             name     = optionName,
@@ -1812,7 +1807,6 @@ CreateThread(function()
             sleep = 0
 
             if not IsPauseMenuActive() and not IsNuiFocused() then
-                DrawTopNotification(Config.Interaction.text.leavePanel)
                 SetMouseCursorActiveThisFrame()
                 DisablePlayerFiring(PlayerId(), true)
 
